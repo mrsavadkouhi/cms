@@ -1,0 +1,233 @@
+{% load jalali_date %}
+{% load static %}
+{% load humanize %}
+
+{% if form.errors %}
+    <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
+    {% for field in form %}
+        {% for error in field.errors %}
+        <h1> {{ field.name }}: {{ error }} </h1>
+    {% endfor %}
+    {% endfor %}
+    </div>
+{% endif %}
+{% for error in form.non_field_errors %}
+    <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
+    <h1> {{ error }} </h1>
+    </div>
+{% endfor %}
+
+<form id="form-task-{{ obj.id }}" class="m-t" role="form" method="post" action="{% url 'centers:task_update' pk=obj.id %}" enctype="multipart/form-data">
+{% csrf_token %}
+
+<div class="col-lg-3 text-center">
+<div class="input-group mb-2">
+  <div class="input-group-append">
+    <span class="input-group-text" id="name_label">نام</span>
+  </div>
+  <input readonly type="text" class="form-control" name="name" value="{{ obj.name }}" id="name-{{ obj.id }}" aria-describedby="name_label">
+</div>
+{% if obj.task %}
+<div class="input-group mb-2">
+  <div class="input-group-append">
+    <span class="input-group-text" id="name_label">تسک</span>
+  </div>
+  <input readonly type="text" name="task" class="form-control" value="{{ obj.task.name }}" id="name-{{ obj.id }}" aria-describedby="name_label">
+</div>
+{% endif %}
+<div class="input-group mb-2">
+  <div class="input-group-append">
+    <span class="input-group-text" id="name_label">پروژه</span>
+  </div>
+  <input readonly type="text" name="project" class="form-control" value="{% if obj.task %}{{ obj.task.project.name }}{% else %}{{ obj.project.name }}{% endif %}" id="name-{{ obj.id }}" aria-describedby="name_label">
+</div>
+<div class="input-group mb-2">
+  <div class="input-group-append">
+    <span class="input-group-text" id="employee_label"><i class="fa fa-users"></i>اعضا</span>
+  </div>
+<select disabled name="employee" id="edit-employee-{{ obj.id }}" class="select2 form-control">
+    {% for obj in employees %}
+            <option value="{{ obj.id }}">{{ obj }}</option>
+    {% endfor %}
+</select>
+</div>
+<div class="input-group mb-2">
+      <div class="input-group-append">
+        <span class="input-group-text" id="status_label">وضعیت</span>
+      </div>
+    <select disabled name="status" id="edit-status-{{ obj.id }}" class="select2 form-control">
+        <option value="to_do">جهت انجام</option>
+        <option value="inprogress">در حال انجام</option>
+        <option value="completed">انجام شده</option>
+        <option value="verified">تایید شده</option>
+    </select>
+</div>
+<div class="input-group mb-2">
+      <div class="input-group-append">
+        <span class="input-group-text" id="status_label">وزن</span>
+      </div>
+    <select disabled name="weight" id="edit-weight-{{ obj.id }}" class="select2 form-control">
+        <option value="5">۵</option>
+        <option value="4">۴</option>
+        <option value="3">۳</option>
+        <option value="2">۲</option>
+        <option value="1">۱</option>
+    </select>
+</div>
+<div class="input-group mb-2">
+  <div class="input-group-append">
+    <span class="input-group-text" id="to_label"><i class="fa fa-clock"></i>ددلاین</span>
+  </div>
+  <input readonly name="to_be_finished" type="datetime" id="datepicker-task-{{ obj.id }}" class="form-control" aria-describedby="to_label">
+</div>
+</div>
+<div class="col-lg-9 text-right">
+<div class="input-group mb-2">
+<div class="input-group-append">
+<span class="input-group-text" id="description_label">توضیحات: </span>
+</div>
+<textarea readonly name="description" type="text" class="form-control" id="description-{{ obj.id }}" aria-describedby="description_label">{% if obj.description %}{{ obj.description }}{% else %} {% endif %}</textarea>
+</div>
+<div class="input-group mb-2">
+  <div class="input-group-append">
+    <span class="input-group-text" id="pay_label"><i class="fa fa-money-bill"></i>مبلغ قرارداد(تومان)</span>
+  </div>
+  <input readonly name="payment" type="number" class="form-control" value="{{ obj.payment }}" id="task-payment-{{ obj.id }}" aria-describedby="pay_label">
+</div>
+    </form>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="input-group mb-2">
+                <div class="input-group-append">
+                    <span class="input-group-text" id="pay_label"><i class="fa fa-tasks"></i>زیرتسک ها</span>
+                </div>
+                <div class="input-group-append">
+                    <button disabled type="button" class="btn btn-sm btn-outline-primary" onclick="subtask_create({{ obj.id }},'{{ obj.name }}','{% if subtask.employee.avatar %}{{ obj.employee.avatar.url }}{% else %}{% static 'img/user.png' %}{% endif %}');"> <i class="fa fa-plus"></i> افزودن</button>
+                  </div>
+                  <input readonly type="text" class="form-control" placeholder="نام زیرتسک" id="subtask-inputname-{{ obj.id }}" aria-describedby="name_label">
+            </div>
+        </div>
+    </div>
+    {% if not obj.subtask_set.all %}
+    <br>
+    <br>
+    <p class="text-center">تاکنون زیرتسکی اضافه نشده است.</p><br>
+    <br>
+    {% endif %}
+    <div class="row" id="subtasks-{{ obj.id }}">
+    {% for subtask in obj.subtask_set.all %}
+        <div class="col-lg-3">
+        <li class="{% if subtask.status == 'to_do' %}danger{% elif subtask.status == 'inprogress' %}warning{% elif subtask.status == 'completed' %}success{% else %}info{% endif %}-element" style="background-color: lightyellow" id="subtask-{{ subtask.id }}-{{ subtask.status }}">
+        {% if user.is_superuser or user.profile.is_supermanager or user.profile.is_centermanager or project.manager == user.profile %} <i class="fa fa-times-circle" style="color: red" onclick="$('#delete-modal-subtask-{{ subtask.id }}').modal();"></i><br>{% endif %}
+        {% if subtask.task %}
+            <span><i class="fa fa-reply"></i> ({{ subtask.task.name }})</span>
+        {% endif %}
+        <h5>{{ subtask.name }}</h5>
+        <div class="row agile-detail">
+            <div class="col-md-6 text-right">
+            {% if subtask.employee %}
+                <img class="rounded-circle img-avatar" style="height: 30px;width: 30px" src="{% if subtask.employee.avatar %}{{ obj.employee.avatar.url }}{% else %}{% static 'img/user.png' %}{% endif %}">
+            {% endif %}
+            </div>
+            <div class="col-md-6 text-left">
+                {% if subtask.to_be_finished %}
+                    {% if subtask.to_be_finished < now %}
+                        <span style="color: green">{{ subtask.to_be_finished | j_format_date:"%Y/%m/%d" }} <i class="fa fa-clock"></i></span>
+                        {% else %}
+                        <span style="color: red">{{ subtask.to_be_finished | j_format_date:"%Y/%m/%d" }} <i class="fa fa-clock"></i></span>
+                        {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        </li>
+        </div>
+    {% endfor %}
+    </div>
+    <br>
+    <div class="input-group mb-2">
+        <div class="input-group-append">
+            <span class="input-group-text" id="pay_label"><i class="fa fa-file"></i>فایل های پیوست</span>
+        </div>
+        <input readonly type="text" class="form-control" aria-describedby="name_label">
+    </div>
+    <br>
+    {% if not obj.attachments.all.exists %}
+        <br>
+        <p class="text-center">تاکنون فایلی پیوست نشده است.</p>
+    {% endif %}
+    <div class="row">
+    {% for file in obj.attachments.all %}
+        <div class="col-lg-3">
+        <h5>{{ file.description }}</h5>
+        <a href="{{ file.file.url }}" class="btn btn-lg btn-outline-primary"><i class="fa fa-download"></i></a>
+        </div>
+    {% endfor %}
+    </div>
+    <div class="col-lg-12">
+        <br>
+        {% include 'tasks/myattach_form.html' %}
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function() {
+        $("#attach-task-{{ obj.id }}").modalForm({
+            formURL: "{% url 'centers:task_attach_create' pk=obj.id %}"
+        });
+    });
+
+    var datepickeroption = {
+                initialValueType: 'gregorian',
+                //inline: true,
+                format: 'YYYY-MM-DD HH:mm',
+                submitButton: {
+                    enabled: true,
+                    text: {
+                        fa: "تایید",
+                        en: "Submit"
+                    }
+                },
+                navigator: {
+                    scroll: {
+                        enabled: false
+                    }
+                },
+                calendar: {
+                    persian: {
+                        leapYearMode: 'astronomical'
+                    }
+                },
+                timePicker: {
+                    enabled: true,
+                    step: 5,
+                    hour: {
+                        enabled: true,
+                        step: 1
+                    },
+                    minute: {
+                        enabled: true,
+                        step: 1
+                    },
+                    second: {
+                        enabled: false,
+                        step: 20
+                    },
+                    meridian: {
+                        enabled: true
+                    }
+                },
+            };
+
+    var datepicker_{{ obj.id }} = $("#datepicker-task-{{ obj.id }}").persianDatepicker(datepickeroption);
+    $('#datepicker-task-{{ obj.id }}').val('{{ obj.to_be_finished | j_format_date:"%Y-%m-%d %H:%M" }}');
+
+         $('#form-task-{{ obj.id }}').submit(function () {
+
+             if ($('#datepicker-task-{{ obj.id }}').val() === '') {
+                 $('#datepicker-task-{{ obj.id }}').val('');
+             } else {
+                 $('#datepicker-task-{{ obj.id }}').val(datepicker_{{ obj.id }} .getState().selected.dateObject.toCalendar('gregorian').toLocale('en').format('YYYY-MM-DD HH:mm'));
+             }
+         });
+</script>

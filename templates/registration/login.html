@@ -1,0 +1,76 @@
+{% extends 'empty_base.html' %}
+{% load staticfiles %}{% load widget_tweaks %}{% load i18n %}
+
+{% block title %}ورود{% endblock %}
+
+{% block content %}
+	<div class="middle-box loginscreen text-center animated fadeInDown">
+		<div>
+
+			{#			<h1 class="logo-name">SCA</h1>#}
+			<img src="{% static 'img/logo.png' %}" style="width: 300px"/>
+
+		</div>
+		<h3>سامانه مدیریت مراکز</h3>
+		<p>نسخه 1.0</p>
+
+		<form class="m-t" role="form" method="post" onsubmit="return formcheck();">
+			{% csrf_token %}
+
+			{% if redirect_field_value %}
+				<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" placeholder=""/>
+			{% endif %}
+
+			<div id="error">
+				{% if form.errors %}
+					<div class="alert alert-danger">
+
+						{% for field, error in form.errors.items %}
+							<p>{% if field != '__all__' %}{{ field }} : {% endif %}
+								{{ error | striptags }}</p>
+						{% endfor %}
+
+					</div>
+				{% endif %}
+			</div>
+
+			<div class="form-group" id="login_group">
+				{% render_field form.username class='form-control text-right' placeholder="نام کاربری" %}
+			</div>
+
+
+			<div class="form-group" id="pass_group">
+				{% render_field form.password class='form-control text-right' placeholder="رمز عبور" %}
+			</div>
+
+			<button type="submit" class="btn btn-primary block full-width m-b">ورود</button>
+
+			<a href="{% url 'authentication:password_reset' %}">
+				<small>رمز عبور خود را فراموش کرده اید؟</small>
+			</a>
+
+		</form>
+		<p class="m-t">
+			<small>MR.Savadkouhi &copy; 2021-{% now "Y" %}</small>
+		</p>
+	</div>
+{% endblock %}
+
+{% block script %}
+	<script>
+		function formcheck() {
+			$('#login_group').removeClass('has-error');
+			$('#pass_group').removeClass('has-error');
+
+			if ($("#id_login").val() == "") {
+				document.getElementById("error").innerHTML = "<div class='alert alert-danger'><p>" + "The Login field is required." + "</p></div>";
+				$('#login_group').addClass('has-error');
+				return false;
+			} else if ($("#id_password").val() == "") {
+				document.getElementById("error").innerHTML = "<div class='alert alert-danger'><p>" + "The Password field is required." + "</p></div>";
+				$('#pass_group').addClass('has-error');
+				return false;
+			}
+		}
+	</script>
+{% endblock %}

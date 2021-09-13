@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load jalali_date %}
+{% load helper_filter %}
+
+
+{% block head_title %}فهرست کاربران{% endblock %}
+
+{% block title-breadcrumb %}
+	<div class="col-md-10">
+                    <br>
+                    <br>
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a>پیشخوان</a>
+			</li>
+			<li class="breadcrumb-item active">
+				<a href="{% url 'dashboard:myprojectpacks' %}"><strong>پک پروژه های من</strong></a>
+			</li>
+		</ol>
+	</div>
+
+	<div class="col-md-2">
+	</div>
+{% endblock %}
+
+{% block content %}
+        <div class="col-lg-12">
+            <h3>پک پروژه های تحت مدیریت من</h3>
+            <br>
+            {% if not object.projectpack_manager.exists %}
+                <p>پک پروژه ای تحت مدیریت شما وجود ندارد.</p>
+            {% endif %}
+            {% for pack in object.projectpack_manager.all %}
+                <div class="card col-lg-3 offset-1 text-center">
+                    <h3><a href="{% url 'centers:projectpack_details' pack.id %}">{{ pack.name }}</a></h3>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="col-lg-12">
+        <br>
+        <br>
+        </div>
+        <div class="col-lg-12">
+            <h3>پک پروژه های تحت نظارت من</h3>
+            <br>
+            {% if not object.projectpack_monitoring_manager.exists %}
+                <p>پک پروژه ای تحت نظارت شما وجود ندارد.</p>
+            {% endif %}
+            {% for pack in object.projectpack_monitoring_manager.all %}
+                <div class="card col-lg-3 offset-1 text-center">
+                    <h3><a href="{% url 'centers:projectpack_details' pack.id %}">{{ pack.name }}</a></h3>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="col-lg-12">
+        <br>
+        <br>
+        </div>
+        <div class="col-lg-12">
+            <h3>پروژه های تحت مدیریت من</h3>
+            <br>
+            {% if not object.project_manager.exists %}
+                <p>پروژه ای تحت مدیریت شما وجود ندارد.</p>
+            {% endif %}
+            {% for project in object.project_manager.all %}
+                <div class="card col-lg-3 offset-1 text-center">
+                    <h3><a href="{% url 'centers:projectpack_project_details' project.id project.project_pack.id %}">{{ project.name }}</a></h3>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="col-lg-12">
+        <br>
+        <br>
+        </div>
+        <div class="col-lg-12">
+            <h3>پروژه های تحت نظارت من</h3>
+            <br>
+            {% if not object.project_monitoring_manager.exists %}
+                <p>پروژه ای تحت نظارت شما وجود ندارد.</p>
+            {% endif %}
+            {% for project in object.project_monitoring_manager.all %}
+                <div class="card col-lg-3 offset-1 text-center">
+                    <h3><a href="{% url 'centers:projectpack_project_details' project.id project.project_pack.id %}">{{ project.name }}</a></h3>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="col-lg-12">
+        <br>
+        <br>
+        </div>
+        <div class="col-lg-12">
+            <h3>پروژه های عضو</h3>
+            <br>
+            {% if not object.project_employees.exists %}
+                <p>شما در هیچ پروژه ای عضو نشدید.</p>
+            {% endif %}
+                {% for project in object.project_employees.all %}
+                <div class="card col-lg-3 offset-1 text-center">
+                    <h3><a href="{% url 'centers:projectpack_project_details' project.id project.project_pack.id %}">{{ project.name }}</a></h3>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="col-lg-12">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        </div>
+
+    	<!-- Delete Modal -->
+	<div class="modal inmodal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">Close</span>
+					</button>
+					<h5 class="modal-title" id="exampleModalLabel">حذف پروژه</h5>
+				</div>
+				<form method="post" id="delete-form">
+					{% csrf_token %}
+					<div class="modal-body">
+						<p class="float-right">
+							آیا واقعا می خواهید
+							<code>
+								<strong id="delete-first-name"></strong>
+								<strong id="delete-last-name"></strong>
+							</code>
+							را حذف کنید؟
+						</p>
+					</div>
+					<div class="modal-footer float-right">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">انصراف</button>
+						<button type="submit" class="btn btn-danger">حذف</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block scripts %}
+    	<link href="{% static 'vendors/datatables/css/datatables.min.css' %}" rel="stylesheet">
+	<script src="{% static 'vendors/datatables/js/datatables-projectpack.min.js' %}"></script>
+	<script src="{% static 'vendors/datatables/js/datatables.bootstrap4.min.js' %}"></script>
+    <script>
+    var table;
+		$(document).ready(function () {
+            table = $('.dataTables-example').DataTable({
+                pageLength: 25,
+                responsive: true,
+                {#dom: '<"html5buttons"B>lTfgitp',#}
+                dom: 'lTfgitp',
+
+            });
+        });
+    </script>
+
+{% endblock %}
+

@@ -1,0 +1,38 @@
+{% include 'django/forms/widgets/select.html' %}
+
+<script>
+	$("#{{ widget.attrs.id }}").removeAttr('required');
+
+	var {{ widget.attrs.id }}_widget_element = $('#{{ widget.attrs.id }}');
+	var {{ widget.attrs.id }}_options = {};
+	var dualbox_option_lookup = {
+		'bootstrap2compatible': 'bootstrap2Compatible',
+		'filtertextclear': 'filterTextClear',
+		'filterplaceholder': 'filterPlaceHolder',
+		'moveselectedlabel': 'moveSelectedLabel',
+		'movealllabel': 'moveAllLabel',
+		'removeselectedlabel': 'removeSelectedLabel',
+		'removealllabel': 'removeAllLabel',
+		'moveonselect': 'moveOnSelect',
+		'preserveselectiononmove': 'preserveSelectionOnMove',
+		'selectedlistlabel': 'selectedListLabel',
+		'nonselectedlistlabel': 'nonSelectedListLabel',
+		'helperselectnamepostfix': 'helperSelectNamePostfix',
+		'selectorminimalheight': 'selectorMinimalHeight',
+		'showfilterinputs': 'showFilterInputs',
+		'nonselectedfilter': 'nonSelectedFilter',
+		'selectedfilter': 'selectedFilter',
+		'infotext': 'infoText',
+		'infotextfiltered': 'infoTextFiltered',
+		'infotextempty': 'infoTextEmpty',
+		'filteronvalues': 'filterOnValues',
+	};
+	$.each($({{ widget.attrs.id }}_widget_element).data(), function (i, v) {
+		if (/^dualbox/.test(i)) {
+			{{ widget.attrs.id }}_match = /^dualbox(.*)/.exec(i);
+			{{ widget.attrs.id }}_options[dualbox_option_lookup[{{ widget.attrs.id }}_match[1].toLowerCase()]] = $({{ widget.attrs.id }}_widget_element).data()[i]
+		}
+	});
+	var {{ widget.attrs.id }}_dualListbox = {{ widget.attrs.id }}_widget_element.bootstrapDualListbox({{ widget.attrs.id }}_options);
+</script>
+

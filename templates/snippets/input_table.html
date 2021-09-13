@@ -1,0 +1,172 @@
+<div class="card">
+	<div class="card-body">
+		{##}
+		{% include 'snippets/list_filter.html' %}
+		{% include 'snippets/pagination.html' %}
+
+		<div class="m-t" role="form" method="post" enctype="multipart/form-data" id="form_add_record">
+			{% include 'snippets/bs4_form.html' with form=form %}
+			<button id="add_record" class="btn btn-primary block m-b">افزودن</button>
+
+		</div>
+		<div class="table-responsive-lg">
+			<form class="m-t" role="form" method="post" enctype="multipart/form-data">
+				{% csrf_token %}
+				{{ forms.management_form }}
+				{#							<inpusamplet type="hidden" name="form-INITIAL_FORMS" value="0" id="id_form-INITIAL_FORMS">#}
+				{#							<input type="hidden" name="form-MIN_NUM_FORMS" value="0" id="id_form-MIN_NUM_FORMS">#}
+				{#							<input type="hidden" name="form-MAX_NUM_FORMS" value="1000" id="id_form-MAX_NUM_FORMS">#}
+				<table class="table table-hover table-striped table-bordered">
+					<thead>
+					<tr>
+						<th>مقدار</th>
+						<th>واحد</th>
+						<th>نام کالا</th>
+						<th>قیمت</th>
+						<th>عملیات</th>
+					</tr>
+					</thead>
+					<tbody id="table">
+					<tr>
+						{% for item in items %}
+							{% if item.packing_list.type == 'i' %}
+								<td><i class="fas fa-check-circle text-navy"></i> {{ item.inklog.amount }}</td>
+								<td>{{ item.inklog.unit }}</td>
+								<td>{{ item.inklog.item }}</td>
+								<td>{{ item.price }}</td>
+								<td></td>
+							{% elif item.packing_list.type == 'l' %}
+								<td><i class="fas fa-check-circle text-navy"></i> {{ item.labellog.amount }}</td>
+								<td>{{ item.labellog.unit }}</td>
+								<td>{{ item.labellog.item }}</td>
+								<td>{{ item.price }}</td>
+								<td></td>
+							{% elif item.packing_list.type == 'material' %}
+								<td><i class="fas fa-check-circle text-navy"></i> {{ item.materiallog.amount }}</td>
+								<td>{{ item.materiallog.unit }}</td>
+								<td>{{ item.materiallog.item }}</td>
+								<td>{{ item.price }}</td>
+								<td></td>
+							{% elif item.packing_list.type == 'p' %}
+								<td><i class="fas fa-check-circle text-navy"></i> {{ item.paperlog.amount }}</td>
+								<td>{{ item.paperlog.unit }}</td>
+								<td>{{ item.paperlog.item }}</td>
+								<td>{{ item.price }}</td>
+								<td></td>
+							{% elif item.packing_list.type == 'c' %}
+								<td><i class="fas fa-check-circle text-navy"></i> {{ item.cellophanelog.amount }}</td>
+								<td>{{ item.cellophanelog.unit }}</td>
+								<td>{{ item.cellophanelog.item }}</td>
+								<td>{{ item.price }}</td>
+								<td></td>
+							{% endif %}
+							</tr>
+							<tr>
+								{#											<td>{{ item.materiallog.amount }}{{ item.paperlog.amount }}{{ item.inklog.amount }}</td>#}
+								{#											<td>{{ item.materiallog.unit }}{{ item.paperlog.unit }}{{ item.inklog.unit }}</td>#}
+								{#											<td>{{ item.materiallog.item }}{{ item.paperlog.item }}{{ item.inklog.item }}</td>#}
+								{#											<td>{{ item.price }}</td>#}
+								{#											<td></td>#}
+								{#										<td><a class="btn btn-primary ">ویرایش</a><a class="btn btn-danger">حذف</a></td>#}
+							</tr>
+						{% endfor %}
+					</tbody>
+
+				</table>
+				<button type="submit" class="btn btn-primary block m-b">ذخیره</button>
+
+			</form>
+
+		</div>
+		<script>
+			var form_count = 0;
+			done = function (e) {
+				$('#table').append(
+					'<tr>' +
+					'<td><input type="hidden" name = \'form-' + form_count + '-amount\'  id = \'id_form-' + form_count + '-amount\' value=\'' + $('#id_amount').val() + '\' readonly><p class="text-danger"><i class="fa fa-times-circle"></i> ' + $('#id_amount').val() + '</p>' + '</td>' +
+					'<td><input type="hidden" name = \'form-' + form_count + '-unit\'  id = \'id_form-' + form_count + '-unit\' value=\'' + $('#id_unit :selected').val() + '\' placeholder=\'' + $('#id_unit :selected').text() + '\' readonly>' + $('#id_unit :selected').text() + '</td>' +
+					'<td><input type="hidden" name = \'form-' + form_count + '-item\'  id = \'id_form-' + form_count + '-item\' value=\'' + $('#id_item :selected').val() + '\' placeholder =\'' + $('#id_item :selected').text() + '\' readonly>' + $('#id_item :selected').text() + '</td>' +
+					'<td><input type="hidden" name = \'form-' + form_count + '-price\'  id = \'id_form-' + form_count + '-price\' value=\'' + $('#id_price').val() + '\' readonly>' + $('#id_price').val() + '</td>' +
+					'<td><a class="btn btn-primary edit" id="tst" >ویرایش</a><a class="btn btn-danger delete" > حذف</a></td>' +
+					'</tr>');
+				$('#id_amount').val('');
+				{#$('#id_unit').val('').trigger('chosen:updated');#}
+				{#$('#id_item').val('').trigger('chosen:updated');#}
+				{#$('#id_price').val('');#}
+
+				form_count = form_count + 1;
+				$("#id_form-TOTAL_FORMS").val(form_count);
+				$('a.delete').click(function () {
+					$(this).parent().parent().remove();
+				});
+				$('a.edit').click(function () {
+					var inputs = $(this).parent().parent().find('input');
+
+					$('#id_amount').val(inputs[0].value);
+
+					$('#id_unit').val(inputs[1].value).trigger("chosen:updated");
+
+					$('#id_item').val(inputs[2].value).trigger("chosen:updated");
+
+					$('#id_price').val(inputs[3].value);
+
+					$(this).parent().parent().remove();
+				});
+			}
+
+			$('#form_add_record').keypress(function (e) {
+				var key = e.which;
+				if (key == 13)  // the enter key code
+				{
+					$('#add_record').click();
+				}
+			});
+			$('#add_record').click(done);
+		</script>
+		<style>
+			#table input {
+				border: none;
+				border-color: transparent;
+				text-align: center;
+				background: transparent;
+			}
+		</style>
+		{##}
+		{#					{% include 'snippets/pagination.html' %}#}
+	</div>
+	{#			</div>#}
+	{##}
+	{#		</div>#}
+	{#	</div>#}
+	{##}
+	{#	<!-- Delete Modal -->#}
+	{#	<div class="modal inmodal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="DeleteModal" aria-hidden="true">#}
+	{#		<div class="modal-dialog" role="document">#}
+	{#			<div class="modal-content">#}
+	{#				<div class="modal-header">#}
+	{#					<button type="button" class="close" data-dismiss="modal" aria-label="Close">#}
+	{#						<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>#}
+	{#					</button>#}
+	{#					<h5 class="modal-title" id="deleteModalLabel">حذف پکینگ‌لیست‌آیتم</h5>#}
+	{#				</div>#}
+	{#				<form method="post" id="delete-form" action="{% url 'inventory:paper_delete' pk=object.id %}">#}
+	{#					{% csrf_token %}#}
+	{#					<div class="modal-body">#}
+	{#						<p class="float-right" style="direction: rtl">#}
+	{#							آیا واقعا می خواهید#}
+	{#							<code>#}
+	{#								<strong id="delete-name">{{ object.name }}</strong>#}
+	{#							</code>#}
+	{#							تحت مالکیت برند#}
+	{#							<code>#}
+	{#								<strong id="delete-name">{{ object.owner.name }}</strong>#}
+	{#							</code>#}
+	{#							را حذف کنید؟#}
+	{#						</p>#}
+	{#					</div>#}
+	{#					<div class="modal-footer float-right">#}
+	{#						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>#}
+	{#						<button type="submit" class="btn btn-danger">Delete</button>#}
+	{#					</div>#}
+	{#				</form>#}
+</div>

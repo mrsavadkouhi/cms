@@ -1,0 +1,403 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load jalali_date %}
+{% load helper_filter %}
+
+{% block last-header %}
+	<link href="{% static 'vendors/iCheck/css/all.css' %}" rel="stylesheet">
+	<script src="{% static  'vendors/iCheck/js/icheck.js' %}"></script>
+	<script src="{% static  'vendors/select2/js/select2.full.min.js' %}"></script>
+	<link href="{% static  'vendors/select2/css/select2.min.css' %}" rel="stylesheet">
+	<link href="{% static  'vendors/toastr/toastr.min.css' %}" rel="stylesheet">
+    <script src="{% static  'vendors/touchpunch/jquery.ui.touch-punch.min.js' %}"></script>
+	<script src="{% static  'vendors/jquery-ui/jquery-ui.min.js' %}"></script>
+	<link href="{% static  'vendors/select2/css/select2-bootstrap4.min.css' %}" rel="stylesheet">
+
+    <link href="{% static 'vendors/persian-date/persian-datepicker.min.css' %}" rel="stylesheet">
+    <script src="{% static 'vendors/persian-date/persian-datepicker.min.js' %}"></script>
+    <script src="{% static 'vendors/persian-date/persian-date.js' %}"></script>
+    <script src="{% static 'vendors/detect/detect.js' %}"></script>
+    <script src="{% static 'vendors/easynumber/easy-number-separator.js' %}"></script>
+
+    <style>
+        span.required:before { content: '*'; color: #FF0000; }
+
+    </style>
+
+{% endblock %}
+
+{% block head_title %}جزئیات پروژه{% endblock %}
+
+
+{% block title-breadcrumb %}
+	<div class="col-md-9">
+    <br>
+    <br>
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a>مدیریت پروژه ها</a>
+			</li>
+			<li class="breadcrumb-item">
+                <a href="{% url 'centers:projectpack_project_list' the_projectpack.id %}" >لیست پروژه ها</a>
+			</li>
+			<li class="breadcrumb-item active">
+                {% if tittle == 'ویرایش' %}
+                    <a href="{% url 'centers:projectpack_project_update' pk=object.id projectpack_pk=object.project_pack.id %}"><strong>ویرایش {{ object.name }}</strong></a>
+                {% else %}
+                    <a href="{% url 'centers:projectpack_project_create' the_projectpack.id %}"><strong>افزودن پروژه جدید</strong></a>
+                {% endif %}
+				</li>
+		</ol>
+	</div>
+
+	<div class="col-md-3">
+    {% if tittle == 'ویرایش' %}
+		<div class="title-action float-right">
+            <div class="btn-group">
+			<a href="{% url 'centers:task_list' pk_project=object.id %}" class="btn btn-lg btn-outline-primary"><i class="fa fa-tasks"></i> تسک ها</a>
+            <a href="{% url 'centers:projectpack_project_details' pk=object.id projectpack_pk=the_projectpack.id %}" class="btn btn-lg btn-outline-warning"><i class="fa fa-th-list"></i> جزئیات</a>
+			<button data-toggle="modal" data-delete-what="{{ object.id }}" data-target="#delete-modal" class="btn btn-lg btn-outline-danger"><i class="fa fa-trash"></i> حذف </button>
+		</div>
+		</div>
+    {% endif %}
+	</div>
+
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+
+            {% if form.errors %}
+                <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                    <h1> {{ field.name }}: {{ error }} </h1>
+                {% endfor %}
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% for error in form.non_field_errors %}
+                <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
+                <h1> {{ error }} </h1>
+                </div>
+            {% endfor %}
+
+            <form id="pr-form" class="m-t" id="project-form" role="form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="col-lg-12">
+                        <div class="col-lg-3 text-center">
+                            <div><br></div>
+                            <i class="fa fa-th-list fa-10x"></i>
+                            <h1><strong>مشخصات</strong></h1>
+                        </div>
+                    <div class="card col-lg-9">
+                        <div><br></div>
+                        <div class="input-group mb-2">
+                          <div class="input-group-append">
+                            <span class="input-group-text required" id="name_label">نام: </span>
+                          </div>
+                          <input type="text" class="form-control" value="{{ object.name }}" name="name" aria-describedby="name_label">
+                        </div>
+                        <div class="input-group mb-2">
+                          <div class="input-group-append">
+                            <span class="input-group-text" id="description_label">توضیحات: </span>
+                          </div>
+                            <textarea type="text" class="form-control" name="description" aria-describedby="description_label">{{ object.description }}</textarea>
+                        </div>
+                        <div class="input-group mb-2">
+                          <div class="input-group-append">
+                            <span class="input-group-text required" id="center_label">مرکز: </span>
+                          </div>
+                            <select name="center" id="center_name" class="select2 form-control">
+                                {% for obj in centers %}
+                                        <option value="{{ obj.id }}">{{ obj }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group mb-2">
+                          <div class="input-group-append">
+                            <span class="input-group-text required" id="center_label">پک پروژه: </span>
+                          </div>
+                            <select name="project_pack" id="project_pack_name" class="select2 form-control">
+                                {% for obj in projectpacks %}
+                                        <option value="{{ obj.id }}">{{ obj.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group mb-2">
+                          <div class="input-group-append">
+                            <span class="input-group-text required" id="manager_label">مدیر: </span>
+                          </div>
+                            <select name="manager" id="manager_name" class="select2 form-control">
+                                {% for obj in project_managers %}
+                                        <option value="{{ obj.id }}">{{ obj }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group mb-2">
+                          <div class="input-group-append">
+                            <span class="input-group-text required" id="manager_label">ناظر: </span>
+                          </div>
+                            <select name="monitoring_manager" id="monitoring_manager_name" class="select2 form-control">
+                                {% for obj in project_monitoring_managers %}
+                                        <option value="{{ obj.id }}">{{ obj }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-group mb-2">
+                          <div class="input-group-append">
+                            <span class="input-group-text required" id="started_at_label">مبلغ قرارداد: </span>
+                          </div>
+                          <input type="text" class="form-control number-separator" id="payment_text" value="{{ object.payment  }}" aria-describedby="payment_label" {% if object.created_financial_statement %}readonly{% endif %}>
+                          <input type="number" class="form-control d-none" value="{{ object.payment  }}" id="payment_number" name="payment" aria-describedby="payment_label">
+                        </div>
+                        <div class="input-group mb-2">
+                        {% if not object %}
+                          <div class="input-group-append">
+                            <span class="input-group-text required" id="to_be_finished_label">تاریخ ددلاین قرارداد: </span>
+                          </div>
+                          <input type="datetime" id="datepicker" class="form-control" name="to_be_finished" aria-describedby="to_be_finished_label">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-calendar fa-2x"></i></span>
+                            </div>
+                        {% endif %}
+                        </div>
+
+                        <div><br></div>
+                        </div>
+
+                    </div>
+                <div class="col-lg-12">
+            <div class="col-lg-3 text-center">
+                        <div><br></div>
+                        <i class="fa fa-users fa-10x"></i>
+                                <h1><strong>اعضای پروژه</strong></h1>
+                <div><br></div>
+            </div>
+
+            <div class="card col-lg-9">
+                <div><br></div>
+                <div class="input-group mb-2" >
+                    <select name="employees" id="employee_names" class="select2 form-control">
+                        {% for obj in profiles %}
+                                <option value="{{ obj.id }}">{{ obj }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div><br></div>
+                <div class="btn-group float-right">
+                        <button type="submit" class="btn btn-lg btn-outline-primary"><i class="fa fa-save"></i> ذخیره </button>
+                </div>
+                <div><br></div>
+            </div>
+            </div>
+            </form>
+    </div>
+	<!-- Delete Modal -->
+	<div class="modal inmodal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">Close</span>
+					</button>
+					<h5 class="modal-title" id="exampleModalLabel">حذف پروژه</h5>
+				</div>
+				<form method="post" id="delete-form" {% if tittle == 'ویرایش' %}action="{% url 'centers:projectpackـproject_delete' pk=object.id %}"{% endif %}>
+					{% csrf_token %}
+					<div class="modal-body">
+						<p class="float-right">
+							آیا واقعا می خواهید
+							<code>
+								<strong id="delete-name">{{ object.name }}</strong>
+							</code>
+							را حذف کنید؟
+						</p>
+					</div>
+					<div class="modal-footer float-right">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">انصراف</button>
+						<button type="submit" class="btn btn-danger">حذف</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+	<script>
+        var center = $("#center_name").select2({
+                theme: 'bootstrap4',
+        });
+
+        var project_pack = $("#project_pack_name").select2({
+                theme: 'bootstrap4',
+        });
+
+        var manager = $("#manager_name").select2({
+                theme: 'bootstrap4',
+        });
+
+        var monitoring_manager = $("#monitoring_manager_name").select2({
+                theme: 'bootstrap4',
+        });
+
+        var employees = $("#employee_names").select2({
+                theme: 'bootstrap4',
+                multiple: true,
+                placeholder: "اعضای پروژه",
+                allowClear: true
+        });
+        var vals = [];
+        {% for obj in object.employees.all %}
+            vals.push("{{ obj.id }}");
+        {% endfor %}
+		employees.val(vals).trigger("change");
+
+        center.change(function() {
+            var filter = center.val();
+            var center_id;
+
+            var projectpacks = $('#projectpack_name');
+            projectpacks.empty();
+            {% for obj in projectpacks %}
+                center_id = '{{ obj.center_set.first.id }}';
+                console.log(center_id,filter);
+                if( filter === center_id){
+                    projectpacks.append('<option value="{{ obj.id }}">{{ obj }}</option>');
+                }
+            {% endfor %}
+
+            var managers = $('#manager_name');
+            managers.empty();
+            {% for obj in project_managers %}
+                center_id = '{{ obj.center_set.first.id }}';
+                console.log(center_id,filter);
+                if( filter === center_id){
+                    managers.append('<option value="{{ obj.id }}">{{ obj }}</option>');
+                }
+            {% endfor %}
+
+            var monitoring_managers = $('#monitoring_manager_name');
+            monitoring_managers.empty();
+            {% for obj in project_monitoring_managers %}
+                center_id = '{{ obj.center_set.first.id }}';
+                console.log(center_id,filter);
+                if( filter === center_id){
+                    monitoring_managers.append('<option value="{{ obj.id }}">{{ obj }}</option>');
+                }
+            {% endfor %}
+
+            var employees = $('#employee_names');
+            employees.empty();
+            {% for obj in profiles %}
+                center_id = '{{ obj.center_set.first.id }}';
+                if( filter === center_id){
+                    employees.append('<option value="{{ obj.id }}">{{ obj }}</option>');
+                }
+            {% endfor %}
+        });
+
+        {% if in_projectpack %}
+            center.val("{{ center.id }}").trigger("change");
+            project_pack.val("{{ the_projectpack.id }}").trigger("change");
+            manager.val("{{ object.manager.id }}").trigger("change");
+            monitoring_manager.val("{{ object.monitoring_manager.id }}").trigger("change");
+            var vals = [];
+            {% for obj in object.employees.all %}
+                vals.push("{{ obj.id }}");
+            {% endfor %}
+            employees.val(vals).trigger("change");
+        {% endif %}
+
+        var initialDate = new Date('{{ object.to_be_finished | date:"%Y-%m-%d %H:%M" }}');
+        var datepickeroption = {
+                initialValueType: 'gregorian',
+                //inline: true,
+                format: 'YYYY-MM-DD HH:mm',
+                {#startDate: initialDate,#}
+                submitButton: {
+                    enabled: true,
+                    text: {
+                        fa: "تایید",
+                        en: "Submit"
+                    }
+                },
+                navigator: {
+                    scroll: {
+                        enabled: false
+                    }
+                },
+                calendar: {
+                    persian: {
+                        leapYearMode: 'astronomical'
+                    }
+                },
+                timePicker: {
+                    enabled: true,
+                    step: 5,
+                    hour: {
+                        enabled: true,
+                        step: 1
+                    },
+                    minute: {
+                        enabled: true,
+                        step: 1
+                    },
+                    second: {
+                        enabled: false,
+                        step: 20
+                    },
+                    meridian: {
+                        enabled: true
+                    }
+                },
+            };
+
+        var datepicker = $("#datepicker").persianDatepicker(datepickeroption);
+        $('#datepicker').val('{{ object.to_be_finished | j_format_date:"%Y-%m-%d %H:%M" }}');
+
+         $('#pr-form').submit(function () {
+
+             if ($('#datepicker').val() === '') {
+                 $('#datepicker').val('');
+             } else {
+                 $('#datepicker').val(datepicker.getState().selected.dateObject.toCalendar('gregorian').toLocale('en').format('YYYY-MM-DD HH:mm'));
+             }
+         });
+
+		$('#delete-modal').on('show.bs.modal', function (e) {
+		    {% if tittle == 'ویرایش' %}
+			delete_url = "{% url 'centers:projectpackـproject_delete' pk=object.id %}";
+			$('#delete-form').attr('action', delete_url );
+            {% endif %}
+		});
+		// this is the id of the form
+		$("#delete-form").submit(function (e) {
+			var form = $(this);
+			var url = form.attr('action');
+
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: form.serialize(), // serializes the form's elements.
+				success: function (data) {
+					location.replace('{% url 'centers:projectpack_project_list' the_projectpack.id %}');
+				}
+			});
+			e.preventDefault(); // avoid to execute the actual submit of the form.
+		});
+
+        $("#payment_text").on("input", function() {
+           var input = $(this).val();
+           var input_new = input.split(',').join('');
+           $("#payment_number").val(input_new);
+        });
+
+	</script>
+{% endblock %}
+

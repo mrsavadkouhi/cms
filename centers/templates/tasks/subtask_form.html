@@ -1,0 +1,172 @@
+{% load jalali_date %}
+{% load static %}
+{% load humanize %}
+
+{% if form.errors %}
+    <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
+    {% for field in form %}
+        {% for error in field.errors %}
+        <h1> {{ field.name }}: {{ error }} </h1>
+    {% endfor %}
+    {% endfor %}
+    </div>
+{% endif %}
+{% for error in form.non_field_errors %}
+    <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
+    <h1> {{ error }} </h1>
+    </div>
+{% endfor %}
+
+<form id="form-subtask-{{ obj.id }}" class="m-t" role="form" method="post" action="{% url 'centers:subtask_update' pk=obj.id %}" enctype="multipart/form-data">
+{% csrf_token %}
+    <div class="col-lg-3 text-center">
+    <div class="input-group mb-2">
+      <div class="input-group-append">
+        <span class="input-group-text" id="name_label">نام</span>
+      </div>
+      <input {% if editable == 'false' %}readonly{% endif %} type="text" class="form-control" name="name" value="{{ obj.name }}" id="sub-name-{{ obj.id }}" aria-describedby="name_label">
+    </div>
+    {% if obj.task %}
+    <div class="input-group mb-2">
+      <div class="input-group-append">
+        <span class="input-group-text" id="name_label">تسک</span>
+      </div>
+      <input readonly type="text" name="task" class="form-control" value="{{ obj.task.name }}" id="sub-name-{{ obj.id }}" aria-describedby="name_label">
+    </div>
+    {% endif %}
+    <div class="input-group mb-2">
+      <div class="input-group-append">
+        <span class="input-group-text" id="name_label">پروژه</span>
+      </div>
+      <input readonly type="text" name="project" class="form-control" value="{% if obj.task %}{{ obj.task.project.name }}{% else %}{{ obj.project.name }}{% endif %}" id="sub-name-{{ obj.id }}" aria-describedby="name_label">
+    </div>
+    <div class="input-group mb-2">
+      <div class="input-group-append">
+        <span class="input-group-text" id="employee_label"><i class="fa fa-users"></i>اعضا</span>
+      </div>
+    <select {% if editable == 'false' %}disabled{% endif %} name="employee" id="edit-sub-employee-{{ obj.id }}" class="select2 form-control">
+        {% for obj in employees %}
+                <option value="{{ obj.id }}">{{ obj }}</option>
+        {% endfor %}
+    </select>
+    </div>
+    <div class="input-group mb-2">
+          <div class="input-group-append">
+            <span class="input-group-text" id="status_label">وضعیت</span>
+          </div>
+        <select {% if editable == 'false' %}disabled{% endif %} name="status" id="edit-sub-status-{{ obj.id }}" class="select2 form-control">
+            <option value="to_do">جهت انجام</option>
+            <option value="inprogress">در حال انجام</option>
+            <option value="completed">انجام شده</option>
+            <option value="verified">تایید شده</option>
+        </select>
+    </div>
+    <div class="input-group mb-2">
+      <div class="input-group-append">
+        <span class="input-group-text" id="to_label"><i class="fa fa-clock"></i>ددلاین</span>
+      </div>
+      <input {% if editable == 'false' %}disabled{% endif %} name="to_be_finished" type="datetime" id="datepicker-subtask-{{ obj.id }}" class="form-control" aria-describedby="to_label">
+    </div>
+    {% if editable == 'true' %}
+    <div class="btn-group">
+                    <button type="submit" id="update-subtask-{{ obj.id }}" class="btn btn-outline-success float-left"><i class="fa small fa-check"></i> تایید</button>
+                        <button type="button" class="btn btn-outline-danger" data-dismiss="modal"><i class="fa small fa-times"></i> انصراف</button>
+                </div>
+    {% endif %}
+                    </div>
+    <div class="col-lg-9 text-right">
+    <div class="input-group mb-2">
+    <div class="input-group-append">
+    <span class="input-group-text" id="description_label">توضیحات: </span>
+    </div>
+    <textarea {% if editable == 'false' %}readonly{% endif %} name="description" type="text" class="form-control" id="sub-description-{{ obj.id }}" aria-describedby="description_label">{% if obj.description %}{{ obj.description }}{% else %} {% endif %}</textarea>
+    </div>
+        </form>
+        <br>
+    <div class="input-group mb-2">
+        <div class="input-group-append">
+            <span class="input-group-text" id="pay_label"><i class="fa fa-file"></i>فایل های پیوست</span>
+        </div>
+        <input readonly type="text" class="form-control" aria-describedby="name_label">
+    </div>
+    <br>
+    {% if not obj.attachments.all.exists %}
+        <br>
+        <p class="text-center">تاکنون فایلی پیوست نشده است.</p>
+    {% endif %}
+    <div class="row">
+    {% for file in obj.attachments.all %}
+        <div class="col-lg-3">
+        <h5>{{ file.description }}</h5>
+        <a href="{{ file.file.url }}" class="btn btn-lg btn-outline-primary"><i class="fa fa-download"></i></a>
+        </div>
+    {% endfor %}
+    </div>
+    <div class="col-lg-12">
+        <br>
+        {% include 'tasks/attach_form.html' %}
+    </div>
+    </div>
+
+
+<script>
+    $(document).ready(function() {
+        $("#attach-subtask-{{ obj.id }}").modalForm({
+            formURL: "{% url 'centers:subtask_attach_create' pk=obj.id %}"
+        });
+    });
+
+    var subdatepickeroption = {
+                initialValueType: 'gregorian',
+                //inline: true,
+                format: 'YYYY-MM-DD HH:mm',
+                submitButton: {
+                    enabled: true,
+                    text: {
+                        fa: "تایید",
+                        en: "Submit"
+                    }
+                },
+                navigator: {
+                    scroll: {
+                        enabled: false
+                    }
+                },
+                calendar: {
+                    persian: {
+                        leapYearMode: 'astronomical'
+                    }
+                },
+                timePicker: {
+                    enabled: true,
+                    step: 5,
+                    hour: {
+                        enabled: true,
+                        step: 1
+                    },
+                    minute: {
+                        enabled: true,
+                        step: 1
+                    },
+                    second: {
+                        enabled: false,
+                        step: 20
+                    },
+                    meridian: {
+                        enabled: true
+                    }
+                },
+            };
+
+    var subdatepicker_{{ obj.id }} = $("#datepicker-subtask-{{ obj.id }}").persianDatepicker(subdatepickeroption);
+    $('#datepicker-subtask-{{ obj.id }}').val('{{ obj.to_be_finished | j_format_date:"%Y-%m-%d %H:%M" }}');
+
+         $('#form-subtask-{{ obj.id }}').submit(function () {
+
+             if ($('#datepicker-subtask-{{ obj.id }}').val() === '') {
+                 $('#datepicker-subtask-{{ obj.id }}').val('');
+             } else {
+                 $('#datepicker-subtask-{{ obj.id }}').val(subdatepicker_{{ obj.id }} .getState().selected.dateObject.toCalendar('gregorian').toLocale('en').format('YYYY-MM-DD HH:mm'));
+             }
+         });
+</script>

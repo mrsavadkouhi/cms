@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load jalali_date %}
+{% load helper_filter %}
+
+
+{% block head_title %}جزئیات مرکز{% endblock %}
+
+
+{% block title-breadcrumb %}
+	<div class="col-md-9">
+                    <br>
+                    <br>
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a>پیشخوان</a>
+			</li>
+			<li class="breadcrumb-item active">
+				<a href="{% url 'dashboard:mycenter' %}"><strong>مرکز من</strong></a>
+			</li>
+		</ol>
+	</div>
+
+	<div class="col-md-3">
+		<div class="title-action float-right">
+            <div class="btn-group">
+{#            <a href="{% url 'centers:center_project_list' center_pk=object.id %}" class="btn btn-lg btn-outline-primary"><i class="fa fa-th-list"></i> پروژه ها</a>#}
+                {% has_perms user 'center;' as has_center_perm %}
+                {% if has_center_perm %}
+                <a href="{% url 'centers:center_update' pk=object.id %}" class="btn btn-lg btn-outline-warning"><i class="fa fa-user-edit"></i> ویرایش</a>
+			    <button data-toggle="modal" data-delete-what="{{ object.id }}" data-target="#delete-modal" class="btn btn-lg btn-outline-danger"><i class="fa fa-trash"></i> حذف </button>
+                {% endif %}
+            </div>
+        </div>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+        <div class="col-lg-12">
+                <div class="col-lg-3 text-center">
+                    <div><br></div>
+                    <i class="fa fa-cube fa-10x"></i>
+                    <h1><strong>مشخصات</strong></h1>
+                </div>
+            <div class="card col-lg-9">
+<div><br></div>
+                    <h3><strong>نام: </strong>{{ object.name }}</h3>
+                    <h3><strong>توضیحات: </strong>{{ object.description }}</h3>
+{#                    <h3><strong>سازنده: </strong>{{ object.created_by }}</h3>#}
+                    <h3><strong>تاریخ ایجاد: </strong>{{ object.created_at | j_format_date:"%Y/%m/%d"  }}</h3>
+                    <h3><strong>مدیر: </strong>{{ object.manager }}</h3>
+                    <h3><strong>تعداد پروژه های جاری: </strong>{{ object.x }}</h3>
+                    <h3><strong>تعداد پروژه های خاتمه یافته: </strong>{{ object.x }}</h3>
+                <div><br></div>
+                </div>
+
+            </div>
+            <div class="col-lg-12">
+        <div class="col-lg-3 text-center">
+                    <div><br></div>
+                    <i class="fa fa-users fa-10x"></i>
+                            <h1><strong>اعضای مرکز</strong></h1>
+        </div>
+
+    <div class="card col-lg-9">
+            <div class="table-responsive">
+            <br>
+                        <table class="table table-striped table-bordered table-hover dataTables-example">
+                            <thead>
+                            <tr>
+                                <th class="text-center" style="background-color: white;width: 7%">آواتار</th>
+                                <th class="text-center" style="background-color: white">نام کاربری</th>
+                                <th class="text-center" style="background-color: white">نام</th>
+                                <th class="text-center" style="background-color: white">نام خانوادگی</th>
+{#                                <th class="text-center" style="background-color: white">مرکز</th>#}
+                                <th class="text-center" style="background-color: white">نقش</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for obj in object.employees.all %}
+                                <tr id="c-tr-{{ obj.id }}" style="background-color: whitesmoke">
+                                    <td class="align-middle text-center">
+                                            <img class="rounded-circle img-avatar" src="{% if obj.avatar %}{{ obj.avatar.url }}{% else %}{% static 'img/user.png' %}{% endif %}">
+                                    </td>
+                                    <td class="align-middle text-center"><a href="{% url 'accounts:profile_details' pk=obj.id %}">{{ obj.user.username }}</a></td>
+                                    <td class="align-middle text-center">{{ obj.user.first_name }}</td>
+                                    <td class="align-middle text-center">{{ obj.user.last_name }}</td>
+{#                                    <td class="align-middle text-center">{{ obj.center }}</td>#}
+                                    <td class="align-middle text-center">
+                                        {{ obj.get_user_role_display }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+        </div>
+        </div>
+
+    </div>
+	<!-- Delete Modal -->
+	<div class="modal inmodal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">Close</span>
+					</button>
+					<h5 class="modal-title" id="exampleModalLabel">حذف مرکز</h5>
+				</div>
+				<form method="post" id="delete-form" action="{% url 'centers:center_delete' pk=object.id %}">
+					{% csrf_token %}
+					<div class="modal-body">
+						<p class="float-right">
+							آیا واقعا می خواهید
+							<code>
+								<strong id="delete-name">{{ object.name }}</strong>
+							</code>
+							را حذف کنید؟
+						</p>
+					</div>
+					<div class="modal-footer float-right">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						<button type="submit" class="btn btn-danger">Delete</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+	<link href="{% static 'vendors/datatables/css/datatables.min.css' %}" rel="stylesheet">
+	<script src="{% static 'vendors/datatables/js/datatables.min.js' %}"></script>
+	<script src="{% static 'vendors/datatables/js/datatables.bootstrap4.min.js' %}"></script>
+
+	<script>
+		var table;
+		$(document).ready(function () {
+			table = $('.dataTables-example').DataTable({
+				pageLength: 25,
+				responsive: true,
+				{#dom: '<"html5buttons"B>lTfgitp',#}
+				dom: 'Tfgtp',
+
+			});
+
+		});
+
+		// this is the id of the form
+		$("#delete-form").submit(function (e) {
+			var form = $(this);
+			var url = form.attr('action');
+
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: form.serialize(), // serializes the form's elements.
+				success: function (data) {
+                    location.replace("{% url 'centers:center_list' %}");
+				}
+			});
+			e.preventDefault(); // avoid to execute the actual submit of the form.
+		});
+	</script>
+{% endblock %}

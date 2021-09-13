@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load jalali_date %}
+{% load helper_filter %}
+{% block last-header %}
+	<script src="{% static  'vendors/select2/js/select2.full.min.js' %}"></script>
+	<link href="{% static  'vendors/select2/css/select2.min.css' %}" rel="stylesheet">
+	<link href="{% static  'vendors/select2/css/select2-bootstrap4.min.css' %}" rel="stylesheet">
+    <style>
+        span.required:before { content: '*'; color: #FF0000; }
+
+    </style>
+{% endblock %}
+
+{% block head_title %}جزئیات مرکز{% endblock %}
+
+
+{% block title-breadcrumb %}
+	<div class="col-md-9">
+    <br>
+    <br>
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a>مدیریت مراکز</a>
+			</li>
+			<li class="breadcrumb-item">
+                <a href="{% url 'centers:center_list' %}" >لیست مراکز</a>
+			</li>
+			<li class="breadcrumb-item active">
+                {% if tittle == 'ویرایش' %}
+                    <a href="{% url 'centers:center_update' object.id %}"><strong>ویرایش {{ object.name }}</strong></a>
+                {% else %}
+                    <a href="{% url 'centers:center_create' %}"><strong>افزودن مرکز جدید</strong></a>
+                {% endif %}
+			</li>
+		</ol>
+	</div>
+
+	<div class="col-md-3">
+    {% if tittle == 'ویرایش' %}
+		<div class="title-action float-right">
+            <div class="btn-group">
+                <button data-toggle="modal" data-delete-what="{{ object.id }}" data-target="#delete-modal" class="btn btn-lg btn-outline-danger"><i class="fa fa-trash"></i> حذف </button>
+            </div>
+        </div>
+    {% endif %}
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+                {% if form.errors %}
+                <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                    <h1> {{ field.name }}: {{ error }} </h1>
+                {% endfor %}
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% for error in form.non_field_errors %}
+                <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
+                <h1> {{ error }} </h1>
+                </div>
+            {% endfor %}
+            <form class="m-t" role="form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+        <div class="col-lg-12">
+
+
+                <div class="col-lg-3 text-center">
+                    <div><br></div>
+                    <i class="fa fa-cube fa-10x"></i>
+                    <h1><strong>مشخصات</strong></h1>
+                </div>
+            <div class="card col-lg-9">
+                <div><br></div>
+                <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text required" id="name_label">نام: </span>
+                  </div>
+                  <input type="text" class="form-control" value="{{ object.name }}" name="name" aria-describedby="name_label">
+                </div>
+                <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text" id="description_label">توضیحات: </span>
+                  </div>
+                    <textarea type="text" class="form-control" name="description" aria-describedby="description_label">{{ object.description }}</textarea>
+                </div>
+                <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text required" id="manager_label">مدیر: </span>
+                  </div>
+                    <select name="manager" id="manager_name" class="select2 form-control">
+                        {% for obj in center_managers %}
+                                <option value="{{ obj.id }}">{{ obj.user.first_name }} {{ obj.user.last_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div><br></div>
+                </div>
+
+            </div>
+            <div class="col-lg-12">
+        <div class="col-lg-3 text-center">
+                    <div><br></div>
+                    <i class="fa fa-users fa-10x"></i>
+                            <h1><strong>اعضای مرکز</strong></h1>
+            <div><br></div>
+        </div>
+
+        <div class="card col-lg-9">
+            <div><br></div>
+            <div class="input-group mb-2" >
+                <select name="employees" id="employee_names" class="select2 form-control">
+                    {% for obj in profiles %}
+                            <option value="{{ obj.id }}">{{ obj.user.first_name }} {{ obj.user.last_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div><br></div>
+            <div class="btn-group float-right">
+                    <button type="submit" class="btn btn-lg btn-outline-primary"><i class="fa fa-save"></i> ذخیره </button>
+            </div>
+            <div><br></div>
+        </div>
+        </div>
+            </form>
+    </div>
+	<!-- Delete Modal -->
+	<div class="modal inmodal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">بستن</span>
+					</button>
+					<h5 class="modal-title" id="exampleModalLabel">حذف مرکز</h5>
+				</div>
+				<form method="post" id="delete-form" {% if tittle == 'ویرایش' %}action="{% url 'centers:center_delete' pk=object.id %}"{% endif %}>
+					{% csrf_token %}
+					<div class="modal-body">
+						<p class="float-right">
+							آیا واقعا می خواهید
+							<code>
+								<strong id="delete-name">{{ object.name }}</strong>
+							</code>
+							را حذف کنید؟
+						</p>
+					</div>
+					<div class="modal-footer float-right">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">انصراف</button>
+						<button type="submit" class="btn btn-danger">حذف</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+	<script>
+        var manager = $("#manager_name").select2({
+                theme: 'bootstrap4',
+        });
+		manager.val("{{ object.manager.id }}").trigger("change");
+
+        var employees = $("#employee_names").select2({
+                theme: 'bootstrap4',
+                multiple: true,
+                placeholder: "اعضای مرکز",
+                allowClear: true
+        });
+        var vals = [];
+        {% for obj in object.employees.all %}
+            vals.push("{{ obj.id }}");
+        {% endfor %}
+		employees.val(vals).trigger("change");
+
+		function save(){
+
+        }
+		// this is the id of the form
+		$("#delete-form").submit(function (e) {
+			var form = $(this);
+			var url = form.attr('action');
+
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: form.serialize(), // serializes the form's elements.
+				success: function (data) {
+                    location.replace("{% url 'centers:center_list' %}");
+				}
+			});
+			e.preventDefault(); // avoid to execute the actual submit of the form.
+		});
+	</script>
+{% endblock %}
+

@@ -1,0 +1,168 @@
+import datetime
+
+import openpyxl as openpyxl
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
+from django.http import JsonResponse
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, DetailView, UpdateView, TemplateView, FormView, ListView
+
+from accounts.models import Profile
+from centers.models import Center, Project
+from dashboard.json_mixin import JSONDeleteView
+from dashboard.mixins import PaginatedFilteredListView, RoleMixin
+
+from .models import Equipment, EQUIPMENT_TYPES, Rent, EquipmentType
+from .forms import EquipmentForm
+
+
+# equipments
+class CenterEquipmentListView(LoginRequiredMixin, ListView):
+    model = Equipment
+    template_name = 'equipment_list.html'
+    extra_context = {
+        'in_center': True,
+    }
+
+    def get_queryset(self):
+        return Equipment.objects.filter(owner_id=self.request.resolver_match.kwargs['center_pk'])
+
+
+class EquipmentListView(LoginRequiredMixin, ListView):
+    model = Equipment
+    template_name = 'equipment_list.html'
+
+
+class CenterEquipmentCreateView(LoginRequiredMixin, RoleMixin, CreateView):
+    model = Equipment
+    template_name = 'equipment_form.html'
+    form_class = EquipmentForm
+    success_url = reverse_lazy('equipments:equipment_list')
+    extra_context = {
+        'tittle': 'افزودن',
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['centers'] = Center.objects.filter(id=self.request.resolver_match.kwargs['center_pk'])
+        context['in_center'] = True
+        context['types'] = EquipmentType.objects.all()
+
+        return context
+
+
+class EquipmentCreateView(LoginRequiredMixin, RoleMixin, CreateView):
+    model = Equipment
+    template_name = 'equipment_form.html'
+    form_class = EquipmentForm
+    success_url = reverse_lazy('equipments:equipment_list')
+    extra_context = {
+        'tittle': 'افزودن',
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['centers'] = Center.objects.all()
+        context['types'] = EquipmentType.objects.all()
+
+        return context
+
+
+class EquipmentDetailsView(LoginRequiredMixin, RoleMixin, DetailView):
+    model = Equipment
+    template_name = 'equipment_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        self.object.check_if_out_of_rent()
+
+        context['events'] = Rent.objects.filter(equipment_id=self.request.resolver_match.kwargs['pk'])
+        context['projects'] = Project.objects.all()
+        context['employees'] = Profile.objects.all()
+        context['centers'] = Center.objects.all()
+        if self.request.user.is_superuser or self.request.user.profile.is_supermanager:
+            pass
+        else:
+            profile = self.request.user.profile
+            context['center'] = profile.center_set.first()
+
+        return context
+
+
+class EquipmentUpdateForm(LoginRequiredMixin, RoleMixin, UpdateView):
+    model = Equipment
+    template_name = 'equipment_form.html'
+    form_class = EquipmentForm
+    success_url = reverse_lazy('equipments:equipment_list')
+    extra_context = {
+        'tittle': 'ویرایش',
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['centers'] = Center.objects.all()
+
+        context['types'] = EquipmentType.objects.all()
+
+        return context
+
+
+class EquipmentDeleteView(LoginRequiredMixin, RoleMixin, JSONDeleteView):
+    model = Equipment
+
+
+class AjaxHandler(TemplateView):
+    def get(self, request, *args, **kwargs):
+        request_type = request.GET.get('request_type')
+        data = {'error': 0}
+
+        if request_type =='create_equipmenttype':
+            name = request.GET.get('name')
+            description = request.GET.get('description')
+            EquipmentType.objects.get_or_create(name=name, description=description)
+
+        if request_type =='delete_equipmenttype':
+            equipmenttype_id = int(request.GET.get('equipmenttype_id'))
+            equipmenttype = EquipmentType.objects.get(id=equipmenttype_id)
+            equipmenttype.delete()
+
+        if request_type =='rent':
+            equipment_id = request.GET.get('equipment_id')
+            project_id = request.GET.get('project_id')
+            center_id = request.GET.get('center_id')
+            borrower_id = request.GET.get('borrower_id')
+            at = request.GET.get('at')
+            to = request.GET.get('to')
+
+            if at:
+                at = datetime.datetime.strptime(at, "%Y-%m-%d %H:%M")
+            if to:
+                to = datetime.datetime.strptime(to, "%Y-%m-%d %H:%M")
+
+            if at >= to:
+                data['error'] = 3
+                return JsonResponse(data)
+            now = datetime.datetime.now()
+            if now > at or now > to:
+                data['error'] = 2
+                return JsonResponse(data)
+
+            equipment = Equipment.objects.get(id=equipment_id)
+            rents = Rent.objects.filter(equipment=equipment).filter(Q(to__range=[at, to]) or Q(at__range=[at, to]) or Q(Q(at__gte=at,to__lte=at) and Q(at__gte=to,to__lte=to)))
+            if rents.count():
+                data['error'] = 1
+                return JsonResponse(data)
+
+            borrower = Profile.objects.get(id=borrower_id)
+            center = Center.objects.get(id=center_id)
+            project = Project.objects.get(id=project_id)
+
+            if equipment.is_rented:
+                Rent.objects.create(equipment=equipment, project=project, borrower=borrower, center=center, at=at, to=to)
+            else:
+                Rent.objects.create(equipment=equipment, project=project, borrower=borrower, center=center, at=at, to=to)
+
+        return JsonResponse(data)

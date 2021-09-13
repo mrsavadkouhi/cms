@@ -1,0 +1,75 @@
+.image-picker {
+	.grid {
+		max-height: 100rem;
+		overflow: scroll;
+		margin: 0.5rem 0;
+	}
+
+	.controls {
+		margin: 0.5rem 0;
+	}
+
+	img {
+		object-fit: contain;
+		max-height: 300px;
+	}
+
+	.cursor-clickable {
+		cursor: pointer;
+	}
+
+	.cursor-default {
+		cursor: default;
+	}
+
+	.selected {
+		border-color: #27AE60;
+		border-width: 5px;
+		border-radius: 8px;
+		background-color: #eafaf1;
+	}
+
+	.grid-item {
+		display: block;
+	}
+
+	.check-mark {
+		color: #2abb67;
+		position: absolute;
+		top: 3%;
+		left: 6%;
+	}
+
+	.inner-addon {
+		position: relative;
+
+		.fa {
+			position: absolute;
+			padding: 10px;
+			pointer-events: none;
+		}
+	}
+
+	.left-addon {
+		.fa {
+			left: 1.5rem;
+		}
+
+		input {
+			padding-left: 3rem;
+		}
+	}
+
+	.right-addon {
+		.fa {
+			right: 1.5rem;
+		}
+
+		input {
+			padding-right: 3rem;
+		}
+	}
+
+}
+
+

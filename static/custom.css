@@ -1,0 +1,267 @@
+.bg-green-highlight {
+	background-color: #b4f6b2;
+}
+
+.bg-purple-highlight {
+	background-color: #f1cef6;
+}
+
+.bg-blue-highlight {
+	background-color: #c6e9ff;
+}
+
+.bg-red-highlight {
+	background-color: #fff0ff;
+}
+
+.bg-yellow-highlight {
+	background-color: #fff2db;
+}
+
+.bg-img-flower {
+	background-image: url(http://scarfbank.com/wp-content/uploads/2018/12/bg.jpg);
+}
+
+/* *********** */
+/* Order Sample Row */
+/* *********** */
+
+.table-blue,
+.table-blue > th,
+.table-blue > td {
+	background-color: #e3f4fa;
+}
+
+.table-hover .table-blue:hover {
+	background-color: #d0ebf5;
+}
+
+.table-hover .table-blue:hover > td,
+.table-hover .table-blue:hover > th {
+	background-color: #d0ebf5;
+}
+
+
+.table-hover tbody tr:hover .table-blue {
+	background-color: #d0ebf5;
+}
+
+td.table-blue {
+	background-color: #e3f4fa;
+}
+
+
+.table-orange,
+.table-orange > th,
+.table-orange > td {
+	background-color: #f8c491;
+}
+
+.table-hover .table-orange:hover {
+	background-color: #f2b87e;
+}
+
+.table-hover .table-orange:hover > td,
+.table-hover .table-orange:hover > th {
+	background-color: #f2b87e;
+}
+
+
+.table-hover tbody tr:hover .table-orange {
+	background-color: #f2b87e;
+}
+
+td.table-orange {
+	background-color: #f8c491;
+}
+
+
+.table-purple,
+.table-purple > th,
+.table-purple > td {
+	background-color: #f6e6fe;
+}
+
+.table-hover .table-purple:hover {
+	background-color: #ebd2f7;
+}
+
+.table-hover .table-purple:hover > td,
+.table-hover .table-purple:hover > th {
+	background-color: #ebd2f7;
+}
+
+
+.table-hover tbody tr:hover .table-purple {
+	background-color: #ebd2f7;
+}
+
+td.table-purple {
+	background-color: #f6e6fe;
+}
+
+.table-salmon,
+.table-salmon > th,
+.table-salmon > td {
+	background-color: #fef1d8;
+}
+
+.table-hover .table-salmon:hover {
+	background-color: #f7e5c3;
+}
+
+.table-hover .table-salmon:hover > td,
+.table-hover .table-salmon:hover > th {
+	background-color: #f7e5c3;
+}
+
+
+.table-hover tbody tr:hover .table-salmon {
+	background-color: #f7e5c3;
+}
+
+td.table-salmon {
+	background-color: #fef1d8;
+}
+
+/* *********** */
+/* table colors hover */
+/* *********** */
+
+.table-hover tbody tr:hover .table-primary {
+	background-color: #9fcdff;
+}
+
+td.table-primary {
+	background-color: #b8daff;
+}
+
+.table-hover tbody tr:hover .table-secondary {
+	background-color: #c8cbcf;
+}
+
+td.table-secondary {
+	background-color: #d6d8db;
+}
+
+.table-hover tbody tr:hover .table-success {
+	background-color: #b1dfbb;
+}
+
+td.table-success {
+	background-color: #c3e6cb;
+}
+
+.table-hover tbody tr:hover .table-info {
+	background-color: #abdde5;
+}
+
+td.table-info {
+	background-color: #bee5eb;
+}
+
+.table-hover tbody tr:hover .table-warning {
+	background-color: #ffe8a1;
+}
+
+td.table-warning {
+	background-color: #ffeeba;
+}
+
+.table-hover tbody tr:hover .table-danger {
+	background-color: #f1b0b7;
+}
+
+td.table-danger {
+	background-color: #f5c6cb;
+}
+
+.table-hover tbody tr:hover .table-light {
+	background-color: #ececf6;
+}
+
+td.table-light {
+	background-color: #fdfdfe;
+}
+
+.table-hover tbody tr:hover .table-dark {
+	background-color: #b9bbbe;
+}
+
+td.table-dark {
+	background-color: #c6c8ca;
+}
+
+/* *********** */
+/* table image */
+/* *********** */
+
+.obj-fit-contain {
+	object-fit: contain !important;
+}
+
+.img-avatar {
+	height: 48px;
+	width: 48px;
+}
+
+.img-height-50 {
+	max-height: 50px !important;
+}
+
+.img-height-75 {
+	max-height: 75px !important;
+}
+
+.img-height-100 {
+	max-height: 100px !important;
+}
+
+.img-height-150 {
+	max-height: 150px !important;
+}
+
+.img-height-200 {
+	max-height: 200px !important;
+}
+
+.img-height-250 {
+	max-height: 250px !important;
+}
+
+.img-height-300 {
+	max-height: 300px !important;
+}
+
+.img-height-400 {
+	max-height: 400px !important;
+}
+
+.img-height-500 {
+	max-height: 500px !important;
+}
+
+.img-height-600 {
+	max-height: 600px !important;
+}
+
+.img-height-700 {
+	max-height: 700px !important;
+}
+
+.img-height-800 {
+	max-height: 800px !important;
+}
+
+/* *********** */
+/* font settings */
+/* *********** */
+
+.persian {
+	font-family: VazirFD, Tahoma, "DejaVu Sans", helvetica, arial, freesans, sans-serif;
+
+}
+
+.text-muted-2 {
+	color: #6666 !important;
+}

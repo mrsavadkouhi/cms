@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load jalali_date %}
+{% load helper_filter %}
+
+{% block last-header %}
+	<link href="{% static 'vendors/iCheck/css/all.css' %}" rel="stylesheet">
+	<script src="{% static  'vendors/iCheck/js/icheck.js' %}"></script>
+	<script src="{% static  'vendors/select2/js/select2.full.min.js' %}"></script>
+	<link href="{% static  'vendors/select2/css/select2.min.css' %}" rel="stylesheet">
+	<link href="{% static  'vendors/toastr/toastr.min.css' %}" rel="stylesheet">
+    <script src="{% static  'vendors/touchpunch/jquery.ui.touch-punch.min.js' %}"></script>
+	<script src="{% static  'vendors/jquery-ui/jquery-ui.min.js' %}"></script>
+	<link href="{% static  'vendors/select2/css/select2-bootstrap4.min.css' %}" rel="stylesheet">
+
+    <link href="{% static 'vendors/persian-date/persian-datepicker.min.css' %}" rel="stylesheet">
+    <script src="{% static 'vendors/persian-date/persian-datepicker.min.js' %}"></script>
+    <script src="{% static 'vendors/persian-date/persian-date.js' %}"></script>
+
+{% endblock %}
+
+{% block head_title %}جزئیات پروژه{% endblock %}
+
+
+{% block title-breadcrumb %}
+	<div class="col-md-9">
+    <br>
+    <br>
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a>مدیریت پروژه ها</a>
+			</li>
+			<li class="breadcrumb-item">
+                <a href="{% url 'centers:project_list' %}" >لیست پروژه ها</a>
+			</li>
+			<li class="breadcrumb-item active">
+                {% if tittle == 'project' %}
+                    <a href="{% url 'centers:project_bulk_create' %}"><strong>افزودن جمعی پروژه ها</strong></a>
+                {% else %}
+                    <a href="#"><strong>افزودن جمعی تسک ها</strong></a>
+                {% endif %}
+				</li>
+		</ol>
+	</div>
+
+	<div class="col-md-3">
+	</div>
+
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+
+            {% if form.errors %}
+                <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                    <h1> {{ field.name }}: {{ error }} </h1>
+                {% endfor %}
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% for error in form.non_field_errors %}
+                <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
+                <h1> {{ error }} </h1>
+                </div>
+            {% endfor %}
+<div class="col-lg-4 text-center">
+
+</div>
+<div class="col-lg-4 text-center">
+            <form id="pr-form" class="m-t" id="project-form" role="form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                        <div><br></div>
+                        <i class="fa fa-file-excel fa-10x"></i>
+                                <h1><strong>فایل اکسل</strong></h1>
+                <div><br></div>
+                <div class="input-group mb-2">
+                      <div class="custom-file">
+                        <label id="excel_file_label" class="custom-file-label text-left" for="excel_file_id"></label>
+                          <input type="file" class="custom-file-input" name="excel_file" id="excel_file_id">
+                      </div>
+                    </div>
+                <div><br></div>
+                <div class="btn-group">
+                        <button type="submit" class="btn btn-lg btn-outline-primary"><i class="fa fa-save"></i> بارگذاری </button>
+                </div>
+
+            </form>
+</div>
+    </div>
+    <div class="col-lg-4 text-center">
+    </div>
+	<!-- Delete Modal -->
+
+{% endblock %}
+
+{% block scripts %}
+	<script>
+		var input_excel_file = document.getElementById( 'excel_file' );
+    var infoArea_excel_file = document.getElementById( 'excel_file_label' );
+
+    excel_file_id.addEventListener( 'change', showFileName_resume );
+    function showFileName_resume( event ) {
+      var input = event.srcElement;
+      var fileName = input.files[0].name;
+      infoArea_excel_file.textContent = fileName.substring(fileName.length - 20, fileName.length);
+    }
+
+	</script>
+{% endblock %}
+

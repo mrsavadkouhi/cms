@@ -1,0 +1,483 @@
+{% extends 'base.html' %}{% load static %}
+{% load humanize %}
+{% load jalali_date %}
+{% load helper_filter %}
+
+{% block last-header %}
+    <script src="{% static  'vendors/select2/js/select2.full.min.js' %}" xmlns="http://www.w3.org/1999/html"></script>
+	<link href="{% static  'vendors/select2/css/select2.min.css' %}" rel="stylesheet">
+	<link href="{% static  'vendors/select2/css/select2-bootstrap4.min.css' %}" rel="stylesheet">
+
+    <style>
+        .circle-img {
+          width: 200px;
+          height: 200px;
+          overflow: hidden;
+        }
+
+        .circle-img img {
+          height: 100%;
+          transform: translateX(-50%);
+          margin-left: 50%;
+        }
+
+
+        span.required:before { content: '*'; color: #FF0000; }
+
+    </style>
+
+{% endblock %}
+
+{% block head_title %}جزئیات کاربر{% endblock %}
+
+
+{% block title-breadcrumb %}
+	<div class="col-md-9">
+    <br>
+    <br>
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a>مدیریت کاربران</a>
+			</li>
+			<li class="breadcrumb-item">
+                <a href="{% url 'accounts:profile_list' %}" >لیست کاربران</a>
+			</li>
+			<li class="breadcrumb-item active">
+				{% if tittle == 'ویرایش' %}
+                    <a href="{% url 'accounts:profile_update' object.id %}"><strong>ویرایش {{ object.user.username }}</strong></a>
+                {% else %}
+                    <a href="{% url 'accounts:profile_create' %}"><strong>افزودن کاربر جدید</strong></a>
+                {% endif %}
+			</li>
+		</ol>
+	</div>
+
+	<div class="col-md-3">
+    {% if tittle == 'ویرایش' %}
+		<div class="title-action float-right">
+            <div class="btn-group">
+                <button  class="btn btn-sm btn-outline-warning m-l-sm" onclick="$('#pass-change').modal();"><i
+                                            class="fa fa-lock"></i> تغییر رمز عبور
+                                    </button>
+                <button data-toggle="modal" data-delete-what="{{ object.id }}" data-target="#delete-modal" class="btn btn-lg btn-outline-danger"><i class="fa fa-trash"></i> حذف </button>
+            </div>
+			</div>
+        <div class="modal fade" id="pass-change">
+            <div class="modal-sm modal-dialog">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h2 class="modal-title">تغییر رمز عبور {{ obj.user.username }}</h2>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <div class="col-lg-12 text-center">
+                            <input type="password" id="password" placeholder="پسورد جدید را وارد نمایید.">
+                        </div>
+                    </div>
+
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <div class="btn-group">
+                            <button onclick="change_password({{ object.id }});" class="btn btn-outline-success" ><i class="fa small fa-check"></i> تغییر</button>
+                            <button type="button" class="btn btn-outline-danger " data-dismiss="modal"><i class="fa small fa-times"></i> انصراف</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+	</div>
+{% endblock %}
+
+{% block content %}
+                {% if form.errors %}
+                <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                    <h1> {{ error }} </h1>
+                {% endfor %}
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% for error in form.non_field_errors %}
+                <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
+                <h1> {{ error }} </h1>
+                </div>
+            {% endfor %}
+        <div class="col-lg-12">
+                <form class="m-t" role="form" method="post" enctype="multipart/form-data" >
+            {% csrf_token %}
+                <div class="col-lg-3 text-center">
+                <div class="col-lg-12 text-center">
+                                        <div><br></div>
+                    <img id="imageResult" class="img-thumbnail circle-img img-circle" src="{% if object.avatar %}{{ object.avatar.url }}{% else %}{% static 'img/user.png' %}{% endif %}">
+                    <div><br></div>
+                    <div class="input-group mb-3">
+                      <div class="custom-file">
+                        <label id="avatar_label" class="custom-file-label text-left" for="avatar"></label>
+                          <input type="file" class="custom-file-input" name="avatar" id="avatar" onchange="readURL(this);">
+                      </div>
+                    </div>
+                </div>
+                <div class="col-lg-12 text-center">
+                                        <div><br></div>
+                    <i class="fa fa-file fa-10x"></i>
+                    <h1><strong>فایل رزومه</strong></h1>
+                    <div><br></div>
+                    <div class="input-group mb-3">
+                      <div class="custom-file">
+                        <label id="resume_label" class="custom-file-label text-left" for="resume"></label>
+                          <input type="file" class="custom-file-input" name="resume" id="resume">
+                      </div>
+                    </div>
+                    <div><br></div>
+                </div>
+
+                </div>
+            <div class="card col-lg-9">
+                <div><br></div>
+                {% if tittle == 'افزودن' %}
+                <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text required" id="username_label">نام کاربری: </span>
+                  </div>
+                    <input type="text" class="form-control" value="{{ object.user.username }}" name="username" aria-describedby="username_label">
+                </div>
+                {% endif %}
+                <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text required" id="first_name_label">نام: </span>
+                  </div>
+                  <input type="text" class="form-control"  value="{{ object.user.first_name }}" name="first_name" aria-describedby="first_name_label">
+                </div>
+                <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text required" id="last_name_label">نام خانوادگی: </span>
+                  </div>
+                  <input type="text" class="form-control"  value="{{ object.user.last_name }}" name="last_name" aria-describedby="last_name_label">
+                </div>
+                <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text required" id="email_label">ایمیل: </span>
+                  </div>
+                    <input type="email" class="form-control"  value="{{ object.user.email }}" name="email" aria-describedby="email_label">
+                </div>
+            {% if tittle == 'افزودن' %}
+                <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text required" id="password_label">پسورد: </span>
+                  </div>
+                    <input type="password" class="form-control" value="{{ object.user.password }}" name="password" aria-describedby="password_label">
+                </div>
+            {% endif %}
+                <div class="input-group mb-2">
+                          <div class="input-group-append">
+                            <span class="input-group-text required" id="center_label">مرکز: </span>
+                          </div>
+                            <select name="center" id="center_name" class="select2 form-control">
+                                {% for obj in centers %}
+                                        <option value="{{ obj.id }}">{{ obj }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text" id="permissions_lable">دسترسی ها: </span>
+                  </div>
+                  <select id="permissions_name" class="select2 form-control" name="permissions" aria-describedby="permissions_lable">
+                        {% for obj in permissions %}
+                                <option value="{{ obj.id }}">{{ obj.get_code_display }}</option>
+                        {% endfor %}
+                  </select>
+                </div>
+                <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text required" id="mobile_number_label">تلفن همراه: </span>
+                  </div>
+                  <input type="text" class="form-control"  value="{{ object.mobile_number }}" name="mobile_number" aria-describedby="mobile_number_label">
+                </div>
+                <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text" id="phone_number_label">تلفن ثابت: </span>
+                  </div>
+                  <input type="text" class="form-control"  value="{{ object.phone_number }}" name="phone_number" aria-describedby="phone_number_label">
+                </div>
+                <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text" id="address_label">نشانی: </span>
+                  </div>
+                    <textarea type="text" class="form-control" name="address" aria-describedby="address_label">{{ object.address }}</textarea>
+                </div>
+            <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text" id="role_lable">جنسیت: </span>
+                  </div>
+                  <select id="sex_name" class="select2 form-control" name="sex" aria-describedby="role_lable">
+                        {% for value,display in sexes %}
+                                <option value="{{ value }}">{{ display }}</option>
+                        {% endfor %}
+                  </select>
+                </div>
+            <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text" id="role_lable">مدرک: </span>
+                  </div>
+                  <select id="degree_name" class="select2 form-control" name="degree" aria-describedby="role_lable">
+                        {% for value,display in degress %}
+                                <option value="{{ value }}">{{ display }}</option>
+                        {% endfor %}
+                  </select>
+                </div>
+
+            <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text" id="role_lable">رشته: </span>
+                  </div>
+                  <select id="measure_name" class="select2 form-control" name="measure" aria-describedby="role_lable">
+                        {% for value,display in measures %}
+                                <option value="{{ value }}">{{ display }}</option>
+                        {% endfor %}
+                  </select>
+                </div>
+            <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text" id="role_lable">دانشگاه: </span>
+                  </div>
+                  <select id="university_name" class="select2 form-control" name="university" aria-describedby="role_lable">
+                        {% for value,display in universities %}
+                                <option value="{{ value }}">{{ display }}</option>
+                        {% endfor %}
+                  </select>
+                </div>
+            <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text" id="role_lable">زبان های برنامه نویسی: </span>
+                  </div>
+                  <select id="langs_name" class="select2 form-control" name="langs" aria-describedby="role_lable">
+                        {% for obj in langs %}
+                                <option value="{{ obj.id }}">{{ obj }}</option>
+                        {% endfor %}
+                  </select>
+                </div>
+            <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text" id="role_lable">نرم افزارهای مسلط: </span>
+                  </div>
+                  <select id="softwares_name" class="select2 form-control" name="softwares" aria-describedby="role_lable">
+                        {% for obj in softwares %}
+                                <option value="{{ obj.id }}">{{ obj }}</option>
+                        {% endfor %}
+                  </select>
+                </div>
+                <div class="input-group mb-2">
+                  <div class="input-group-append">
+                    <span class="input-group-text" id="abilities_label">سایر توانایی ها: </span>
+                  </div>
+                    <textarea type="text" class="form-control" name="other_abilities" aria-describedby="abilities_label">{{ object.abilities }}</textarea>
+                </div>
+
+                <div><br></div>
+                <div class="btn-group float-right">
+                    <button type="submit" class="btn btn-lg btn-outline-primary"><i class="fa fa-save"></i> ذخیره </button>
+            </div>
+            <div><br></div>
+                </div>
+            </form>
+            </div>
+        <div class="col-lg-12">
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+	<!-- Delete Modal -->
+	<div class="modal inmodal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">بستن</span>
+					</button>
+					<h5 class="modal-title" id="exampleModalLabel">حذف کاربر</h5>
+				</div>
+				<form method="post" id="delete-form" {% if tittle == 'ویرایش' %}action="{% url 'accounts:profile_delete' pk=object.id %}"{% endif %}>
+					{% csrf_token %}
+					<div class="modal-body">
+						<p class="float-right">
+							آیا واقعا می خواهید
+							<code>
+								<strong id="delete-name">{{ object.user.get_full_name }}</strong>
+							</code>
+							را حذف کنید؟
+						</p>
+					</div>
+					<div class="modal-footer float-right">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">انصراف</button>
+						<button type="submit" class="btn btn-danger">حذف</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+	<script>
+        $(document).ready(function () {
+			var role = $("#role_name").select2({
+                theme: 'bootstrap4',});
+		    role.val("{{ object.get_user_role }}").trigger("change");
+			var center = $("#center_name").select2({
+                theme: 'bootstrap4',});
+
+            {% if tittle == 'ویرایش' %}
+                center.val("{{ object.get_user_center }}").trigger("change");
+            {% elif in_center %}
+		        center.val("{{ the_center.id }}").trigger("change");
+            {% endif %}
+
+		    var sex = $("#sex_name").select2({
+                theme: 'bootstrap4',});
+		    sex.val("{{ object.sex }}").trigger("change");
+		    var degree = $("#degree_name").select2({
+                theme: 'bootstrap4',});
+		    degree.val("{{ object.degree }}").trigger("change");
+		    var measure = $("#measure_name").select2({
+                theme: 'bootstrap4',});
+		    measure.val("{{ object.measure }}").trigger("change");
+		    var university = $("#university_name").select2({
+                theme: 'bootstrap4',});
+		    university.val("{{ object.university }}").trigger("change");
+
+		    var permissions = $("#permissions_name").select2({
+                    theme: 'bootstrap4',
+                    multiple: true,
+                    placeholder: "دسترسی ها",
+                    allowClear: true
+            });
+            vals = [];
+            {% for obj in object.permissions.all %}
+                vals.push("{{ obj.id }}");
+            {% endfor %}
+            permissions.val(vals).trigger("change");
+
+		    var langs = $("#langs_name").select2({
+                    theme: 'bootstrap4',
+                    multiple: true,
+                    placeholder: "زبان های برنامه نویسی",
+                    allowClear: true
+            });
+            var vals = [];
+            {% for obj in object.langs.all %}
+                vals.push("{{ obj.id }}");
+            {% endfor %}
+            langs.val(vals).trigger("change");
+
+            var softwares = $("#softwares_name").select2({
+                    theme: 'bootstrap4',
+                    multiple: true,
+                    placeholder: "نرم افزارهای مسلط",
+                    allowClear: true
+            });
+            vals = [];
+            {% for obj in object.softwares.all %}
+                vals.push("{{ obj.id }}");
+            {% endfor %}
+            softwares.val(vals).trigger("change");
+
+            });
+
+
+
+    /*  ==========================================
+        SHOW UPLOADED IMAGE
+    * ========================================== */
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#imageResult')
+                    .attr('src', e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $(function () {
+        $('#avatar').on('change', function () {
+            readURL(input);
+        });
+    });
+
+    /*  ==========================================
+        SHOW UPLOADED IMAGE NAME
+    * ========================================== */
+    var input = document.getElementById( 'avatar' );
+    var infoArea = document.getElementById( 'avatar_label' );
+
+    input.addEventListener( 'change', showFileName );
+    function showFileName( event ) {
+      var input = event.srcElement;
+      var fileName = input.files[0].name;
+      infoArea.textContent = fileName.substring(fileName.length - 20, fileName.length);
+    }
+
+    var input_resume = document.getElementById( 'resume' );
+    var infoArea_resume = document.getElementById( 'resume_label' );
+
+    input_resume.addEventListener( 'change', showFileName_resume );
+    function showFileName_resume( event ) {
+      var input = event.srcElement;
+      var fileName = input.files[0].name;
+      infoArea_resume.textContent = fileName.substring(fileName.length - 20, fileName.length);
+    }
+
+    function change_password(id){
+            $.ajax({
+                url: "{% url 'centers:ajax' %}",
+                data: {
+                    'request_type': 'profile_password_change',
+                    'new_password': $('#password').val(),
+                    'profile_id': id,
+                },
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (data) {
+                    location.reload();
+                }
+            });
+        }
+
+		// this is the id of the form
+		$("#delete-form").submit(function (e) {
+			var form = $(this);
+			var url = form.attr('action');
+
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: form.serialize(), // serializes the form's elements.
+				success: function (data) {
+				    var in_center = '{{ in_center }}'
+                    if(in_center==='True'){
+                        var the_url = '{% url 'accounts:center_profile_list' 0 %}';
+                        the_url.replace('0',the_center.id);
+                        location.replace(the_url);
+                    }
+                    else {
+                        location.replace("{% url 'accounts:profile_list' %}");
+                    }
+				}
+			});
+			e.preventDefault(); // avoid to execute the actual submit of the form.
+		});
+	</script>
+{% endblock %}
+

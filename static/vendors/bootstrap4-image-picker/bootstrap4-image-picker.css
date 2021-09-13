@@ -1,0 +1,68 @@
+.image-picker .grid {
+	max-height: 100rem;
+	overflow: scroll;
+	margin: 0.5rem 0;
+}
+
+.image-picker .controls {
+	margin: 0.5rem 0;
+}
+
+.image-picker img {
+	object-fit: contain;
+	max-height: 300px;
+}
+
+.image-picker .cursor-clickable {
+	cursor: pointer;
+}
+
+.image-picker .cursor-default {
+	cursor: default;
+}
+
+.image-picker .selected {
+	border-color: #27AE60;
+	border-width: 5px;
+	border-radius: 8px;
+	background-color: #eafaf1;
+}
+
+.image-picker .grid-item {
+	display: block;
+}
+
+.image-picker .check-mark {
+	color: #2abb67;
+	position: absolute;
+	top: 3%;
+	left: 6%;
+}
+
+.image-picker .inner-addon {
+	position: relative;
+}
+
+.image-picker .inner-addon .fa {
+	position: absolute;
+	padding: 10px;
+	pointer-events: none;
+}
+
+.image-picker .left-addon .fa {
+	left: 1.5rem;
+}
+
+.image-picker .left-addon input {
+	padding-left: 3rem;
+}
+
+.image-picker .right-addon .fa {
+	right: 1.5rem;
+}
+
+.image-picker .right-addon input {
+	padding-right: 3rem;
+}
+
+/*# sourceMappingURL=bootstrap4-image-picker.css.map */

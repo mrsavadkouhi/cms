@@ -1,0 +1,10 @@
+{
+	"version": 3,
+	"sourceRoot": "",
+	"sources": [
+		"bootstrap4-image-picker.scss"
+	],
+	"names": [],
+	"mappings": "AACC;EACC;EACA;EACA;;AAGD;EACC;;AAGD;EACC;EACA;;AAGD;EACC;;AAGD;EACC;;AAGD;EACC;EACA;EACA;EACA;;AAGD;EACC;;AAGD;EACC;EACA;EACA;EACA;;AAGD;EACC;;AAEA;EACC;EACA;EACA;;AAKD;EACC;;AAGD;EACC;;AAKD;EACC;;AAGD;EACC",
+	"file": "bootstrap4-image-picker.css"
+}

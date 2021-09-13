@@ -1,0 +1,322 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load jalali_date %}
+{% load helper_filter %}
+
+{% block last-header %}
+	<link href="{% static 'vendors/iCheck/css/all.css' %}" rel="stylesheet">
+	<script src="{% static  'vendors/iCheck/js/icheck.js' %}"></script>
+	<script src="{% static  'vendors/select2/js/select2.full.min.js' %}"></script>
+	<link href="{% static  'vendors/select2/css/select2.min.css' %}" rel="stylesheet">
+	<link href="{% static  'vendors/toastr/toastr.min.css' %}" rel="stylesheet">
+    <script src="{% static  'vendors/touchpunch/jquery.ui.touch-punch.min.js' %}"></script>
+	<script src="{% static  'vendors/jquery-ui/jquery-ui.min.js' %}"></script>
+	<link href="{% static  'vendors/select2/css/select2-bootstrap4.min.css' %}" rel="stylesheet">
+    <script src="{% static 'vendors/easynumber/easy-number-separator.js' %}"></script>
+    <script src="{% static 'vendors/modalform/jquery.bootstrap.modal.forms.min.js' %}"></script>
+
+{% endblock %}
+
+{% block head_title %}پیشخوان{% endblock %}
+
+{% block title-breadcrumb %}
+
+	<div class="col-md-8">
+                    <br>
+                    <br>
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a>مدیریت پروژه ها</a>
+			</li>
+			<li class="breadcrumb-item">
+                <a href="{% url 'centers:projectpack_project_list' project.project_pack.id %}" >لیست پروژه ها</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{% url 'centers:projectpack_project_details' project_id project.project_pack.id %}">جزئیات {{ project.name }}</a>
+			</li>
+			<li class="breadcrumb-item active">
+				<a href="{% url 'centers:task_list' project_id %}"><strong>تسک ها</strong></a>
+			</li>
+		</ol>
+	</div>
+
+{% endblock %}
+
+{% block mid-header %}
+	<link href="{% static 'vendors/datatables/css/datatables.min.css' %}" rel="stylesheet">
+	<script src="{% static 'vendors/datatables/js/datatables.min.js' %}"></script>
+	<script src="{% static 'vendors/datatables/js/datatables.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'vendors/modalform/jquery.bootstrap.modal.forms.js' %}"></script>
+        <link href="{% static 'vendors/persian-date/persian-datepicker.min.css' %}" rel="stylesheet">
+    <script src="{% static 'vendors/persian-date/persian-datepicker.min.js' %}"></script>
+    <script src="{% static 'vendors/persian-date/persian-date.js' %}"></script>
+    <script src="{% static 'vendors/detect/detect.js' %}"></script>
+    <style>
+        @media (min-width: 768px) {
+          .modal-xl {
+            width: 90%;
+           max-width:1200px;
+          }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+                <div class="col-lg-3">
+                    <div class="ibox">
+                        <div class="ibox-content">
+                            <h3>جهت انجام</h3>
+                            {% has_perms user 'center;' as has_center_perm %}
+                            {% has_perms user 'project;' as has_proiect_perm %}
+                            {% if user.is_superuser or has_center_perm or has_proiect_perm %}
+                            <div class="input-group">
+                                <div class="input-group mb-2">
+                                    <div class="input-group-append">
+                                    <button type="button" class="btn btn-sm btn-white" onclick="task_create();"> <i class="fa fa-plus"></i> افزودن</button>
+                                  </div>
+                                  <input type="text" class="form-control" placeholder="نام تسک" id="name" aria-describedby="name_label">
+
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <ul class="sortable-list connectList agile-list" id="to_do">
+                                {% for obj in task_to_do %}
+                                    {% has_perms user 'center;' as has_center_perm %}
+                                    {% has_perms user 'project;' as has_project_perm %}
+                                    {% if user.is_superuser or has_center_perm or has_project_perm %}
+                                        {% include "tasks/task.html" with color='danger' editable='true' %}
+                                    {% else %}
+                                        {% include "tasks/task.html" with color='danger' editable='false' %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% for obj in subtask_to_do %}
+                                    {% has_perms user 'center;' as has_center_perm %}
+                                    {% has_perms user 'project;' as has_project_perm %}
+                                    {% if user.is_superuser or has_center_perm or has_project_perm %}
+                                        {% include "tasks/subtask.html" with color='danger' editable='true' %}
+                                    {% else %}
+                                        {% include "tasks/subtask.html" with color='danger' editable='false' %}
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="ibox">
+                        <div class="ibox-content">
+                            <h3>در حال انجام</h3>
+                            <ul class="sortable-list connectList agile-list" id="inprogress">
+                                {% for obj in task_inprogress %}
+                                    {% has_perms user 'center;' as has_center_perm %}
+                                    {% has_perms user 'project;' as has_project_perm %}
+                                    {% if user.is_superuser or has_center_perm or has_project_perm %}
+                                        {% include "tasks/task.html" with color='warning' editable='true' %}
+                                    {% else %}
+                                        {% include "tasks/task.html" with color='warning' editable='false' %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% for obj in subtask_inprogress %}
+                                    {% has_perms user 'center;' as has_center_perm %}
+                                    {% has_perms user 'project;' as has_project_perm %}
+                                    {% if user.is_superuser or has_center_perm or has_project_perm %}
+                                        {% include "tasks/subtask.html" with color='warning' editable='true' %}
+                                    {% else %}
+                                        {% include "tasks/subtask.html" with color='warning' editable='false' %}
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="ibox">
+                        <div class="ibox-content">
+                            <h3>انجام شده</h3>
+                            <ul class="sortable-list connectList agile-list" id="completed">
+                            {% for obj in task_completed %}
+                                {% has_perms user 'center;' as has_center_perm %}
+                                {% has_perms user 'project;' as has_project_perm %}
+                                {% if user.is_superuser or has_center_perm or has_project_perm %}
+                                    {% include "tasks/task.html" with color='success' editable='true' %}
+                                {% else %}
+                                    {% include "tasks/task.html" with color='success' editable='false' %}
+                                {% endif %}
+                            {% endfor %}
+                            {% for obj in subtask_completed %}
+                                {% has_perms user 'center;' as has_center_perm %}
+                                {% has_perms user 'project;' as has_project_perm %}
+                                {% if user.is_superuser or has_center_perm or has_project_perm %}
+                                    {% include "tasks/subtask.html" with color='success' editable='true' %}
+                                {% else %}
+                                    {% include "tasks/subtask.html" with color='success' editable='false' %}
+                                {% endif %}
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                {% has_perms user 'center;' as has_center_perm %}
+                {% has_perms user 'project_monitoring;' as has_proiect_monitoring_perm %}
+                {% has_perms user 'projectpack_monitoring;' as has_proiectpack_monitoring_perm %}
+                {% if user.is_superuser or has_center_perm or has_proiect_monitoring_perm or has_proiectpack_monitoring_perm%}
+                <div class="col-lg-3">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <h3>تایید شده</h3>
+                        <ul class="sortable-list connectList agile-list" id="verified">
+                        {% for obj in task_verified %}
+                            {% has_perms user 'center;' as has_center_perm %}
+                            {% has_perms user 'project;' as has_project_perm %}
+                            {% if user.is_superuser or has_center_perm or has_project_perm %}
+                                {% include "tasks/task.html" with color='info' editable='true' %}
+                            {% else %}
+                                {% include "tasks/task.html" with color='info' editable='false' %}
+                            {% endif %}
+                        {% endfor %}
+                        {% for obj in subtask_verified %}
+                            {% has_perms user 'center;' as has_center_perm %}
+                            {% has_perms user 'project;' as has_project_perm %}
+                            {% if user.is_superuser or has_center_perm or has_project_perm %}
+                                {% include "tasks/subtask.html" with color='info' editable='true' %}
+                            {% else %}
+                                {% include "tasks/subtask.html" with color='info' editable='false' %}
+                            {% endif %}
+                        {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+                {% endif %}
+
+            </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var status_color = {
+        'to_do':'danger-element',
+        'inprogress':'warning-element',
+        'completed':'success-element',
+        'verified':'info-element',
+    }
+	$(document).ready(function(){
+
+            $("#to_do, #inprogress, #completed, #verified").sortable({
+                connectWith: ".connectList",
+                update: function( event, ui )   {
+                    var tmp = ui.item[0].id;
+                    var type = tmp.split('-')[0];
+                    var id = tmp.split('-')[1];
+                    var old_status = tmp.split('-')[2];
+                    var new_status = event.target.id;
+                    if( new_status !== old_status) {
+                        if(type==='task'){
+                            task_status_update(new_status,id);
+                        }
+                        else{
+                            subtask_status_update(new_status,id);
+                        }
+                        ui.item.removeClass(status_color[old_status]);
+                        ui.item.addClass(status_color[new_status]);
+                    }
+                }
+            }).disableSelection();
+
+        });
+
+    function task_create() {
+        $.ajax({
+            url: "{% url 'centers:ajax' %}",
+            data: {
+                'request_type': 'task_create',
+                'project_id': '{{ project_id }}',
+                'task_name': $('#name').val(),
+            },
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (data) {
+                location.replace("{% url 'centers:task_list' project_id %}");
+            }
+        });
+    }
+
+    function task_status_update(new_satus,id) {
+        $.ajax({
+            url: "{% url 'centers:ajax' %}",
+            data: {
+                'request_type': 'task_status_update',
+                'task_new_status': new_satus,
+                'task_id': id,
+            },
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (data) {
+            }
+        });
+    }
+
+    function subtask_create(task_id,task_name,avatar_url) {
+        var name = $(`#subtask-inputname-${task_id}`).val();
+        $.ajax({
+            url: "{% url 'centers:ajax' %}",
+            data: {
+                'request_type': 'subtask_create',
+                'task_id': task_id,
+                'subtask_name': name,
+            },
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (data) {
+                    if(name!==''){
+                    $(`#subtasks-${task_id}`).append(
+                    `<div class="col-lg-3">
+                    <li class="danger-element" style="background-color: lightyellow" id="subtask-${task_id}">
+                    {% if user.is_superuser or user.profile.is_supermanager or user.profile.is_centermanager or project.manager == user.profile %} <i class="fa fa-times-circle" style="color: red" onclick="$('#delete-modal-subtask-${task_id}').modal();"></i><br>{% endif %}
+                    <span><i class="fa fa-reply"></i> (${task_name})</span>
+                    <h5>${name}</h5>
+                    <div class="row agile-detail">
+                        <div class="col-md-6 text-right">
+                        <img class="rounded-circle img-avatar" style="height: 30px;width: 30px" src="${avatar_url}">
+                        </div>
+                    </div>
+                    </li>
+                    </div>`
+                    );
+
+                    $(`#to_do`).append(
+                    `<li ondblclick="$('#edit-subtask-${task_id}').modal();" class="danger-element" style="background-color: lightyellow" id="subtask-${task_id}">
+                    {% if user.is_superuser or user.profile.is_supermanager or user.profile.is_centermanager or project.manager == user.profile %} <i class="fa fa-times-circle" style="color: red" onclick="$('#delete-modal-subtask-${task_id}').modal();"></i><br>{% endif %}
+                    <span><i class="fa fa-reply"></i> (${task_name})</span>
+                    <h5>${name}</h5>
+                    <div class="row agile-detail">
+                        <div class="col-md-6 text-right">
+                        <img class="rounded-circle img-avatar" style="height: 30px;width: 30px" src="${avatar_url}">
+                        </div>
+                    </div>
+                    </li>`
+                    );
+                    }
+            }
+        });
+    }
+
+    function subtask_status_update(new_satus,id) {
+        $.ajax({
+            url: "{% url 'centers:ajax' %}",
+            data: {
+                'request_type': 'subtask_status_update',
+                'subtask_new_status': new_satus,
+                'subtask_id': id,
+            },
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (data) {
+            }
+        });
+    }
+</script>
+{% endblock %}

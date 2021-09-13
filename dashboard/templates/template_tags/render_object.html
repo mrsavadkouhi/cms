@@ -1,0 +1,8 @@
+{% for field in field_list %}
+	<div class="{{ title_class }}">
+		<h3>{{ field.verbose_name }}</h3>
+	</div>
+	<div class="{{ value_class }} my-1 border rounded" style="min-height: 50px">
+		<h2>{% templatetag openvariable %} object.{{ field.name }} {% templatetag closevariable %}</h2>{#<h2>{{ field }}</h2>#}
+	</div>
+{% endfor %}

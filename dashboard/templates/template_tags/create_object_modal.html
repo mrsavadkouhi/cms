@@ -1,0 +1,71 @@
+{% load helper_tags %}
+{#{% render_form label_class='col-2' input_class='col-4' checkbox_class='col-4' %}#}
+
+<div class="modal inmodal fade" id="id_{{ model_name }}_create_modal" tabindex="-1" role="dialog" aria-labelledby="EditModal" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+					<span class="sr-only">Close</span>
+				</button>
+				<h5 class="modal-title" id="EditModalLabel">ایجاد {{ persian_label }}</h5>
+			</div>
+			<form method="post" enctype="multipart/form-data" id="id_{{ model_name }}_form">
+				<div class="modal-body">
+					{% render_form form=form %}
+					<div id="order_edit_placeholder">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" id="id_{{ model_name }}_create">ذخیره</button>
+
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script>
+	$('#id_{{ model_name }}_create_modal').on('shown.bs.modal', function () {
+		$('.modal .chosen-container').width('100%');
+	});
+	$('#id_{{ model_name }}_create').click(
+		function (e) {
+
+			var form = $('#id_{{model_name}}_form');
+			var url = "{{ req_url }}";
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: form.serialize(), // serializes the form's elements.
+				success: function (data) {
+					$('#id_{{ model_name }}_create_modal').modal('hide');
+					if (!data.errors) {
+						Swal.fire({
+							title: 'Done!',
+							text: 'ثبت شد!',
+							type: 'success'
+						});
+						location.reload();
+					} else {
+						Swal.fire({
+							type: 'error',
+							title: 'Oops...',
+						})
+
+					}
+				}
+				,
+				error: function (jqXHR, textStatus, errorThrown) {
+					Swal.fire({
+						type: 'error',
+						title: 'Oops...',
+						text: jqXHR.status + ': ' + jqXHR.responseJSON.error,
+					})
+				}
+			});
+			e.preventDefault(); // avoid to execute the actual submit of the form.
+		})
+</script>

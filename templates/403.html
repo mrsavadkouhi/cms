@@ -1,0 +1,16 @@
+{% extends 'empty_base.html' %}
+{% load staticfiles %}{% load widget_tweaks %}{% load i18n %}
+
+{% block title %}403 Error | Permission Denied{% endblock %}
+
+{% block content %}
+	<div class="middle-box text-center animated fadeInDown">
+		<h1>403</h1>
+		<h3 class="font-bold">Access Denied</h3>
+
+		<div class="error-desc">
+			Sorry, but you has't permission required to access the page you are looking for.
+			<br/><input type="button" onclick="window.history.back()" value="Go Back" class="btn btn-primary m-t"/>
+		</div>
+	</div>
+{% endblock %}

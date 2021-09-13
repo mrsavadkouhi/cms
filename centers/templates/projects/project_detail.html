@@ -1,0 +1,556 @@
+{% extends 'base.html' %}{% load static %}
+{% load humanize %}
+{% load jalali_date %}
+{% load helper_filter %}
+
+{% block last-header %}
+	<link href="{% static 'vendors/iCheck/css/all.css' %}" rel="stylesheet">
+	<script src="{% static  'vendors/iCheck/js/icheck.js' %}"></script>
+	<script src="{% static  'vendors/select2/js/select2.full.min.js' %}"></script>
+	<link href="{% static  'vendors/select2/css/select2.min.css' %}" rel="stylesheet">
+	<link href="{% static  'vendors/toastr/toastr.min.css' %}" rel="stylesheet">
+    <script src="{% static  'vendors/touchpunch/jquery.ui.touch-punch.min.js' %}"></script>
+	<script src="{% static  'vendors/jquery-ui/jquery-ui.min.js' %}"></script>
+
+	<link href="{% static  'vendors/select2/css/select2-bootstrap4.min.css' %}" rel="stylesheet">
+
+    <script src="{% static  'vendors/c3/c3.min.js' %}"></script>
+    <script src="{% static  'vendors/c3/d3.min.js' %}"></script>
+	<link href="{% static  'vendors/c3/c3.min.css' %}" rel="stylesheet">
+
+    <script src="{% static  'vendors/chartJs/Chart.min.js' %}"></script>
+
+{% endblock %}
+
+{% block head_title %}جزئیات کاربر{% endblock %}
+
+
+{% block title-breadcrumb %}
+	<div class="col-md-9">
+    <br>
+    <br>
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a>مدیریت پروژه ها</a>
+			</li>
+			<li class="breadcrumb-item">
+                <a href="{% url 'centers:projectpack_project_list' object.project_pack.id %}" >لیست پروژه ها</a>
+			</li>
+			<li class="breadcrumb-item active">
+				<a href="{% url 'centers:projectpack_project_details' object.id object.project_pack.id %}"><strong>جزئیات {{ object.name }}</strong></a>
+			</li>
+		</ol>
+	</div>
+
+	<div class="col-md-3">
+		<div class="title-action float-right">
+            <div class="btn-group">
+                <a href="{% url 'centers:task_list' pk_project=object.id %}" class="btn btn-lg btn-outline-primary"><i class="fa fa-tasks"></i> تسک ها</a>
+                {% has_perms user 'center;' as has_center_perm %}
+                {% has_perms user 'project;' as has_project_perm %}
+                {% if user.is_superuser or has_center_perm or has_project_perm %}
+                {% if object.project_pack.created_financial_statement %}
+                {% if not object.created_financial_statement %}
+                    <button  class="btn btn-sm btn-outline-success m-l-sm" onclick="$('#create-financial-statement').modal();">
+                        <i class="fa fa-money-bill"></i> ایجاد صورت مالی
+                    </button>
+                {% endif %}
+                {% endif %}
+                {% if not object.time_supplemented %}
+                    <button  class="btn btn-sm btn-outline-danger m-l-sm" onclick="$('#suppliment-time').modal();">
+                        <i class="fa fa-clock"></i> ایجاد متمم زمانی
+                    </button>
+                {% endif %}
+                {% if not object.time_supplement_form_uploaded %}
+                    <button  class="btn btn-sm btn-outline-dark m-l-sm" onclick="$('#suppliment-time-form-upload').modal();">
+                        <i class="fa fa-file"></i> بارگذاری فرم متمم زمانی
+                    </button>
+                {% endif %}
+                <a href="{% url 'centers:projectpack_project_update' pk=object.id projectpack_pk=object.project_pack.id %}" class="btn btn-lg btn-outline-warning"><i class="fa fa-sm fa-pen"></i><i class="fa fa-th-list"></i> ویرایش</a>
+                {% endif %}
+            </div>
+		</div>
+	</div>
+    <div class="modal fade" id="create-financial-statement">
+        <div class="modal-md modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h2 class="modal-title">ایجاد صورت مالی {{ object.name }}</h2>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div class="input-group mb-2">
+                      <div class="input-group-append">
+                        <span class="input-group-text" id="phone_number_label">تعداد بندها: </span>
+                      </div>
+                      <input type="number" class="form-control"  min="0" max="12" value="0" id="paragraph_num" aria-describedby="phone_number_label">
+                    </div>
+                    <p id="caution" style="color: red;">توجه: بعد از ایجاد صورت مالی حداکثر تا یک ماه جهت پرداخت مبلغ تراکنش اولین فرصت دارید.</p>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <div class="btn-group">
+                        <button onclick="create_financial_statement();" class="btn btn-outline-success" ><i class="fa small fa-check"></i> ایجاد</button>
+                        <button type="button" class="btn btn-outline-danger " data-dismiss="modal"><i class="fa small fa-times"></i> انصراف</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="suppliment-time">
+        <div class="modal-md modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h2 class="modal-title">ایجاد متمم زمانی {{ object.name }}</h2>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div class="input-group mb-2">
+                      <div class="input-group-append">
+                        <span class="input-group-text" id="phone_number_label">تعداد روز تمدید: </span>
+                      </div>
+                      <input type="number" class="form-control"  value="0" id="time_supplement_days" aria-describedby="phone_number_label">
+                    </div>
+                    <div class="input-group mb-2">
+                          <div class="input-group-append">
+                            <span class="input-group-text" id="description_label">علت تمدید: </span>
+                          </div>
+                            <textarea type="text" class="form-control" id="time_supplement_description" aria-describedby="description_label"></textarea>
+                        </div>
+                    <p id="caution" style="color: red;">توجه: بعد از ایجاد متمم زمانی امکان ایجاد متمم زمانی دیگری وجود ندارد. لطفا در تعداد روزهای وارده دقت لازم را نمایید.</p>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <div class="btn-group">
+                        <button onclick="suppliment_time();" class="btn btn-outline-success" ><i class="fa small fa-check"></i> ایجاد</button>
+                        <button type="button" class="btn btn-outline-danger " data-dismiss="modal"><i class="fa small fa-times"></i> انصراف</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="suppliment-time-form-upload">
+        <div class="modal-md modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h2 class="modal-title">بارگذاری فرم متمم زمانی {{ object.name }}</h2>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <br>
+                    {% include 'projects/attach_form.html' with supliment_form='فرم متمم زمانی'%}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+    <div class="col-lg-12">
+        <div class="col-lg-3 text-center">
+            <div><br></div>
+            <i class="fa fa-clock fa-3x"></i>
+            <h3><strong>زمان</strong></h3>
+            <div><br></div>
+            <div id="pie_time" style="height: 200px;"></div>
+            <div><br></div>
+        </div>
+        <div class="col-lg-3 text-center">
+            <div><br></div>
+            <i class="fa fa-clock fa-3x"></i>
+            <h3><strong>پیشرفت برنامه ای</strong></h3>
+            <div><br></div>
+            <div id="pie_programmed" style="height: 200px;"></div>
+            <div><br></div>
+        </div>
+        <div class="col-lg-3 text-center">
+            <div><br></div>
+            <i class="fa fa-chart-line fa-3x"></i>
+            <h3><strong>پیشرفت وزنی</strong></h3>
+            <div><br></div>
+            <div id="gauge" style="height: 180px"></div>
+            <div><br></div>
+        </div>
+        <div class="col-lg-3 text-center">
+            <div><br></div>
+            <i class="fa fa-chart-line fa-3x"></i>
+            <h3><strong>پیشرفت</strong></h3>
+            <div><br></div>
+            <div id="weightless_gauge" style="height: 180px"></div>
+            <div><br></div>
+        </div>
+    </div>
+    <div class="col-lg-12">
+                <div class="col-lg-3 text-center">
+                    <div><br></div>
+                    <i class="fa fa-th-list fa-10x"></i>
+                    <h1><strong>مشخصات</strong></h1>
+                </div>
+            <div class="card col-lg-9">
+<div><br></div>
+            <div class="row">
+                                <div class="col-lg-6">
+                                        <h3><strong>نام: </strong>{{ object.name }}</h3>
+                    <h3><strong>توضیحات: </strong>{{ object.description }}</h3>
+{#                    <h3><strong>مدیر ایجاد: </strong>{{ object.created_by }}</h3>#}
+                    <h3><strong>تاریخ ایجاد: </strong>{{ object.created_at | j_format_date:"%Y/%m/%d" }}</h3>
+                    <h3><strong>وضعیت: </strong>{{ object.get_status_display }}</h3>
+                    <h3><strong>مرکز: </strong>{{ object.center }}</h3>
+                    <h3><strong>مدیر: </strong>{{ object.manager }}</h3>
+                </div>
+                <div class="col-lg-6">
+                                        <h3><strong>تاریخ شروع قرارداد: </strong>{{ object.started_at | j_format_date:"%Y/%m/%d" }}</h3>
+                    <h3><strong>تاریخ پایان قرارداد: </strong>{{ object.finished_at | j_format_date:"%Y/%m/%d" }}</h3>
+                    <h3><strong>تاریخ ددلاین قرارداد: </strong>{{ object.to_be_finished | j_format_date:"%Y/%m/%d" }}</h3>
+                    <h3><strong>مدت قرارداد: </strong>{{ object.duration }} روز</h3>
+                    <h3><strong>مبلغ قرارداد(تومان): </strong>{{ object.payment|intcomma }} تومان</h3>
+                    <h3><strong>مبلغ پرداخت شده(تومان): </strong>{{ object.paid|intcomma }} تومان</h3>
+                </div>
+            </div>
+                <div><br></div>
+
+                </div>
+
+            </div>
+    <div class="col-lg-12">
+        <div class="col-lg-3 text-center">
+            <div><br></div>
+            <i class="fa fa-file-alt fa-10x"></i>
+            <h1><strong>پیوست</strong></h1>
+        </div>
+        <div class="card col-lg-9">
+            <div><br></div>
+                <div class="input-group mb-2">
+                    <div class="input-group-append">
+                        <span class="input-group-text" id="pay_label"><i class="fa fa-file"></i>فایل های پیوست</span>
+                    </div>
+                    <input readonly type="text" class="form-control" aria-describedby="name_label">
+                </div>
+                <br>
+                {% if not object.attachments.all.exists %}
+                    <br>
+                    <p class="text-center">تاکنون فایلی پیوست نشده است.</p>
+                {% endif %}
+                <div class="row">
+                {% for file in object.attachments.all %}
+                    <div class="col-lg-3">
+                        <br>
+                        <h5>فایل: {{ file.file|truncatechars:20 }}</h5>
+                        <h5>توضیحات: {{ file.description }}</h5>
+                        <div class="btn-group">
+                        <a href="{{ file.file.url }}" class="btn btn-sm btn-outline-primary">
+                            دانلود
+                            <i class="fa fa-download"></i>
+                        </a>
+{#                            <button data-toggle="modal" data-delete-what="{{ file.id }}" data-target="#delete-attach-modal-{{ file.id }}" class="btn btn-sm btn-outline-danger"><i class="fa fa-trash-alt"></i> حذف </button>#}
+                        </div>
+                            <div class="modal inmodal fade" id="delete-attach-modal-{{ file.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                                <span class="sr-only">Close</span>
+                                            </button>
+                                            <h5 class="modal-title" id="exampleModalLabel">حذف پیوست</h5>
+                                        </div>
+                                        <form method="post" id="delete-attach-form-{{ file.id }}" action="{% url 'centers:project_attach_delete' pk=file.id %}">
+                                            {% csrf_token %}
+                                            <div class="modal-body">
+                                                <p class="float-right">
+                                                    آیا واقعا می خواهید
+                                                    <code>
+                                                        <strong id="delete-name">{{ file.file }}</strong>
+                                                    </code>
+                                                    را حذف کنید؟
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer float-right">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">انصراف</button>
+                                                <button type="submit" class="btn btn-danger">حذف</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+	                        </div>
+                            <script>
+                                $('#delete-attach-modal-{{ file.id }}').on('show.bs.modal', function (e) {
+                                    delete_url = "{% url 'centers:project_attach_delete' pk=file.id %}";
+                                    $('#delete-attach-form-{{ file.id }}').attr('action', delete_url );
+                                });
+                                // this is the id of the form
+                                $("#delete-form-{{ file.id }}").submit(function (e) {
+                                    var form = $(this);
+                                    var url = form.attr('action');
+
+                                    $.ajax({
+                                        type: "POST",
+                                        url: url,
+                                        data: form.serialize(), // serializes the form's elements.
+                                        success: function (data) {
+                                            location.replace("{% url 'centers:projectpack_project_details' pk=object.id projectpack_pk=object.project_pack.id %}");
+                                        }
+                                    });
+                                    e.preventDefault(); // avoid to execute the actual submit of the form.
+                                });
+                            </script>
+                    </div>
+                {% endfor %}
+                </div>
+                <div class="col-lg-12">
+                    <br>
+                    {% include 'projects/attach_form.html' with supliment_form=''%}
+                </div>
+            <div><br></div>
+        </div>
+    </div>
+    <div class="col-lg-12">
+        <div class="col-lg-3 text-center">
+                    <div><br></div>
+                    <i class="fa fa-users fa-10x"></i>
+                            <h1><strong>اعضای پروژه</strong></h1>
+        </div>
+
+        <div class="card col-lg-9">
+                <div class="table-responsive">
+                <br>
+                            <table class="table table-striped table-bordered table-hover dataTables-example">
+                                <thead>
+                                <tr>
+                                    <th class="text-center" style="background-color: white;width: 7%">آواتار</th>
+                                    <th class="text-center" style="background-color: white">نام کاربری</th>
+                                    <th class="text-center" style="background-color: white">نام</th>
+                                    <th class="text-center" style="background-color: white">نام خانوادگی</th>
+                                    <th class="text-center" style="background-color: white">نقش</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {% for obj in object.employees.all %}
+                                    <tr id="c-tr-{{ obj.id }}"style="background-color: whitesmoke">
+                                        <td class="align-middle text-center">
+                                                <img class="rounded-circle img-avatar" src="{% if obj.avatar %}{{ obj.avatar.url }}{% else %}{% static 'img/user.png' %}{% endif %}">
+                                        </td>
+                                        <td class="align-middle text-center"><a href="{% url 'accounts:profile_details' pk=obj.id %}">{{ obj.user.username }}</a></td>
+                                        <td class="align-middle text-center">{{ obj.user.first_name }}</td>
+                                        <td class="align-middle text-center">{{ obj.user.last_name }}</td>
+                                        <td class="align-middle text-center">
+                                            {{ obj.get_user_main_role_display }}
+                                        </td>
+                                    </tr>
+                                    <div class="modal fade" id="pass-change-{{ obj.id }}">
+                                        <div class="modal-sm modal-dialog">
+                                            <div class="modal-content">
+
+                                                <!-- Modal Header -->
+                                                <div class="modal-header">
+                                                    <h2 class="modal-title">تغییر رمز عبور {{ obj.user.username }}</h2>
+                                                </div>
+
+                                                <!-- Modal body -->
+                                                <div class="modal-body">
+                                                    <div class="col-lg-12 text-center">
+                                                        <input type="password" id="password" name="pass" placeholder="پسورد جدید را وارد نمایید.">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Modal footer -->
+                                                <div class="modal-footer">
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn btn-outline-success " data-dismiss="modal"><i class="fa small fa-check"></i> تغییر</button>
+                                                        <button type="button" class="btn btn-outline-danger " data-dismiss="modal"><i class="fa small fa-times"></i> انصراف</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+            </div>
+    </div>
+    <div class="col-lg-12">
+        <br>
+        <br>
+    </div>
+    </div>
+
+	<!-- Delete Modal -->
+	<div class="modal inmodal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">Close</span>
+					</button>
+					<h5 class="modal-title" id="exampleModalLabel">حذف پروژه</h5>
+				</div>
+				<form method="post" id="delete-form" action="{% url 'centers:projectpackـproject_delete' pk=object.id %}">
+					{% csrf_token %}
+					<div class="modal-body">
+						<p class="float-right">
+							آیا واقعا می خواهید
+							<code>
+								<strong id="delete-name">{{ object.name }}</strong>
+							</code>
+							را حذف کنید؟
+						</p>
+					</div>
+					<div class="modal-footer float-right">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">انصراف</button>
+						<button type="submit" class="btn btn-danger">حذف</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block scripts %}
+	<link href="{% static 'vendors/datatables/css/datatables.min.css' %}" rel="stylesheet">
+	<script src="{% static 'vendors/datatables/js/datatables.min.js' %}"></script>
+	<script src="{% static 'vendors/datatables/js/datatables.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'vendors/modalform/jquery.bootstrap.modal.forms.js' %}"></script>
+
+	<script>
+    $(document).ready(function() {
+        $("#attach-project-{{ object.id }}").modalForm({
+            formURL: "{% url 'centers:project_attach_create' pk=object.id projectpack_pk=object.project_pack.id %}"
+        });
+    });
+     $(document).ready(function () {
+            c3.generate({
+                bindto: '#weightless_gauge',
+                data:{
+                    columns: [
+                        ['پیشرفت', '{{ object.weightless_progress }}']
+                    ],
+
+                    type: 'gauge'
+                },
+                color:{
+                    pattern: ['#ff6700', '#BABABA']
+                },
+            });
+            c3.generate({
+                bindto: '#gauge',
+                data:{
+                    columns: [
+                        ['پیشرفت وزنی', '{{ object.progress }}']
+                    ],
+
+                    type: 'gauge'
+                },
+                color:{
+                    pattern: ['#28a745', '#BABABA']
+                },
+            });
+
+            c3.generate({
+                bindto: '#pie_programmed',
+                data:{
+                    columns: [
+                        [' باقی مانده', '{{ programmed_remained_days }}'],
+                        [' سپری شده', '{{ done_days }}']
+                    ],
+                    colors:{
+                        ' باقی مانده': '#BABABA',
+                        ' سپری شده': '#35aadc'
+                    },
+                    type : 'pie'
+                },
+                legend: {
+                    show: false,
+                },
+            });
+            c3.generate({
+                bindto: '#pie_time',
+                data:{
+                    columns: [
+                        [' باقی مانده', '{{ remained_days }}'],
+                        [' سپری شده', '{{ gone_days }}']
+                    ],
+                    colors:{
+                        ' باقی مانده': '#BABABA',
+                        ' سپری شده': '#dc3545'
+                    },
+                    type : 'pie'
+                },
+                legend: {
+                    show: false,
+                }
+            });
+
+        });
+
+		var table;
+		$(document).ready(function () {
+			table = $('.dataTables-example').DataTable({
+				pageLength: 25,
+				responsive: true,
+				dom: 'Tfgtp',
+			});
+		});
+
+		function create_financial_statement(){
+        $.ajax({
+            url: "{% url 'transactions:ajax' %}",
+            data: {
+                'request_type': 'project_create_financial_statement',
+                'project_id': '{{ object.id }}',
+                'paragraph_num': $('#paragraph_num').val(),
+            },
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (data) {
+                if(data['error'] === 0){
+                    location.reload();
+                }
+                else if(data['error'] === 2){
+                    $('#caution').text('مبلغ قرارداد پروژه صفر است. لطفا آن را اصلاح نمایید.')
+                }
+                else if(data['error'] === 3){
+                    $('#caution').text('تعداد بندهای قرارداد باید یک یا بیشتر باشد.')
+                }
+            }
+        });
+    }
+
+        function suppliment_time(){
+            $.ajax({
+                url: "{% url 'centers:ajax' %}",
+                data: {
+                    'request_type': 'project_suppliment_time',
+                    'project_id': '{{ object.id }}',
+                    'time_supplement_days': $('#time_supplement_days').val(),
+                    'time_supplement_description': $('#time_supplement_description').val(),
+                },
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (data) {
+                    if(data['error'] === 0){
+                        location.reload();
+                    }
+                }
+            });
+        }
+
+    </script>
+{% endblock %}
+

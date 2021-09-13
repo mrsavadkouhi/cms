@@ -1,0 +1,86 @@
+{% load widget_tweaks %}
+{% load helper_tags %}
+
+{% if is_paginated %}
+	<div class="row my-2">
+		<div class="col-3">
+
+			<form method="get" autocomplete="off">
+				<!-- Form Errors -->
+				{% if per_page_form.non_field_errors %}
+					<ul class="errors text-danger">
+						{% for error in per_page_form.non_field_errors %}
+							<li>{{ error }}</li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+				<!-- Hidden fields -->
+				{% for field in per_page_form.hidden_fields %}
+					{{ field }}
+				{% endfor %}
+				<!-- Display Form -->
+				<div>
+					{% for field in per_page_form.visible_fields %}
+						<div class="row">
+							<div class="form-group col-md-12 pull-right">
+								<div class="row">
+									<div class="col-md-5 pull-right text-font">
+										{{ field.label_tag }}
+									</div>
+									<div class="col-md-7 pull-right text-font">
+										{{ field|add_class:'form-control'|attr:'onchange:this.form.submit()' }}
+										<div class="text-danger">
+											{% if field.errors %}
+												{{ field.errors }}
+											{% endif %}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			</form>
+
+		</div>
+
+		<div class="col-9" style="text-align: left">
+			<nav aria-label="Page navigation example">
+				<ul class="pagination">
+					{% if page_obj.has_previous %}
+						<li class="page-item"><a class="page-link" href="{% add_get page=1 per_page=paginator.per_page %}">ابتدا</a></li>
+						<li class="page-item"><a class="page-link" href="{% add_get page=page_obj.previous_page_number per_page=paginator.per_page %}">قبلی</a></li>
+					{% else %}
+						<li class="page-item disabled"><a class="page-link" href="#">ابتدا</a></li>
+						<li class="page-item disabled"><a class="page-link" href="#">قبلی</a></li>
+					{% endif %}
+
+					{% if lower_dot %}
+						<li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+					{% endif %}
+
+					{% for i in pagination_range %}
+						{% if page_obj.number == i %}
+							<li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+						{% else %}
+							<li class="page-item"><a class="page-link" href="{% add_get page=i per_page=paginator.per_page %}">{{ i }}</a></li>
+						{% endif %}
+					{% endfor %}
+
+					{% if upper_dot %}
+						<li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+					{% endif %}
+
+					{% if page_obj.has_next %}
+						<li class="page-item"><a class="page-link" href="{% add_get page=page_obj.next_page_number per_page=paginator.per_page %}">بعدی</a></li>
+						<li class="page-item"><a class="page-link" href="{% add_get page=paginator.num_pages per_page=paginator.per_page %}">انتها</a></li>
+					{% else %}
+						<li class="page-item disabled"><a class="page-link" href="#">بعدی</a></li>
+						<li class="page-item disabled"><a class="page-link" href="#">انتها</a></li>
+					{% endif %}
+				</ul>
+			</nav>
+		</div>
+	</div>
+
+{% endif %}

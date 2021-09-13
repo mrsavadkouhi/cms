@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load helper_filter %}
+{% load jalali_date %}
+
+
+{% block head_title %}فهرست کاربران{% endblock %}
+
+{% block title-breadcrumb %}
+	<div class="col-md-10">
+    <br>
+    <br>
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a>مدیریت کاربران</a>
+			</li>
+			<li class="breadcrumb-item active">
+                <a {% if user.is_superuser or user.profile.is_supermanager %} href="{% url 'accounts:profile_list' %}" {% endif %}><strong>لیست کاربران</strong></a>
+			</li>
+		</ol>
+	</div>
+
+	<div class="col-md-2">
+		<div class="title-action float-right">
+            {%  has_perms user 'center;' as has_center_perm %}
+            {%  has_perms user 'users;' as has_users_perm %}
+            {%  has_perms user 'user;' as has_user_perm %}
+            {% if user.is_superuser or has_users_perm %}
+            <a href="{% url 'accounts:profile_create' %}" class="btn btn-outline-primary"><i class="fa fa-user-plus"></i> افزودن کاربر جدید</a>
+		    {% elif has_center_perm or has_users_perm or has_user_perm %}
+                <a href="{% url 'accounts:center_profile_create' the_center.id %}" class="btn btn-outline-primary"><i class="fa fa-user-plus"></i> افزودن کاربر جدید</a>
+            {% endif %}
+        </div>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+    <div class="table-responsive">
+                    <table class="table table-striped table-bordered table-hover dataTables-example">
+                        <thead>
+                        <tr>
+                            <th class="text-center" style="background-color: white;width: 7%">آواتار</th>
+                            <th class="text-center" style="background-color: white">نام کاربری</th>
+                            <th class="text-center" style="background-color: white">نام</th>
+                            <th class="text-center" style="background-color: white">نام خانوادگی</th>
+                            {% if not in_center %}
+                            <th class="text-center" style="background-color: white">مرکز</th>
+                            {% endif %}
+                            <th class="text-center" style="background-color: white">نقش</th>
+                            <th class="text-center" style="background-color: white;width: 10%">عملیات</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for obj in object_list %}
+                            <tr id="c-tr-{{ obj.id }}"style="background-color: whitesmoke">
+                                <td class="align-middle text-center">
+                                        <img class="rounded-circle img-avatar" src="{% if obj.avatar %}{{ obj.avatar.url }}{% else %}{% static 'img/user.png' %}{% endif %}">
+                                </td>
+                                <td class="align-middle text-center"><a href="{% url 'accounts:profile_details' pk=obj.id %}">{{ obj.user.username }}</a></td>
+                                <td class="align-middle text-center">{{ obj.user.first_name }}</td>
+                                <td class="align-middle text-center">{{ obj.user.last_name }}</td>
+                                {% if not in_center %}
+                                <td class="align-middle text-center">{{ obj.get_user_center_display }}</td>
+                                {% endif %}
+                                <td class="align-middle text-center">
+                                    {{ obj.get_user_main_role_display }}
+                                </td>
+                                <td class="align-middle text-center">
+                                    <div class="btn-group">
+                                        <button data-cid="{{ obj.id }}" class="btn btn-sm btn-outline-success m-l-sm" onclick="$('#pass-change-{{ obj.id }}').modal();"><i
+                                            class="fa fa-lock"></i> تغییر رمز عبور
+                                    </button>
+                                        <button data-cid="{{ obj.id }}" class="btn btn-sm btn-outline-primary m-l-sm" onclick="$('#profile-report-{{ obj.id }}').modal();">
+                                            <i class="fa fa-file"></i> گزارش عملکرد
+                                    </button>
+                                    {%  has_perms user 'users;' as has_users_perm %}
+                                    {%  has_perms user 'user;' as has_user_perm %}
+                                    {% if user.is_superuser or has_users_perm %}
+                                    <a href="{% url 'accounts:profile_update' obj.id %}" class="btn btn-outline-warning"><i class="fa fa-user-plus"></i> ویرایش</a>
+                                    {% elif has_center_perm or has_users_perm or has_user_perm %}
+                                        <a href="{% url 'accounts:center_profile_update' pk=obj.id center_pk=the_center.id %}" class="btn btn-outline-warning"><i class="fa fa-user-plus"></i> ویرایش</a>
+                                    {% endif %}
+{#                                        <a href="{% if in_center %}{% url 'accounts:center_profile_update' pk=obj.id center_pk=the_center.id %}{% else %}{% url 'accounts:profile_update' pk=obj.id %}{% endif %}" class="btn btn-sm btn-outline-warning"><i class="fa fa-user-edit"></i> ویرایش</a>#}
+
+                                        <button data-cid="{{ obj.id }}" class="btn btn-sm btn-outline-danger m-l-sm" data-toggle="modal" data-target="#delete-modal"><i
+                                            class="fa fa-trash"></i> حذف
+                                    </button>
+
+                                    </div>
+                                </td>
+                            </tr>
+                            <div class="modal fade" id="pass-change-{{ obj.id }}">
+                                <div class="modal-sm modal-dialog">
+                                    <div class="modal-content">
+
+                                        <!-- Modal Header -->
+                                        <div class="modal-header">
+                                            <h2 class="modal-title">تغییر رمز عبور {{ obj.user.username }}</h2>
+                                        </div>
+
+                                        <!-- Modal body -->
+                                        <div class="modal-body">
+                                            <div class="col-lg-12 text-center">
+                                                <input type="password" id="password" placeholder="پسورد جدید را وارد نمایید.">
+                                            </div>
+                                        </div>
+
+                                        <!-- Modal footer -->
+                                        <div class="modal-footer">
+                                            <div class="btn-group">
+                                                <button onclick="change_password({{ obj.id }});" class="btn btn-outline-success" ><i class="fa small fa-check"></i> تغییر</button>
+                                                <button type="button" class="btn btn-outline-danger " data-dismiss="modal"><i class="fa small fa-times"></i> انصراف</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal fade" id="profile-report-{{ obj.id }}">
+                                <div class="modal-md modal-dialog">
+                                    <div class="modal-content">
+
+                                        <!-- Modal Header -->
+                                        <div class="modal-header">
+                                            <h2 class="modal-title">گزارش عملکرد {{ obj }}</h2>
+                                        </div>
+
+                                        <!-- Modal body -->
+                                        <div class="modal-body">
+                                            <div class="col-lg-12 text-right">
+                                                <h3>پک پروژه های مدیریتی</h3>
+                                                {% for pack in obj.projectpack_manager.all %}
+                                                    <div class="card col-lg-5 offset-1 text-center">
+                                                        <h5><a href="{% url 'centers:projectpack_details' pack.id %}">{{ pack.name }}</a></h5>
+                                                    </div>
+                                                {% endfor %}
+                                                <div class="col-lg-12"><br></div>
+                                                <h3>پک پروژه های نظارتی</h3>
+                                                {% for pack in obj.projectpack_monitoring_manager.all %}
+                                                    <div class="card col-lg-5 offset-1 text-center">
+                                                        <h5><a href="{% url 'centers:projectpack_details' pack.id %}">{{ pack.name }}</a></h5>
+                                                    </div>
+                                                {% endfor %}
+                                                <div class="col-lg-12"><br></div>
+                                                <h3>پروژه های مدیریتی</h3>
+                                                {% for project in obj.project_manager.all %}
+                                                    <div class="card col-lg-5 offset-1 text-center">
+                                                        <h5><a href="{% url 'centers:projectpack_project_details' project.id project.project_pack.id %}">{{ project.name }}</a></h5>
+                                                    </div>
+                                                {% endfor %}
+                                                <div class="col-lg-12"><br></div>
+                                                <h3>پروژه های نظارتی</h3>
+                                                {% for project in obj.project_monitoring_manager.all %}
+                                                    <div class="card col-lg-5 offset-1 text-center">
+                                                        <h5><a href="{% url 'centers:projectpack_project_details' project.id project.project_pack.id %}">{{ project.name }}</a></h5>
+                                                    </div>
+                                                {% endfor %}
+                                                <div class="col-lg-12"><br></div>
+                                                <h3>پروژه های عضو</h3>
+                                                {% for project in obj.project_employees.all %}
+                                                    <div class="card col-lg-11 offset-1">
+                                                        <h5><a href="{% url 'centers:projectpack_project_details' project.id project.project_pack.id %}">{{ project.name }}</a></h5>
+                                                        <h5>تسک های واگذار شده</h5>
+                                                        {% for task in project.task_set.all %}
+                                                            {% if task.employee == obj %}
+                                                            <p>{{ task.name }}</p>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                    <div class="col-lg-12"><br></div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+
+                                        <!-- Modal footer -->
+                                        <div class="modal-footer">
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-outline-danger " data-dismiss="modal"><i class="fa small fa-times"></i> بستن</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+    </div>
+
+	<!-- Delete Modal -->
+	<div class="modal inmodal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">بستن</span>
+					</button>
+					<h5 class="modal-title" id="exampleModalLabel">حذف کاربر</h5>
+				</div>
+				<form method="post" id="delete-form">
+					{% csrf_token %}
+					<div class="modal-body">
+						<p class="float-right">
+							آیا واقعا می خواهید
+							<code>
+								<strong id="delete-first-name"></strong>
+								<strong id="delete-last-name"></strong>
+							</code>
+							را حذف کنید؟
+						</p>
+					</div>
+					<div class="modal-footer float-right">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">انصراف</button>
+						<button type="submit" class="btn btn-danger">حذف</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+	<link href="{% static 'vendors/datatables/css/datatables.min.css' %}" rel="stylesheet">
+	<script src="{% static 'vendors/datatables/js/datatables.min.js' %}"></script>
+	<script src="{% static 'vendors/datatables/js/datatables.bootstrap4.min.js' %}"></script>
+
+	<script>
+		var table;
+		$(document).ready(function () {
+			table = $('.dataTables-example').DataTable({
+				pageLength: 25,
+				responsive: true,
+				{#dom: '<"html5buttons"B>lTfgitp',#}
+				dom: 'lTfgitp',
+
+			});
+
+		});
+
+		function change_password(id){
+            $.ajax({
+                url: "{% url 'centers:ajax' %}",
+                data: {
+                    'request_type': 'profile_password_change',
+                    'new_password': $('#password').val(),
+                    'profile_id': id,
+                },
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (data) {
+                    location.reload();
+                }
+            });
+        }
+
+        $('#delete-modal').on('show.bs.modal', function (e) {
+			id = $(e.relatedTarget).data('cid');
+			tr = $('#c-tr-' + id);
+			$('#delete-first-name').text(tr.find("td:eq(1)").text());
+			{#$('#delete-last-name').text(tr.find("td:eq(3)").text());#}
+			delete_url = "{% url 'accounts:profile_delete' pk=0 %}";
+			$('#delete-form').attr('action', delete_url + id);
+		});
+
+		// this is the id of the form
+		$("#delete-form").submit(function (e) {
+			var form = $(this);
+			var url = form.attr('action');
+
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: form.serialize(), // serializes the form's elements.
+				success: function (data) {
+					location.reload();
+				}
+			});
+			e.preventDefault(); // avoid to execute the actual submit of the form.
+		});
+	</script>
+{% endblock %}
+

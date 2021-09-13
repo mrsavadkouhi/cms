@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load jalali_date %}
+
+{% block last-header %}
+	<link href="{% static 'vendors/iCheck/css/all.css' %}" rel="stylesheet">
+	<script src="{% static  'vendors/iCheck/js/icheck.js' %}"></script>
+	<script src="{% static  'vendors/select2/js/select2.full.min.js' %}"></script>
+	<link href="{% static  'vendors/select2/css/select2.min.css' %}" rel="stylesheet">
+	<link href="{% static  'vendors/toastr/toastr.min.css' %}" rel="stylesheet">
+    <script src="{% static  'vendors/touchpunch/jquery.ui.touch-punch.min.js' %}"></script>
+	<script src="{% static  'vendors/jquery-ui/jquery-ui.min.js' %}"></script>
+	<link href="{% static  'vendors/select2/css/select2-bootstrap4.min.css' %}" rel="stylesheet">
+
+{% endblock %}
+
+{% block head_title %}پیشخوان{% endblock %}
+
+{% block title-breadcrumb %}
+
+	<div class="col-md-8">
+                    <br>
+                    <br>
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a>پیشخوان</a>
+			</li>
+			<li class="breadcrumb-item active">
+				<a href="{% url 'dashboard:main' %}"><strong>تسک های من</strong></a>
+			</li>
+		</ol>
+	</div>
+
+{% endblock %}
+
+{% block mid-header %}
+	<link href="{% static 'vendors/datatables/css/datatables.min.css' %}" rel="stylesheet">
+	<script src="{% static 'vendors/datatables/js/datatables.min.js' %}"></script>
+	<script src="{% static 'vendors/datatables/js/datatables.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'vendors/modalform/jquery.bootstrap.modal.forms.js' %}"></script>
+        <link href="{% static 'vendors/persian-date/persian-datepicker.min.css' %}" rel="stylesheet">
+    <script src="{% static 'vendors/persian-date/persian-datepicker.min.js' %}"></script>
+    <script src="{% static 'vendors/persian-date/persian-date.js' %}"></script>
+    <script src="{% static 'vendors/detect/detect.js' %}"></script>
+    <style>
+        @media (min-width: 768px) {
+          .modal-xl {
+            width: 90%;
+           max-width:1200px;
+          }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+                <div class="col-lg-3">
+                    <div class="ibox">
+                        <div class="ibox-content">
+                            <h3>جهت انجام</h3>
+
+                            <ul class="sortable-list connectList agile-list" id="to_do">
+                                {% for obj in task_to_do %}
+                                    {% include "tasks/mytask.html" with color='danger' %}
+                                {% endfor %}
+                                {% for obj in subtask_to_do %}
+                                    {% include "tasks/mysubtask.html" with color='danger' %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="ibox">
+                        <div class="ibox-content">
+                            <h3>در حال انجام</h3>
+                            <ul class="sortable-list connectList agile-list" id="inprogress">
+                                {% for obj in task_inprogress %}
+                                    {% include "tasks/mytask.html" with color='warning' %}
+                                {% endfor %}
+                                {% for obj in subtask_inprogress %}
+                                    {% include "tasks/mysubtask.html" with color='warning' %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="ibox">
+                        <div class="ibox-content">
+                            <h3>انجام شده</h3>
+                            <ul class="sortable-list connectList agile-list" id="completed">
+                            {% for obj in task_completed %}
+                                {% include "tasks/mytask.html" with color='success' %}
+                            {% endfor %}
+                            {% for obj in subtask_completed %}
+                                {% include "tasks/mysubtask.html" with color='success' %}
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var status_color = {
+        'to_do':'danger-element',
+        'inprogress':'warning-element',
+        'completed':'success-element',
+        'verified':'info-element',
+    }
+	$(document).ready(function(){
+
+            $("#to_do, #inprogress, #completed, #verified").sortable({
+                connectWith: ".connectList",
+                update: function( event, ui )   {
+                    var tmp = ui.item[0].id;
+                    var type = tmp.split('-')[0];
+                    var id = tmp.split('-')[1];
+                    var old_status = tmp.split('-')[2];
+                    var new_status = event.target.id;
+                    if( new_status !== old_status) {
+                        if(type==='task'){
+                            task_status_update(new_status,id);
+                        }
+                        else{
+                            subtask_status_update(new_status,id);
+                        }
+                        ui.item.removeClass(status_color[old_status]);
+                        ui.item.addClass(status_color[new_status]);
+                    }
+                }
+            }).disableSelection();
+
+        });
+
+    function task_create() {
+        $.ajax({
+            url: "{% url 'centers:ajax' %}",
+            data: {
+                'request_type': 'task_create',
+                'project_id': '{{ project_id }}',
+                'task_name': $('#name').val(),
+            },
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (data) {
+                location.reload();
+            }
+        });
+    }
+
+    function task_status_update(new_satus,id) {
+        $.ajax({
+            url: "{% url 'centers:ajax' %}",
+            data: {
+                'request_type': 'task_status_update',
+                'task_new_status': new_satus,
+                'task_id': id,
+            },
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (data) {
+            }
+        });
+    }
+
+    function subtask_create(task_id,task_name,avatar_url) {
+        var name = $(`#subtask-inputname-${task_id}`).val();
+        $.ajax({
+            url: "{% url 'centers:ajax' %}",
+            data: {
+                'request_type': 'subtask_create',
+                'task_id': task_id,
+                'subtask_name': name,
+            },
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (data) {
+                    if(name!==''){
+                    $(`#subtasks-${task_id}`).append(
+                    `<div class="col-lg-3">
+                    <li class="danger-element" style="background-color: lightyellow" id="subtask-${task_id}">
+                    {% if user.is_superuser or user.profile.is_supermanager or user.profile.is_centermanager or project.manager == user.profile %} <i class="fa fa-times-circle" style="color: red" onclick="$('#delete-modal-subtask-${task_id}').modal();"></i><br>{% endif %}
+                    <span><i class="fa fa-reply"></i> (${task_name})</span>
+                    <h5>${name}</h5>
+                    <div class="row agile-detail">
+                        <div class="col-md-6 text-right">
+                        <img class="rounded-circle img-avatar" style="height: 30px;width: 30px" src="${avatar_url}">
+                        </div>
+                    </div>
+                    </li>
+                    </div>`
+                    );
+
+                    $(`#to_do`).append(
+                    `<li ondblclick="$('#edit-subtask-${task_id}').modal();" class="danger-element" style="background-color: lightyellow" id="subtask-${task_id}">
+                    {% if user.is_superuser or user.profile.is_supermanager or user.profile.is_centermanager or project.manager == user.profile %} <i class="fa fa-times-circle" style="color: red" onclick="$('#delete-modal-subtask-${task_id}').modal();"></i><br>{% endif %}
+                    <span><i class="fa fa-reply"></i> (${task_name})</span>
+                    <h5>${name}</h5>
+                    <div class="row agile-detail">
+                        <div class="col-md-6 text-right">
+                        <img class="rounded-circle img-avatar" style="height: 30px;width: 30px" src="${avatar_url}">
+                        </div>
+                    </div>
+                    </li>`
+                    );
+                    }
+            }
+        });
+    }
+
+    function subtask_status_update(new_satus,id) {
+        $.ajax({
+            url: "{% url 'centers:ajax' %}",
+            data: {
+                'request_type': 'subtask_status_update',
+                'subtask_new_status': new_satus,
+                'subtask_id': id,
+            },
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (data) {
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'empty_base.html' %}
+{% load staticfiles %}{% load widget_tweaks %}{% load i18n %}
+
+{% block title %}Error{% endblock %}
+
+{% block content %}
+	<div class="middle-box text-center animated fadeInDown">
+		<h1 class="font-bold">{{ title }}</h1>
+
+		<div class="error-desc">
+			{{ description }}
+			<br/><input type="button" onclick="window.history.back()" value="Go Back" class="btn btn-primary m-t"/>
+			<form class="form-inline m-t" role="form">
+				<div class="form-group row">
+					<input type="text" class="form-control" placeholder="Search for page">
+				</div>
+				<button type="submit" class="btn btn-primary">Search</button>
+			</form>
+		</div>
+	</div>
+{% endblock %}

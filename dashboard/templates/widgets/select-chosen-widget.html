@@ -1,0 +1,14 @@
+{% include 'django/forms/widgets/select.html' %}
+{% load helper_filter %}
+<script>
+	$("#{{ widget.attrs.id}}").removeAttr('required');
+
+	var {{ widget.attrs.id|dash2underline }}_widget_element = $('#{{ widget.attrs.id }}');
+	var {{ widget.attrs.id|dash2underline  }}_options = {
+		allow_single_deselect: true,
+		width: '100%',
+	};
+
+	var {{ widget.attrs.id|dash2underline }}_chosen = {{ widget.attrs.id|dash2underline }}_widget_element.chosen({{ widget.attrs.id|dash2underline }}_options);
+</script>
+

@@ -1,0 +1,70 @@
+@font-face {
+	font-family: IranSans;
+	src: url('../bootstrap-rtl/fonts/IranSans/fonts/IRANSansWeb.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: IranSans;
+	font-weight: bold;
+	src: url('../bootstrap-rtl/fonts/IranSans/fonts/IRANSansWeb.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: VazirFD;
+	src: url('../bootstrap-rtl/fonts/Vazir-FarsiDigitsWithoutLatin/fonts/Vazir-Regular-FD-WOL.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: VazirFD;
+	font-weight: bold;
+	src: url('../bootstrap-rtl/fonts/Vazir-FarsiDigitsWithoutLatin/fonts/Vazir-Bold-FD-WOL.woff2') format('woff2');
+}
+
+.leaflet-draw-tooltip {
+	background: rgb(54, 54, 54);
+	background: rgba(0, 0, 0, 0.5);
+	border: 1px solid transparent;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	color: #fff;
+	font: 12px/18px VazirFD;
+	margin-right: 20px;
+	margin-top: -21px;
+	padding: 4px 8px;
+	position: absolute;
+	visibility: hidden;
+	white-space: nowrap;
+	z-index: 6;
+}
+
+.leaflet-draw-tooltip:before {
+	border-left: 6px solid black;
+	border-left-color: rgba(0, 0, 0, 0.5);
+	border-top: 6px solid transparent;
+	border-bottom: 6px solid transparent;
+	content: "";
+	position: absolute;
+	top: 7px;
+	right: -7px;
+}
+
+.leaflet-draw-actions a {
+	background-color: #919187;
+	border-left: 1px solid #AAA;
+	color: #FFF;
+	font: 13px/19px VazirFD !important;
+	line-height: 28px;
+	text-decoration: none;
+	padding-left: 10px;
+	padding-right: 10px;
+	height: 28px;
+}
+
+.leaflet-contextmenu {
+	font-family: VazirFD !important;
+}
+
+.per {
+	font-family: VazirFD !important;
+
+}

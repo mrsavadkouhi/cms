@@ -1,0 +1,16 @@
+{% extends 'empty_base.html' %}
+{% load staticfiles %}{% load widget_tweaks %}{% load i18n %}
+
+{% block title %}400 Error | Bad Request{% endblock %}
+
+{% block content %}
+	<div class="middle-box text-center animated fadeInDown">
+		<h1>400</h1>
+		<h3 class="font-bold">Bad Request</h3>
+
+		<div class="error-desc">
+			Sorry, The server cannot process the request due to something that is perceived to be a client error.
+			<br/><input type="button" onclick="window.history.back()" value="Go Back" class="btn btn-primary m-t"/>
+		</div>
+	</div>
+{% endblock %}

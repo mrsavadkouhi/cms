@@ -1,0 +1,69 @@
+{% load widget_tweaks %}
+
+{{ form.media }}
+
+{% for hidden_field in form.hidden_fields %}
+	{{ hidden_field }}
+{% endfor %}
+
+{% if form.non_field_errors %}
+	<div class="alert alert-danger" role="alert">
+		{% for error in form.non_field_errors %}
+			{{ error }}
+		{% endfor %}
+	</div>
+{% endif %}
+
+{% for field in form.visible_fields %}
+	<div class="form-group form-row">
+		{% if field.field.widget.input_type != 'checkbox' %}
+			<label for="{{ field.id_for_label }}" class="col-sm-2 col-form-label col-form-label-lg">{{ field.label }} {% if field.field.required %}
+				<span class="text-danger">*</span> {% endif %}</label>
+			<div class="col-lg-9">
+				{% if form.is_bound %}
+					{% if field.errors %}
+						{% render_field field class="form-control is-invalid" %}
+						{% for error in field.errors %}
+							<div class="invalid-feedback">
+								{{ error }}
+							</div>
+						{% endfor %}
+					{% else %}
+						{% render_field field class="form-control is-valid" %}
+					{% endif %}
+				{% else %}
+					{% render_field field class="form-control" %}
+				{% endif %}
+
+				{% if field.help_text %}
+					<small class="form-text text-muted">{{ field.help_text }}</small>
+				{% endif %}
+			</div>
+		{% else %}
+			{% if form.is_bound %}
+				{% if field.errors %}
+					<div class="i-checks col-lg-6"><label class="col-form-label-lg"> {% render_field field class="is-invalid" %} <i></i> {{ field.label }}
+						{% if field.field.required %}
+							<span class="text-danger">*</span> {% endif %}</label></div>
+					{% for error in field.errors %}
+						<div class="invalid-feedback">
+							{{ error }}
+						</div>
+					{% endfor %}
+				{% else %}
+					<div class="i-checks col-lg-6"><label class="col-form-label-lg"> {% render_field field class="is-valid" %} <i></i> {{ field.label }}
+						{% if field.field.required %}
+							<span class="text-danger">*</span> {% endif %}</label></div>
+				{% endif %}
+			{% else %}
+				<div class="i-checks col-lg-6"><label class="col-form-label-lg"> {% render_field field %} <i></i> {{ field.label }} {% if field.field.required %}
+					<span class="text-danger">*</span> {% endif %}</label></div>
+			{% endif %}
+
+			{% if field.help_text %}
+				<small class="form-text text-muted">{{ field.help_text }}</small>
+			{% endif %}
+		{% endif %}
+
+	</div>
+{% endfor %}

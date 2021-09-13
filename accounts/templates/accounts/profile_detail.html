@@ -1,0 +1,154 @@
+{% extends 'base.html' %}{% load static %}
+{% load humanize %}
+{% load jalali_date %}
+{% load helper_filter %}
+
+{% block last-header %}
+	<script src="{% static  'vendors/select2/js/select2.full.min.js' %}"></script>
+	<link href="{% static  'vendors/select2/css/select2.min.css' %}" rel="stylesheet">
+	<link href="{% static  'vendors/select2/css/select2-bootstrap4.min.css' %}" rel="stylesheet">
+
+    <style>
+        .circle-img {
+          width: 200px;
+          height: 200px;
+          overflow: hidden;
+        }
+
+        .circle-img img {
+          height: 100%;
+          transform: translateX(-50%);
+          margin-left: 50%;
+        }
+    </style>
+
+{% endblock %}
+
+{% block head_title %}جزئیات کاربر{% endblock %}
+
+
+{% block title-breadcrumb %}
+	<div class="col-md-9">
+    <br>
+    <br>
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a>مدیریت کاربران</a>
+			</li>
+			<li class="breadcrumb-item">
+                <a href="{% url 'accounts:profile_list' %}" >لیست کاربران</a>
+			</li>
+			<li class="breadcrumb-item active">
+				<a href="{% url 'accounts:profile_details' object.id %}"><strong>جزئیات {{ object.user.username }}</strong></a>
+			</li>
+		</ol>
+	</div>
+
+	<div class="col-md-3">
+		<div class="title-action float-right">
+            <div class="btn-group">
+                <a href="{% if in_center %}{% url 'accounts:center_profile_update' pk=object.id center_pk=object.get_user_center %}{% else %}{% url 'accounts:profile_update' pk=object.id %}{% endif %}" class="btn btn-lg btn-outline-warning"><i class="fa fa-user-edit"></i> ویرایش</a>
+{#			<button data-toggle="modal" data-delete-what="{{ object.id }}" data-target="#delete-modal" class="btn btn-lg btn-outline-danger"><i class="fa fa-trash"></i> حذف </button>#}
+            </div>
+			</div>
+	</div>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-12">
+                <div class="col-lg-3 text-center">
+                                        <div><br></div>
+                                        <img class="img-thumbnail circle-img img-circle" src="{% if object.avatar %}{{ object.avatar.url }}{% else %}{% static 'img/user.png' %}{% endif %}">
+                    <h1><strong>نام کاربری: </strong>{{ object.user.username }}</h1>
+                                        <div><br></div>
+                    <i class="fa fa-file fa-10x"></i>
+                    <h1><strong>فایل رزومه</strong></h1>
+                <div><br></div>
+                    {% if object.resume %}
+                        <a href="{{ object.resume.url }}" class="btn btn-lg btn-outline-primary"><i class="fa fa-download"></i> دانلود</a>
+                    {% else %}
+                        <h3>رزومه ای بارگذاری نشده</h3>
+                    {% endif %}
+                    <div><br></div>
+                </div>
+            <div class="card col-lg-9">
+<div><br></div>
+                    <h3><strong>نام: </strong>{{ object.user.first_name }}</h3>
+                    <h3><strong>نام خانوادگی: </strong>{{ object.user.last_name }}</h3>
+                    <h3><strong>جنسیت: </strong>{{ object.get_sex_display }}</h3>
+                    <h3><strong>ایمیل: </strong>{{ object.user.email }}</h3>
+                    <h3><strong>نقش: </strong>{{ object.get_user_role_display }}</h3>
+                    <h3><strong>تاریخ ایجاد: </strong>{{ object.created_at | j_format_date:"%Y/%m/%d"  }}</h3>
+                    <h3><strong>تلفن همراه: </strong>{{ object.mobile_number }}</h3>
+                    <h3><strong>تلفن ثابت: </strong>{{ object.phone_number }}</h3>
+                    <h3><strong>نشانی: </strong>{{ object.address }}</h3>
+                    <hr>
+                    <h3><strong>مدرک: </strong>{{ object.get_degree_display }}</h3>
+                    <h3><strong>رشته: </strong>{{ object.get_measure_display }}</h3>
+                    <h3><strong>دانشگاه: </strong>{{ object.get_university_display }}</h3>
+                    <h3><strong>زبان های برنامه نویسی: </strong>{% for obj in object.langs.all %}{{ obj }},{% endfor %}</h3>
+                    <h3><strong>نرم افزارهای مسلط: </strong>{% for obj in object.softwares.all %}{{ obj }},{% endfor %}</h3>
+                    <h3><strong>سایر توانایی ها: </strong>{{ object.other_abilities }}</h3>
+
+                <div><br></div>
+                </div>
+
+            </div>
+
+    </div>
+
+	<!-- Delete Modal -->
+	<div class="modal inmodal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						<span class="sr-only">بستن</span>
+					</button>
+					<h5 class="modal-title" id="exampleModalLabel">حذف کاربر</h5>
+				</div>
+				<form method="post" id="delete-form" action="{% url 'accounts:profile_delete' pk=object.id %}">
+					{% csrf_token %}
+					<div class="modal-body">
+						<p class="float-right">
+							آیا واقعا می خواهید
+							<code>
+								<strong id="delete-name">{{ object.user.get_full_name }}</strong>
+							</code>
+							را حذف کنید؟
+						</p>
+					</div>
+					<div class="modal-footer float-right">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">انصراف</button>
+						<button type="submit" class="btn btn-danger">حذف</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+	<script>
+		// this is the id of the form
+		$("#delete-form").submit(function (e) {
+			var form = $(this);
+			var url = form.attr('action');
+
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: form.serialize(), // serializes the form's elements.
+				success: function (data) {
+                    location.replace("{% url 'accounts:profile_list' %}");
+				}
+			});
+			e.preventDefault(); // avoid to execute the actual submit of the form.
+		});
+	</script>
+{% endblock %}
+

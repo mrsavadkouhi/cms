@@ -1,0 +1,179 @@
+<div class="card">
+
+	<div class="modal fade" id="verification_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">تایید ثبت </h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p> تعداد <var id="count"></var> عدل ثبت شود</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+					<button form="id_form_count" type="submit" class="btn btn-primary">ثبت</button>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Verification Modal -->
+	<!-- Modal -->
+	<div class="card-body">
+		{% include 'snippets/list_filter.html' %}
+		{% include 'snippets/pagination.html' %}
+
+		{# Adl Forms #}
+		<div class="m-t" role="form" method="post" enctype="multipart/form-data" id="form_add_record">
+			{#			{% include 'snippets/bs4_form.html' with form=form %}#}
+			<div class="form-row">
+
+				<form id="id_form_count" class="m-t" role="form" method="post" enctype="multipart/form-data">
+					{% load widget_tweaks %}
+					{% csrf_token %}
+					{{ form.media }}
+					{#						{% include 'snippets/bs4_form.html' %}#}
+					{% for hidden_field in form.hidden_fields %}
+						{{ hidden_field }}
+					{% endfor %}
+					{% include 'snippets/bs4_form_field.html' with field=form.count has_adder=False %}
+					{% include 'snippets/bs4_form_field.html' with field=form.inventory has_adder=False %}
+
+					<button id="verification" type="button" class="btn btn-primary" data-toggle="modal" data-target="#verification_modal">
+						افزودن
+					</button>
+				</form>
+				<script>
+					$('#verification').click(function (e) {
+						$('#count').text($('#id_count').val())
+					});
+
+				</script>
+			</div>
+
+
+		</div>
+		{# Adl Table #}
+		<div class="table-responsive-lg">
+			<table class="table table-hover table-striped table-bordered">
+				<thead>
+				<tr>
+					<th>ردیف</th>
+					<th>کد</th>
+					<th>عملیات</th>
+					<th>وضعیت</th>
+				</tr>
+				</thead>
+				<tbody id="table">
+				<h1>عدل ها</h1>
+				{% for item in item_box %}
+					<tr>
+						<td></td>
+						<td><i class="fas fa-check-circle text-navy"></i> {{ item.code | default:'0000' }}</td>
+						<td>{% if item.is_active %}active {% else %}deactive{% endif %}</td>
+						<td>
+							<a class="btn btn-danger delete"> حذف</a>
+							<a class="btn btn-info" href="{% url 'inventory:packing-list_unboxing' pack=item.packing_list.id pk=item.id %}">
+								ثبت جزییات
+							</a>
+
+
+						</td>
+					</tr>
+
+				{% endfor %}
+				</tbody>
+
+			</table>
+		</div>
+		<hr>
+		{# TGH Table #}
+		<div class="table-responsive-lg">
+			<table class="table table-hover table-striped table-bordered">
+				<thead>
+				<tr>
+					<th>مقدار</th>
+					<th>واحد</th>
+					<th>نام کالا</th>
+					<th>وضعیت</th>
+				</tr>
+				</thead>
+				<tbody id="table">
+				<h1>طاقه ها</h1>
+				{% for item in items %}
+					<tr>
+						<td><i class="fas fa-check-circle text-navy"></i> {{ item.amount }}</td>
+						<td>{{ item.unit }}</td>
+						<td>{{ item.item }}</td>
+						<td>{% if item.is_active %}active {% else %}<i class="fa fa-times-circle"></i>{% endif %}</td>
+
+
+					</tr>
+
+				{% endfor %}
+				</tbody>
+
+			</table>
+		</div>
+
+
+		<style>
+			#table input {
+				border: none;
+				border-color: transparent;
+				text-align: center;
+				background: transparent;
+			}
+		</style>
+		<script>
+			{#            var form_count = 0;#}
+			{#            done = function (e) {#}
+			{#                $('#table').append(#}
+			{#                    '<tr>' +#}
+			{#'<td><input type="hidden" name = \'form-' + form_count + '-amount\'  id = \'id_form-' + form_count + '-amount\' value=\'' + $('#id_amount').val() + '\' readonly><p class="text-danger"><i class="fa fa-times-circle"></i> ' + $('#id_amount').val() + '</p>' + '</td>' +#}
+			{#'<td><input type="hidden" name = \'form-' + form_count + '-unit\'  id = \'id_form-' + form_count + '-unit\' value=\'' + $('#id_unit :selected').val() + '\' placeholder=\'' + $('#id_unit :selected').text() + '\' readonly>' + $('#id_unit :selected').text() + '</td>' +#}
+			{#                    '<td><input type="hidden" name = \'form-' + form_count + '-item\'  id = \'id_form-' + form_count + '-item\' value=\'' + $('#id_item :selected').val() + '\' placeholder =\'' + $('#id_item :selected').text() + '\' readonly>' + $('#id_item :selected').text() + '</td>' +#}
+			{#                    '<td><input type="hidden" name = \'form-' + form_count + '-price\'  id = \'id_form-' + form_count + '-price\' value=\'' + $('#id_price').val() + '\' readonly>' + $('#id_price').val() + '</td>' +#}
+			{#                    '<td><a class="btn btn-primary" id="tst" >کپی</a><a class="btn btn-danger delete" > حذف</a><a class="btn btn-info add_detail" > ثبت جزییات</a></td>' +#}
+			{#                    '</tr>');#}
+			{#                $('#id_amount').val('');#}
+			{#$('#id_unit').val('').trigger('chosen:updated');#}
+			{#$('#id_item').val('').trigger('chosen:updated');#}
+			{#$('#id_price').val('');#}
+			{##}
+			{#                form_count = form_count + 1;#}
+			{#                $("#id_form-TOTAL_FORMS").val(form_count);#}
+			{#                $('a.delete').click(function () {#}
+			{#                    $(this).parent().parent().remove();#}
+			{#                });#}
+			{#                $('a.edit').click(function () {#}
+			{#                    var inputs = $(this).parent().parent().find('input');#}
+			{##}
+			{#                    $('#id_amount').val(inputs[0].value);#}
+			{##}
+			{#                    $('#id_unit').val(inputs[1].value).trigger("chosen:updated");#}
+			{##}
+			{#                    $('#id_item').val(inputs[2].value).trigger("chosen:updated");#}
+			{##}
+			{#                    $('#id_price').val(inputs[3].value);#}
+			{##}
+			{#                    $(this).parent().parent().remove();#}
+			{#                });#}
+			{#            }#}
+			{##}
+			{#            $('#form_add_record').keypress(function (e) {#}
+			{#                var key = e.which;#}
+			{#                if (key == 13)  // the enter key code#}
+			{#                {#}
+			{#                    $('#add_record').click();#}
+			{#                }#}
+			{#            });#}
+			{#            $('#add_record').click(done);#}
+		</script>
+	</div>
+</div>

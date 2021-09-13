@@ -1,0 +1,66 @@
+{% load widget_tweaks %}
+{% if filter_form %}
+	<div class="row my-2">
+		<div class="col-md-12">
+
+
+			<form class="m-t" role="form" method="get" autocomplete="off">
+
+				{{ filter_form.media }}
+
+				<div class="row">
+					{% for field in filter_form.visible_fields %}
+						{% if field.field.widget.input_type != 'checkbox' %}
+							<label for="{{ field.id_for_label }}" class="col-md-2 col-form-label col-form-label-lg text-right">{{ field.label }}:</label>
+							<div class="col-md-4">
+								{% render_field field class="form-control" %}
+								{% if field.help_text %}
+									<small class="form-text text-muted">{{ field.help_text }}</small>
+								{% endif %}
+							</div>
+						{% else %}
+							<div class="i-checks col-md-6"><label class="col-form-label-lg"> {% render_field field %} <i></i> {{ field.label }} </label></div>
+
+							{% if field.help_text %}
+								<small class="form-text text-muted">{{ field.help_text }}</small>
+							{% endif %}
+						{% endif %}
+
+					{% endfor %}
+
+					<div class="col-md-2">
+						<button type="submit" class="btn btn-primary btn-block btn-rounded mb-1" id="submit-filter">جستجو</button>
+					</div>
+					<div class="col-md-2">
+						<a href="{{ request.path }}" class="btn btn-warning btn-block btn-rounded mb-1">پاک کردن فیلتر</a>
+					</div>
+					{% if filter_export %}
+						<div class="col-md-2">
+							<button type="submit" formaction="{{ filter_export }}" class="btn btn-outline-success btn-block btn-rounded mb-1"><i class="far fa-file-excel"></i>
+								Export filer as Excel
+							</button>
+						</div>
+					{% endif %}
+					{% if filter_download %}
+						<div class="col-md-2">
+							<button type="submit" formaction="{{ filter_download }}" class="btn btn-outline-success btn-block btn-rounded mb-1"><i class="far fa-download"></i>
+								Download Filter Files
+							</button>
+						</div>
+					{% endif %}
+
+
+					{% if filter_additional_text %}
+						<div class="col-md-2">
+							<p>{{ filter_additional_text }}</p>
+						</div>
+					{% endif %}
+
+				</div>
+
+			</form>
+
+			<hr>
+		</div>
+	</div>
+{% endif %}

@@ -1,0 +1,190 @@
+{% load jalali_date %}
+{% load helper_filter %}
+{% load static %}
+{% load humanize %}
+
+<li ondblclick="$('#edit-task-{{ obj.id }}').modal();" class="{{ color }}-element" style="background-color: lightyellow" id="task-{{ obj.id }}-{{ obj.status }}">
+        {% has_perms user 'project;' as has_project_perm %}{% has_perms user 'center;' as has_center_perm %}{% if user.is_superuser or has_project_perm or has_center_perm %} <i class="fa fa-trash-alt" style="color: red" onclick="$('#delete-modal-task-{{ obj.id }}').modal();"></i>{% endif %}
+        {% has_perms user 'project;' as has_project_perm %}{% has_perms user 'center;' as has_center_perm %}{% if user.is_superuser or has_project_perm or has_center_perm %}{% if obj.project.created_financial_statement %}{% if not obj.created_financial_statement %} <i class="fa fa-money-bill" style="color: green" onclick="$('#create-financial-statement-{{ obj.id }}').modal();"></i><br>{% endif %}{% endif %}{% endif %}
+
+    <h5>{{ obj.name }}</h5>
+<div class="row agile-detail">
+    <div class="col-md-6 text-right">
+    {% if obj.employee %}
+            <img class="rounded-circle img-avatar" style="height: 30px;width: 30px" src="{% if obj.employee.avatar %}{{ obj.employee.avatar.url }}{% else %}{% static 'img/user.png' %}{% endif %}">
+    {% endif %}
+    </div>
+    <div class="col-md-6 text-left">
+        {% if obj.to_be_finished %}
+            {% if obj.to_be_finished < now %}
+                <span style="color: green">{{ obj.to_be_finished | j_format_date:"%Y/%m/%d" }} <i class="fa fa-clock"></i></span>
+                {% else %}
+                <span style="color: red">{{ obj.to_be_finished | j_format_date:"%Y/%m/%d" }} <i class="fa fa-clock"></i></span>
+                {% endif %}
+        {% endif %}
+    </div>
+</div>
+</li>
+
+<div class="modal fade" id="edit-task-{{ obj.id }}">
+    <div class="modal-xl modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+            <div class="col-lg-1 text-right">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="col-lg-4 text-right">
+                <h3>{{ obj.name }}</h3>
+            </div>
+            <div class="col-lg-3 text-center">
+                {% if obj.started_at %}
+                <h5><i class="fa fa-clock"></i> شروع: {{ obj.started_at | j_format_date:"%Y/%m/%d %H:%M" }}</h5>
+                {% if obj.finished_at %}
+                <h5><i class="fa fa-clock"></i> پایان: {{ obj.finished_at | j_format_date:"%Y/%m/%d %H:%M" }}</h5>
+                {% endif %}
+                {% endif %}
+            </div>
+            <div class="col-lg-3 text-left">
+                <h5>{{ obj.employee }}</h5>
+                <span>{{ obj.employee.get_user_main_role_display }}</span>
+            </div>
+            <div class="col-lg-1">
+                <img class="rounded-circle img-avatar" style="height: 55px;width: 55px" src="{% if obj.employee.avatar %}{{ obj.employee.avatar.url }}{% else %}{% static 'img/user.png' %}{% endif %}">
+            </div>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body" id="modal-{{ obj.id }}">
+                {% include 'tasks/task_form.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal inmodal fade" id="delete-modal-task-{{ obj.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 class="modal-title" id="exampleModalLabel">حذف {{ obj.name }}</h5>
+            </div>
+            <form method="post" id="delete-form-task-{{ obj.id }}" action="{% url 'centers:task_delete' pk=obj.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p class="float-left">
+                        آیا واقعا می خواهید
+                        <code>
+                            <strong id="delete-name">{{ obj.name }}</strong>
+                        </code>
+                        را حذف کنید؟
+                    </p>
+                </div>
+                <div class="modal-footer float-right">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="create-financial-statement-{{ obj.id }}">
+        <div class="modal-md modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h2 class="modal-title">ایجاد صورت مالی {{ obj.name }}</h2>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div class="input-group mb-2">
+                      <div class="input-group-append">
+                        <span class="input-group-text" id="phone_number_label">تعداد بندها: </span>
+                      </div>
+                      <input type="number" class="form-control"  min="0" max="12" value="0" id="paragraph_num" aria-describedby="phone_number_label">
+                    </div>
+                    <p id="caution" style="color: red;">توجه: بعد از ایجاد صورت مالی حداکثر تا یک ماه جهت پرداخت مبلغ تراکنش اولین فرصت دارید.</p>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <div class="btn-group">
+                        <button onclick="create_financial_statement({{ obj.id }});" class="btn btn-outline-success" ><i class="fa small fa-check"></i> ایجاد</button>
+                        <button type="button" class="btn btn-outline-danger " data-dismiss="modal"><i class="fa small fa-times"></i> انصراف</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    $(document).ready(function() {
+    $("#update-task-{{ obj.id }}").modalForm({
+            formURL: "{% url 'centers:task_update' pk=obj.id %}"
+        });
+    });
+
+    $("#delete-form-task-{{ obj.id }}").submit(function (e) {
+			var form = $(this);
+			var url = form.attr('action');
+
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: form.serialize(), // serializes the form's elements.
+				success: function (data) {
+					location.reload();
+				}
+			});
+			e.preventDefault(); // avoid to execute the actual submit of the form.
+		});
+
+		var status_{{ obj.id }} = {{ obj.status }};
+
+        {#var edit_weight_{{ obj.id }} = $("#edit-weight-{{ obj.id }}").select2({#}
+        {#        theme: 'bootstrap4',#}
+        {# });#}
+        {#edit_weight_{{ obj.id }}.val("{{ obj.weight }}").trigger("change");#}
+
+        var edit_select_status_{{ obj.id }} = $("#edit-status-{{ obj.id }}").select2({
+                theme: 'bootstrap4',
+        });
+        edit_select_status_{{ obj.id }}.val("{{ obj.status }}").trigger("change");
+
+        var edit_employee_{{ obj.id }} = $("#edit-employee-{{ obj.id }}").select2({
+                theme: 'bootstrap4',
+        });
+        edit_employee_{{ obj.id }}.val("{{ obj.employee.id }}").trigger("change");
+
+        function create_financial_statement(id){
+        $.ajax({
+            url: "{% url 'transactions:ajax' %}",
+            data: {
+                'request_type': 'task_create_financial_statement',
+                'task_id': id,
+                'paragraph_num': $('#paragraph_num').val(),
+            },
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (data) {
+                if(data['error'] === 0){
+                    location.reload();
+                }
+                else if(data['error'] === 2){
+                    $('#caution').text('مبلغ قرارداد تسک صفر است. لطفا آن را اصلاح نمایید.')
+                }
+                else if(data['error'] === 3){
+                    $('#caution').text('تعداد بندهای قرارداد باید یک یا بیشتر باشد.')
+                }
+            }
+        });
+    }
+</script>
