@@ -24,8 +24,8 @@ xlsxwriter==1.1.2
 django-chroniker==1.0.17
 
 # Deployment PostgreSQL
-psycopg2==2.7.6.1
-psycopg2-binary==2.7.6.1
+psycopg2
+psycopg2-binary
 
 jdatetime==3.6.2
 
