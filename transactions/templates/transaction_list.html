@@ -95,7 +95,7 @@
                             <td class="align-middle text-center">
                                 <div class="btn-group">
                                     {% if not obj.paid_at %}
-                                    <button  class="btn btn-sm btn-outline-danger m-l-sm" onclick="$('#pay-financial-statement-{{ obj.id }}').modal();">
+                                    <button {% if not obj.due_flag %}disabled{% endif %} class="btn btn-sm btn-outline-danger m-l-sm" onclick="$('#pay-financial-statement-{{ obj.id }}').modal();">
                                             <i class="fa fa-money-bill"></i> پرداخت
                                         </button>
                                     {% endif %}

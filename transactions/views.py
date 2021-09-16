@@ -82,7 +82,7 @@ class AjaxHandler(TemplateView):
                 except:
                     fivadayslater = datetime.datetime(year=now.year+1, month=1, day=4)
 
-            ProjectPackTransaction.objects.create(project_pack=projectpack, center=projectpack.center, tittle=TRANSACTION_TITTLES[0][0], value=prepayment,sequence_number=0,due_date=fivadayslater)
+            ProjectPackTransaction.objects.create(project_pack=projectpack, center=projectpack.center, tittle=TRANSACTION_TITTLES[0][0], value=prepayment,sequence_number=0,due_date=fivadayslater,due_flag=True)
 
             if (projectpack.payment-prepayment) == 0:
                 pass
@@ -186,6 +186,7 @@ class AjaxHandler(TemplateView):
 
             now = datetime.datetime.now()
             transaction.paid_at = now
+            transaction.due_flag = False
             transaction.save()
 
         return JsonResponse(data)

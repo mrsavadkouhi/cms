@@ -21,6 +21,7 @@
 
     <script src="{% static  'vendors/chartJs/Chart.min.js' %}"></script>
 
+
 {% endblock %}
 
 {% block head_title %}جزئیات کاربر{% endblock %}
@@ -85,7 +86,8 @@
                       <div class="input-group-append">
                         <span class="input-group-text" id="phone_number_label">مبلغ پیش پرداخت: </span>
                       </div>
-                      <input type="number" class="form-control"  value="{{ object.payment }}" id="prepayment" aria-describedby="phone_number_label">
+                        <input type="text" class="form-control number-separator" id="prepayment_text" value="{{ object.payment  }}" aria-describedby="payment_label">
+                      <input type="number" class="form-control d-none"  value="{{ object.payment }}" id="prepayment_number" aria-describedby="phone_number_label">
                     </div>
                     <div class="input-group mb-2">
                       <div class="input-group-append">
@@ -307,7 +309,7 @@
             data: {
                 'request_type': 'projectpack_create_financial_statement',
                 'projectpack_id': '{{ object.id }}',
-                'prepayment': $('#prepayment').val(),
+                'prepayment': $('#prepayment_number').val(),
                 'instalment_num': $('#instalment_num').val(),
             },
             contentType: 'application/json; charset=utf-8',
@@ -344,6 +346,12 @@
             }
         });
     }
+
+    $("#prepayment_text").on("input", function() {
+           var input = $(this).val();
+           var input_new = input.split(',').join('');
+           $("#prepayment_number").val(input_new);
+        });
 
 	</script>
 {% endblock %}

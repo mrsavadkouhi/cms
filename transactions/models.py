@@ -41,6 +41,8 @@ class Transaction(PolymorphicModel):
 
     sequence_number = models.IntegerField(default=0, verbose_name='شماره توالی تراکنش')
 
+    due_flag = models.IntegerField(default=False, verbose_name='قابل پرداخت بودن تراکنش')
+
     due_date = models.DateTimeField(verbose_name='موعد پرداخت')
     paid_at = models.DateTimeField(null=True, blank=True, verbose_name='تاریخ پرداخت شده')
 
