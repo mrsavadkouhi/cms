@@ -144,7 +144,7 @@
                   <div class="input-group-append">
                     <span class="input-group-text required" id="username_label">نام کاربری: </span>
                   </div>
-                    <input type="text" class="form-control" value="{{ object.user.username }}" name="username" aria-describedby="username_label">
+                    <input type="text" class="form-control" name="username" value="" autocomplete="new-password" aria-describedby="username_label">
                 </div>
                 {% endif %}
                 <div class="input-group mb-2">
@@ -170,7 +170,7 @@
                   <div class="input-group-append">
                     <span class="input-group-text required" id="password_label">پسورد: </span>
                   </div>
-                    <input type="password" class="form-control" value="{{ object.user.password }}" name="password" aria-describedby="password_label">
+                    <input type="password" class="form-control" name="password" value="" autocomplete="new-password" aria-describedby="password_label">
                 </div>
             {% endif %}
                 <div class="input-group mb-2">

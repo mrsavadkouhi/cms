@@ -1,10 +1,10 @@
 {% load jalali_date %}
 {% load static %}
 {% load humanize %}
+{% load helper_filter %}
 
 <li ondblclick="$('#edit-subtask-{{ obj.id }}').modal();" class="{{ color }}-element" style="background-color: lightyellow" id="subtask-{{ obj.id }}-{{ obj.status }}">
-{% if user.is_superuser or user.profile.is_supermanager or user.profile.is_centermanager or project.manager == user.profile %} <i class="fa fa-times-circle" style="color: red" onclick="$('#delete-modal-subtask-{{ obj.id }}').modal();"></i><br>{% endif %}
-<span><i class="fa fa-reply"></i> ({{ obj.task.name }})</span>
+{% has_perms user 'project;' as has_project_perm %}{% has_perms user 'center;' as has_center_perm %}{% if user.is_superuser or has_project_perm or has_center_perm %} <i class="fa fa-trash-alt" style="color: red" onclick="$('#delete-modal-subtask-{{ obj.id }}').modal();"></i>{% endif %} <span><i class="fa fa-reply"></i> ({{ obj.task.name }})</span>
 <h5>{{ obj.name }}</h5>
 <div class="row agile-detail">
     <div class="col-md-6 text-right">
