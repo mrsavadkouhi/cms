@@ -82,11 +82,9 @@ class EquipmentDetailsView(LoginRequiredMixin, RoleMixin, DetailView):
         context['projects'] = Project.objects.all()
         context['employees'] = Profile.objects.all()
         context['centers'] = Center.objects.all()
-        if self.request.user.is_superuser or self.request.user.profile.is_supermanager:
-            pass
-        else:
-            profile = self.request.user.profile
-            context['center'] = profile.center_set.first()
+
+        profile = self.request.user.profile
+        context['center'] = profile.center_set.first()
 
         return context
 

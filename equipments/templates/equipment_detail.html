@@ -58,7 +58,9 @@
 		<div class="title-action float-right">
             <div class="btn-group">
             <button onclick="$('#rent').modal();" class="btn btn-lg btn-outline-primary"><i class="fa fa-calendar"></i> اجاره/ رزرو</button>
-                {% if user.is_superuser or user.profile.is_supermanager or user.profile.is_centermanager %}
+                {% has_perms user 'center;' as has_center_perm %}
+                {% has_perms user 'equipment;' as has_equipment_perm %}
+                {% if user.is_superuser or has_center_perm or has_equipment_perm %}
                 <a href="{% url 'equipments:equipment_update' pk=object.id %}" class="btn btn-lg btn-outline-warning"><i class="fa small fa-pen"></i><i class="fa fa-wrench"></i> ویرایش</a>
 			    <button data-toggle="modal" data-delete-what="{{ object.id }}" data-target="#delete-modal" class="btn btn-lg btn-outline-danger"><i class="fa fa-trash"></i> حذف </button>
                 {% endif %}

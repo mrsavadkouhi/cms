@@ -4,9 +4,13 @@
 
 <form id="form-task-{{ obj.id }}" class="m-t" role="form" method="post" action="{% url 'centers:task_update' pk=obj.id %}" enctype="multipart/form-data">
 {% csrf_token %}
+{% for field in form %}
+<div class="form-group{% if field.errors %} is-invalid{% endif %}">
+</div>
+{% endfor %}
 <div class="col-lg-12">
     {% if form.errors %}
-        <div class="card col-md-12 text-center invalid" style="color: whitesmoke;background-color: lightcoral">
+        <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
         {% for field in form %}
             {% for error in field.errors %}
             <h1> {{ field.name }}: {{ error }} </h1>
@@ -15,7 +19,7 @@
         </div>
     {% endif %}
     {% for error in form.non_field_errors %}
-        <div class="card col-md-12 text-center invalid" style="color: whitesmoke;background-color: lightcoral">
+        <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
         <h1> {{ error }} </h1>
         </div>
     {% endfor %}
@@ -174,7 +178,8 @@
 <script>
     $(document).ready(function() {
         $("#attach-task-{{ obj.id }}").modalForm({
-            formURL: "{% url 'centers:task_attach_create' pk=obj.id %}"
+            formURL: "{% url 'centers:task_attach_create' pk=obj.id %}",
+            errorClass: '.is-invalid',
         });
     });
 
