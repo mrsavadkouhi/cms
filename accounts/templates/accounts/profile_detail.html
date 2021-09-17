@@ -46,11 +46,15 @@
 
 	<div class="col-md-3">
 		<div class="title-action float-right">
+            {%  has_perms user 'center;' as has_center_perm %}
+            {%  has_perms user 'users;' as has_users_perm %}
+            {%  has_perms user 'user;' as has_user_perm %}
+            {% if user.is_superuser or has_users_perm %}
             <div class="btn-group">
                 <a href="{% if in_center %}{% url 'accounts:center_profile_update' pk=object.id center_pk=object.get_user_center %}{% else %}{% url 'accounts:profile_update' pk=object.id %}{% endif %}" class="btn btn-lg btn-outline-warning"><i class="fa fa-user-edit"></i> ویرایش</a>
-{#			<button data-toggle="modal" data-delete-what="{{ object.id }}" data-target="#delete-modal" class="btn btn-lg btn-outline-danger"><i class="fa fa-trash"></i> حذف </button>#}
             </div>
-			</div>
+            {% endif %}
+        </div>
 	</div>
 {% endblock %}
 
