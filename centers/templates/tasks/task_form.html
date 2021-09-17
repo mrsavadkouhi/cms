@@ -2,28 +2,16 @@
 {% load static %}
 {% load humanize %}
 
+<div id="form-task-error-container-{{ obj.id }}" class="col-lg-12 d-none">
+    <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
+        <h1 id="form-task-error-{{ obj.id }}"></h1>
+    </div>
+</div>
+<div class="col-lg-12">
+    <div><br></div>
+</div>
 <form id="form-task-{{ obj.id }}" class="m-t" role="form" method="post" action="{% url 'centers:task_update' pk=obj.id %}" enctype="multipart/form-data">
 {% csrf_token %}
-{% for field in form %}
-<div class="form-group{% if field.errors %} is-invalid{% endif %}">
-</div>
-{% endfor %}
-<div class="col-lg-12">
-    {% if form.errors %}
-        <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
-        {% for field in form %}
-            {% for error in field.errors %}
-            <h1> {{ field.name }}: {{ error }} </h1>
-        {% endfor %}
-        {% endfor %}
-        </div>
-    {% endif %}
-    {% for error in form.non_field_errors %}
-        <div class="card col-md-12 text-center" style="color: whitesmoke;background-color: lightcoral">
-        <h1> {{ error }} </h1>
-        </div>
-    {% endfor %}
-</div>
 <div class="col-lg-3 text-center">
 <div class="input-group mb-2">
   <div class="input-group-append">
@@ -179,7 +167,6 @@
     $(document).ready(function() {
         $("#attach-task-{{ obj.id }}").modalForm({
             formURL: "{% url 'centers:task_attach_create' pk=obj.id %}",
-            errorClass: '.is-invalid',
         });
     });
 
@@ -234,12 +221,21 @@
     var datepicker_{{ obj.id }} = $("#datepicker-task-{{ obj.id }}").persianDatepicker(datepickeroption);
     $('#datepicker-task-{{ obj.id }}').val('{{ obj.to_be_finished | j_format_date:"%Y-%m-%d %H:%M" }}');
 
-         $('#form-task-{{ obj.id }}').submit(function () {
+         $('#form-task-{{ obj.id }}').submit(function (e) {
 
              if ($('#datepicker-task-{{ obj.id }}').val() === '') {
                  $('#datepicker-task-{{ obj.id }}').val('');
              } else {
-                 $('#datepicker-task-{{ obj.id }}').val(datepicker_{{ obj.id }} .getState().selected.dateObject.toCalendar('gregorian').toLocale('en').format('YYYY-MM-DD HH:mm'));
+                 var new_date = datepicker_{{ obj.id }}.getState().selected.dateObject.toCalendar('gregorian').toLocale('en').format('YYYY-MM-DD HH:mm');
+                 var project_date = '{{ obj.project.to_be_finished | date:"Y-m-d H:i" }}';
+                 if(new_date >= project_date){
+                     e.preventDefault();
+                     $('#form-task-error-container-{{ obj.id }}').removeClass('d-none');
+                     $('#form-task-error-{{ obj.id }}').text('تاریخ پایان نباید از تاریخ پایان پروژه دیرتر باشد.');
+                 }
+                 else{
+                     $('#datepicker-task-{{ obj.id }}').val(new_date);
+                 }
              }
          });
 </script>

@@ -469,26 +469,26 @@ class TaskForm(BSModalModelForm):
 
     class Meta:
         model = Task
-        fields = ['name', 'description', 'employee', 'payment', 'weight', 'to_be_finished', 'status']
+        fields = ['name', 'description', 'employee', 'weight', 'to_be_finished', 'status']
         # fields = '__all__'
-        field_order = ['name', 'description', 'employee', 'payment', 'weight', 'to_be_finished', 'status']
+        field_order = ['name', 'description', 'employee', 'weight', 'to_be_finished', 'status']
 
     def clean(self):
         cleaned_data = super().clean()
 
         instance = self.instance
-        if not instance.created_financial_statement:
-            payment = int(cleaned_data.get('payment'))
-
-            if payment > instance.project.payment:
-                    raise forms.ValidationError("مبلغ وارد شده از مبلغ پروژه بیشتر است.")
-
-            other_task_payment_sum = 0
-            for task in instance.project.task_set.all():
-                if task != instance:
-                    other_task_payment_sum += task.payment
-            if instance.project.payment < other_task_payment_sum + payment:
-                raise forms.ValidationError("مبلغ وارد شده با مجموع بالغ تسک های دیگر پروژه همخوانی ندارد. لطفا مبلغ کمتری را وارد نمایید.")
+        # if not instance.created_financial_statement:
+        #     payment = int(cleaned_data.get('payment'))
+        #
+        #     if payment > instance.project.payment:
+        #             raise forms.ValidationError("مبلغ وارد شده از مبلغ پروژه بیشتر است.")
+        #
+        #     other_task_payment_sum = 0
+        #     for task in instance.project.task_set.all():
+        #         if task != instance:
+        #             other_task_payment_sum += task.payment
+        #     if instance.project.payment < other_task_payment_sum + payment:
+        #         raise forms.ValidationError("مبلغ وارد شده با مجموع بالغ تسک های دیگر پروژه همخوانی ندارد. لطفا مبلغ کمتری را وارد نمایید.")
 
         to_be_finished = cleaned_data.get('to_be_finished')
         if to_be_finished:

@@ -128,7 +128,8 @@
 <script>
     $(document).ready(function() {
     $("#update-task-{{ obj.id }}").modalForm({
-            formURL: "{% url 'centers:task_update' pk=obj.id %}"
+            formURL: "{% url 'centers:task_update' pk=obj.id %}",
+            errorClass: '.is-invalid',
         });
     });
 
