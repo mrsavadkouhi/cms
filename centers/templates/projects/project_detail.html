@@ -13,6 +13,7 @@
 	<script src="{% static  'vendors/jquery-ui/jquery-ui.min.js' %}"></script>
 
 	<link href="{% static  'vendors/select2/css/select2-bootstrap4.min.css' %}" rel="stylesheet">
+    <script src="{% static 'vendors/easynumber/easy-number-separator.js' %}"></script>
 
     <script src="{% static  'vendors/c3/c3.min.js' %}"></script>
     <script src="{% static  'vendors/c3/d3.min.js' %}"></script>
@@ -82,13 +83,25 @@
 
                 <!-- Modal body -->
                 <div class="modal-body">
+                    <p style="color: red;">توجه: در صورتی که مبلغ را صفر وارد نمایید صورت مالی بدون پیش پرداخت درنظر گرفته خواهد شد.</p>
+                    <div class="input-group mb-2">
+                      <div class="input-group-append">
+                          <span class="input-group-text" id="phone_number_label">مبلغ پیش پرداخت: </span>
+                      </div>
+                        <input type="text" class="form-control number-separator" id="prepayment_text" value="0" aria-describedby="payment_label">
+                      <input type="number" class="form-control d-none"  value="0" id="prepayment_number" aria-describedby="phone_number_label">
+                    </div>
                     <div class="input-group mb-2">
                       <div class="input-group-append">
                         <span class="input-group-text" id="phone_number_label">تعداد بندها: </span>
                       </div>
                       <input type="number" class="form-control"  min="0" max="12" value="0" id="paragraph_num" aria-describedby="phone_number_label">
+
+                    <button onclick="add_paragraphs();" class="btn btn-outline-primary" ><i class="fa small fa-plus"></i> افزودن بندها</button>
                     </div>
-                    <p id="caution" style="color: red;">توجه: بعد از ایجاد صورت مالی حداکثر تا یک ماه جهت پرداخت مبلغ تراکنش اولین فرصت دارید.</p>
+                    <div id="paragraph_details">
+                    </div>
+                    <p id="caution" style="color: red;"></p>
                 </div>
 
                 <!-- Modal footer -->
@@ -509,12 +522,20 @@
 		});
 
 		function create_financial_statement(){
+            var paragraph_number = parseInt($('#paragraph_num').val());
+            var paragraph_dues = '';
+            for (let i = 0; i < paragraph_number; i++) {
+                paragraph_dues = paragraph_dues + $(`#paragraph_due_${i}`).val() + ';';
+            }
+            console.log(paragraph_dues);
         $.ajax({
             url: "{% url 'transactions:ajax' %}",
             data: {
                 'request_type': 'project_create_financial_statement',
                 'project_id': '{{ object.id }}',
+                'prepayment': $('#prepayment_number').val(),
                 'paragraph_num': $('#paragraph_num').val(),
+                'paragraph_dues': paragraph_dues,
             },
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
@@ -527,6 +548,9 @@
                 }
                 else if(data['error'] === 3){
                     $('#caution').text('تعداد بندهای قرارداد باید یک یا بیشتر باشد.')
+                }
+                else if(data['error'] === 4){
+                    $('#caution').text('موعد پرداخت بندها بر حسب پیشرفت وزنی باید به ترتیب از کم به زیاد باشد. لطفا مقادیر را اصلاح نمایید.')
                 }
             }
         });
@@ -551,6 +575,41 @@
             });
         }
 
+        $("#prepayment_text").on("input", function() {
+           var input = $(this).val();
+           var input_new = input.split(',').join('');
+           $("#prepayment_number").val(input_new);
+        });
+
+        function add_paragraphs() {
+            var payment = parseInt('{{ object.payment }}');
+            var prepayment = parseInt($('#prepayment_number').val());
+            var paragraph_number = parseInt($('#paragraph_num').val());
+            if(prepayment>payment){
+                $('#caution').text('مبلغ پیش پرداخت نباید از مبلغ کل پروژه بیشتر باشد.');
+                return;
+            }
+            if(paragraph_number < 0){
+                $('#caution').text('تعداد بندهای قرارداد نمیتواند منفی باشد.');
+                return;
+            }
+            if(paragraph_number === 0){
+                $('#caution').text('در صورتی که در نظر دارید قرارداد بندی نداشته باشد مبلغ پیش پرداخت را مبلغ کل پروژه وارد نمایید.');
+                return;
+            }
+            $('#caution').text('');
+            var paragraph_payment = (payment - prepayment)/paragraph_number;
+            for (let i = 0; i < paragraph_number; i++) {
+                $('#paragraph_details').append(
+                    '<div class="input-group mb-2"> ' +
+                    '<div class="input-group-append"> ' +
+                    `<span class="input-group-text" >موعد بند ${i+1} بر حسب پیشرفت وزنی</span> ` +
+                    '</div> ' +
+                    `<input type="number" class="form-control"  min="0" max="100" value="0" id="paragraph_due_${i}" aria-describedby="phone_number_label"> ` +
+                    '</div>'
+                );
+            }
+        }
     </script>
 {% endblock %}
 

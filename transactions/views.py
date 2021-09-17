@@ -54,6 +54,16 @@ class TransactionAttachmentCreateView(LoginRequiredMixin, BSModalCreateView):
 
 
 class AjaxHandler(TemplateView):
+    def is_sorted(self, tmp):
+        flag = True
+        i = 1
+        while i < len(tmp):
+            if tmp[i] < tmp[i - 1]:
+                flag = False
+                return flag
+            i += 1
+        return flag
+
     def get(self, request, *args, **kwargs):
         request_type = request.GET.get('request_type')
         data = {'error': 0}
@@ -100,25 +110,29 @@ class AjaxHandler(TemplateView):
 
         if request_type == 'project_create_financial_statement':
             project_id = int(request.GET.get('project_id'))
+            prepayment = int(request.GET.get('prepayment'))
             project = Project.objects.get(id=project_id)
 
+            paragraph_dues = request.GET.get('paragraph_dues').split(';')[:-1]
             paragraph_num = int(request.GET.get('paragraph_num'))
             if paragraph_num == 0:
                 data = {'error': 3}
+                return JsonResponse(data)
+
+            if not self.is_sorted(paragraph_dues):
+                data = {'error': 4}
                 return JsonResponse(data)
 
             if project.payment == 0:
                 data = {'error': 2}
                 return JsonResponse(data)
 
-            now = datetime.datetime.now()
-            paragraph_value = project.payment/paragraph_num
+            if prepayment > 0:
+                ProjectTransaction.objects.create(project=project, center=project.center, tittle=TRANSACTION_TITTLES[0][0], value=prepayment, sequence_number=0, due_flag=True)
+
+            paragraph_value = (project.payment - prepayment)/paragraph_num
             for i in range(paragraph_num):
-                try:
-                    onemonthafterthat = datetime.datetime(year=now.year, month=now.month+i+1, day=now.day)
-                except:
-                    onemonthafterthat = datetime.datetime(year=now.year + 1, month=i+1, day=now.day)
-                ProjectTransaction.objects.create(project=project, center=project.center, tittle=TRANSACTION_TITTLES[2][0], value=paragraph_value,sequence_number=i+1,due_date=onemonthafterthat)
+                ProjectTransaction.objects.create(project=project, center=project.center, tittle=TRANSACTION_TITTLES[2][0], value=paragraph_value,sequence_number=i+1,due_progress=paragraph_dues[i])
 
             project.created_financial_statement = True
             project.save()
@@ -157,6 +171,15 @@ class AjaxHandler(TemplateView):
                 projectpack.usable_fund = transaction.value
                 projectpack.paid += transaction.value
                 projectpack.save()
+
+                # transaction.due_flag = False
+                # transaction.save()
+                try:
+                    next_projectpack_transaction = projectpack.projectpacktransaction_set.get(sequence_number=transaction.sequence_number + 1)
+                    next_projectpack_transaction.due_flag = True
+                    next_projectpack_transaction.save()
+                except:
+                    pass
             except:
                 try:
                     project = transaction.project
@@ -168,6 +191,18 @@ class AjaxHandler(TemplateView):
                         project.usable_fund += value
                         project.paid += value
                         project.save()
+
+                        # transaction.due_flag = False
+                        # transaction.save()
+
+                        try:
+                            next_project_transaction = project.projecttransaction_set.get(sequence_number=transaction.sequence_number + 1)
+                            next_project_transaction.due_flag = True
+                            next_project_transaction.save()
+                        except:
+                            pass
+
+
                     else:
                         data = {'error': 1}
                         return JsonResponse(data)

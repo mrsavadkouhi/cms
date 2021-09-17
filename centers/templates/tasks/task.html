@@ -5,7 +5,7 @@
 
 <li ondblclick="$('#edit-task-{{ obj.id }}').modal();" class="{{ color }}-element" style="background-color: lightyellow" id="task-{{ obj.id }}-{{ obj.status }}">
         {% has_perms user 'project;' as has_project_perm %}{% has_perms user 'center;' as has_center_perm %}{% if user.is_superuser or has_project_perm or has_center_perm %} <i class="fa fa-trash-alt" style="color: red" onclick="$('#delete-modal-task-{{ obj.id }}').modal();"></i>{% endif %}
-        {% has_perms user 'project;' as has_project_perm %}{% has_perms user 'center;' as has_center_perm %}{% if user.is_superuser or has_project_perm or has_center_perm %}{% if obj.project.created_financial_statement %}{% if not obj.created_financial_statement %} <i class="fa fa-money-bill" style="color: green" onclick="$('#create-financial-statement-{{ obj.id }}').modal();"></i><br>{% endif %}{% endif %}{% endif %}
+{#        {% has_perms user 'project;' as has_project_perm %}{% has_perms user 'center;' as has_center_perm %}{% if user.is_superuser or has_project_perm or has_center_perm %}{% if obj.project.created_financial_statement %}{% if not obj.created_financial_statement %} <i class="fa fa-money-bill" style="color: green" onclick="$('#create-financial-statement-{{ obj.id }}').modal();"></i><br>{% endif %}{% endif %}{% endif %}#}
 
     <h5>{{ obj.name }}</h5>
 <div class="row agile-detail">

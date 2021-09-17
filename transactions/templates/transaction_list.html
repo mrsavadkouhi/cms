@@ -75,7 +75,7 @@
                             <td class="align-middle text-center">{{ obj.get_tittle_display }}</td>
                             <td class="align-middle text-center">{{ obj.sequence_number }}</td>
                             <td class="align-middle text-center">{{ obj.value|intcomma }}</td>
-                            <td class="align-middle text-center">{{ obj.due_date | j_format_date:"%Y/%m/%d" }}</td>
+                            <td class="align-middle text-center">{% if obj.project %}{{ obj.due_progress }} درصد{% else %}{{ obj.due_date | j_format_date:"%Y/%m/%d" }}{% endif %}</td>
                             <td class="align-middle text-center">
                                 <div class="btn-group">
                                     {% if obj.paid_at %}
