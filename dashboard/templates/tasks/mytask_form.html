@@ -88,12 +88,12 @@
 </div>
 <textarea readonly name="description" type="text" class="form-control" id="description-{{ obj.id }}" aria-describedby="description_label">{% if obj.description %}{{ obj.description }}{% else %} {% endif %}</textarea>
 </div>
-<div class="input-group mb-2">
-  <div class="input-group-append">
-    <span class="input-group-text" id="pay_label"><i class="fa fa-money-bill"></i>مبلغ قرارداد(تومان)</span>
-  </div>
-  <input readonly name="payment" type="number" class="form-control" value="{{ obj.payment }}" id="task-payment-{{ obj.id }}" aria-describedby="pay_label">
-</div>
+{#<div class="input-group mb-2">#}
+{#  <div class="input-group-append">#}
+{#    <span class="input-group-text" id="pay_label"><i class="fa fa-money-bill"></i>مبلغ قرارداد(تومان)</span>#}
+{#  </div>#}
+{#  <input readonly name="payment" type="number" class="form-control" value="{{ obj.payment }}" id="task-payment-{{ obj.id }}" aria-describedby="pay_label">#}
+{#</div>#}
     </form>
     <div class="row">
         <div class="col-lg-12">
