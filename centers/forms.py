@@ -333,24 +333,36 @@ class ProjectForm(forms.ModelForm):
         if to_be_finished > project_pack.to_be_finished:
             raise forms.ValidationError("تاریخ پایان پروژه نباید دیرتر از پایان پک پروژه باشد.")
 
+        payment = int(cleaned_data.get('payment'))
+
+        if payment > project_pack.payment:
+            raise forms.ValidationError("مبلغ وارد شده از مبلغ پک پروژه بیشتر است.")
+
+        other_project_payment_sum = 0
+        for project in project_pack.project_set.all():
+                other_project_payment_sum += project.payment
+        if project_pack.payment < other_project_payment_sum + payment:
+            raise forms.ValidationError(
+                "مبلغ وارد شده با مجموع بالغ پروژه های دیگر پک پروژه همخوانی ندارد. لطفا مبلغ کمتری را وارد نمایید.")
+
         return cleaned_data
 
     def save(self, commit=True):
         instance = super().save(commit=False)
 
-        if not instance.created_financial_statement:
-            payment = instance.payment
-
-            if payment > instance.project_pack.payment:
-                    raise forms.ValidationError("مبلغ وارد شده از مبلغ پک پروژه بیشتر است.")
-
-            other_project_payment_sum = 0
-            for project in instance.project_pack.project_set.all():
-                if project != instance:
-                    other_project_payment_sum += project.payment
-            if instance.project_pack.payment < other_project_payment_sum + payment:
-                raise forms.ValidationError("مبلغ وارد شده با مجموع بالغ پروژه های دیگر پک پروژه همخوانی ندارد. لطفا مبلغ کمتری را وارد نمایید.")
-
+        # if not instance.created_financial_statement:
+        #     payment = instance.payment
+        #
+        #     if payment > instance.project_pack.payment:
+        #             raise forms.ValidationError("مبلغ وارد شده از مبلغ پک پروژه بیشتر است.")
+        #
+        #     other_project_payment_sum = 0
+        #     for project in instance.project_pack.project_set.all():
+        #         if project != instance:
+        #             other_project_payment_sum += project.payment
+        #     if instance.project_pack.payment < other_project_payment_sum + payment:
+        #         raise forms.ValidationError("مبلغ وارد شده با مجموع بالغ پروژه های دیگر پک پروژه همخوانی ندارد. لطفا مبلغ کمتری را وارد نمایید.")
+        #
 
         if commit:
             # If committing, save the instance and the m2m data immediately.
