@@ -127,12 +127,17 @@ class AjaxHandler(TemplateView):
                 data = {'error': 2}
                 return JsonResponse(data)
 
+            flag = True
             if prepayment > 0:
                 ProjectTransaction.objects.create(project=project, center=project.center, tittle=TRANSACTION_TITTLES[0][0], value=prepayment, sequence_number=0, due_flag=True)
+                flag = False
 
             paragraph_value = (project.payment - prepayment)/paragraph_num
             for i in range(paragraph_num):
-                ProjectTransaction.objects.create(project=project, center=project.center, tittle=TRANSACTION_TITTLES[2][0], value=paragraph_value,sequence_number=i+1,due_progress=paragraph_dues[i])
+                if i == 0 and flag:
+                    ProjectTransaction.objects.create(project=project, center=project.center, tittle=TRANSACTION_TITTLES[2][0], value=paragraph_value,sequence_number=i+1,due_progress=paragraph_dues[i],due_flag=True)
+                else:
+                    ProjectTransaction.objects.create(project=project, center=project.center, tittle=TRANSACTION_TITTLES[2][0], value=paragraph_value,sequence_number=i+1,due_progress=paragraph_dues[i])
 
             project.created_financial_statement = True
             project.save()
