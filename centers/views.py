@@ -158,11 +158,11 @@ class ProjectPackCreateView(LoginRequiredMixin, RoleMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['centers'] = Center.objects.filter(id=self.request.user.profile.get_user_center)
+        context['centers'] = Center.objects.all()
         context['in_center'] = False
         context['profiles'] = Profile.objects.all()
-        context['projectpack_managers'] = Profile.objects.filter(permissions__code__in=['project_pack'])
-        context['projectpack_monitoring_managers'] = Profile.objects.filter(permissions__code__in=['project_pack_monitoring'])
+        context['projectpack_managers'] = Profile.objects.filter(permissions__code__in=['projectpack'])
+        context['projectpack_monitoring_managers'] = Profile.objects.filter(permissions__code__in=['projectpack_monitoring'])
         return context
 
 
@@ -224,7 +224,7 @@ class ProjectPackUpdateView(LoginRequiredMixin, RoleMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['centers'] = Center.objects.filter(id=self.request.user.profile.get_user_center)
+        context['centers'] = Center.objects.all()
         context['in_center'] = False
         context['profiles'] = Profile.objects.all()
         context['projectpack_managers'] = Profile.objects.filter(permissions__code__in=['projectpack'])

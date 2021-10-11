@@ -48,6 +48,7 @@ class ProjectPackAttachment(models.Model):
 
 class ProjectPack(models.Model):
     name = models.CharField(max_length=255, verbose_name='نام', unique=True)
+    code = models.CharField(null=True, blank=True, max_length=255, verbose_name='کد')
     description = models.TextField(null=True, blank=True, verbose_name='توضیحات')
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
@@ -55,7 +56,7 @@ class ProjectPack(models.Model):
     manager = models.ForeignKey(to=Profile, on_delete=models.PROTECT, related_name='projectpack_manager',
                                 verbose_name='مدیر پک پروژه')
     monitoring_manager = models.ForeignKey(to=Profile, on_delete=models.PROTECT, related_name='projectpack_monitoring_manager',
-                                verbose_name='ناظر پک پروژه')
+                                verbose_name='کارشناس کنترل پروژه')
     center = models.ForeignKey(to=Center, on_delete=models.PROTECT, verbose_name='مرکز')
     # employees = models.ManyToManyField(to=Profile, blank=True, verbose_name='اعضای پروژه')
 
@@ -140,7 +141,7 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
 
     manager = models.ForeignKey(to=Profile, on_delete=models.PROTECT, related_name='project_manager',
-                                verbose_name='مدیر پروژه')
+                                verbose_name='پیمانکار پروژه')
     monitoring_manager = models.ForeignKey(to=Profile, on_delete=models.PROTECT, related_name='project_monitoring_manager',
                                 verbose_name='ناظر پروژه')
     center = models.ForeignKey(to=Center, on_delete=models.PROTECT, verbose_name='مرکز')
@@ -312,6 +313,28 @@ class Task(models.Model):
         self.save(update_fields=['status'])
         return True
 
+    def recalculate_progress(self):
+        to_do = 0
+        for subtask in self.subtask_set.filter(status='to_do'):
+            to_do += subtask.weight
+        inprogress = 0
+        for subtask in self.subtask_set.filter(status='inprogress'):
+            inprogress += subtask.weight
+        completed = 0
+        for subtask in self.subtask_set.filter(status='completed'):
+            completed += subtask.weight
+        verified = 0
+        for subtask in self.subtask_set.filter(status='verified'):
+            verified += subtask.weight
+
+        total_subtask = to_do + inprogress + completed + verified
+
+        if total_subtask == 0:
+            self.progress = 0
+        else:
+            self.progress = round(100 * (verified+completed) / total_subtask, 2)
+        self.save()
+
 
 @receiver(post_save, sender=Task, dispatch_uid="task_status_update")
 def task_change_status(sender, instance, created, raw, update_fields, **kwargs):
@@ -364,6 +387,8 @@ class SubTask(models.Model):
     to_be_finished = models.DateTimeField(null=True, blank=True, verbose_name='ددلاین قرارداد')
     # duration = models.FloatField(default=0, verbose_name='مدت قرارداد')
 
+    weight = models.IntegerField(default=1, verbose_name='وزن')
+
     finished_at = models.DateTimeField(null=True, blank=True, verbose_name='تاریخ خاتمه قرارداد')
 
     status = models.CharField(max_length=20, choices=STATUS_TYPES, default='to_do', verbose_name='وضعیت')
@@ -389,12 +414,15 @@ def subtask_change_status(sender, instance, created, raw, update_fields, **kwarg
                     instance.started_at = datetime.now()
                 instance.task.status = 'inprogress'
                 instance.task.save(update_fields=['status'])
+                instance.task.recalculate_progress()
             elif instance.status == 'completed':
                 instance.finished_at = None
                 instance.task.check_if_completed()
+                instance.task.recalculate_progress()
             elif instance.status == 'verified':
                 instance.finished_at = datetime.now()
                 instance.task.check_if_verified()
+                instance.task.recalculate_progress()
 
             instance.save()
     except Exception:

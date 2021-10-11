@@ -70,8 +70,8 @@ PERMISSIONS = [
     ('equipment', 'مدیریت تجهیزات مرکز'),
     ('transaction', 'مدیریت تراکنش های مرکز'),
     ('projectpack', 'مدیریت پک پروژه های مرکز'),
-    ('projectpack_monitoring', 'نظارت پک پروژه های مرکز'),
-    ('project', 'مدیریت پروژه های مرکز'),
+    ('projectpack_monitoring', 'کارشناس کنترل پروژه های مرکز'),
+    ('project', 'پیمانکار پروژه های مرکز'),
     ('project_monitoring', 'نظارت پروژه های مرکز'),
 ]
 

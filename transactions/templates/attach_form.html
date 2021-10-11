@@ -17,7 +17,7 @@
     </div>
 {% endfor %}
 
-<form id="form-attach-transaction-{{ obj.id }}" class="m-t" role="form" method="post" action="{% url 'transactions:transaction_attach_create' pk=obj.id center_pk=the_center %}" enctype="multipart/form-data">
+<form id="form-attach-transaction-{{ obj.id }}" class="m-t" role="form" method="post" action="{% url 'transactions:transaction_attach_create' pk=obj.id center_pk=obj.center %}" enctype="multipart/form-data">
 {% csrf_token %}
     <div class="row">
         <input type="text" class="form-control d-none" value="{{ obj.id }}" aria-describedby="name_label" name="transaction_id">

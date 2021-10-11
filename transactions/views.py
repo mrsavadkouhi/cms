@@ -27,6 +27,8 @@ class CenterTransactionListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['projectpack_transactions'] = ProjectPackTransaction.objects.filter(center_id=self.request.resolver_match.kwargs['center_pk'])
+        context['project_transactions'] = ProjectTransaction.objects.filter(center_id=self.request.resolver_match.kwargs['center_pk'])
         context['the_center'] = Center.objects.get(id=self.request.resolver_match.kwargs['center_pk'])
         context['in_center'] = True
         return context
@@ -35,6 +37,12 @@ class CenterTransactionListView(LoginRequiredMixin, ListView):
 class TransactionListView(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = 'transaction_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['projectpack_transactions'] = ProjectPackTransaction.objects.all()
+        context['project_transactions'] = ProjectTransaction.objects.all()
+        return context
 
 
 class TransactionDeleteView(LoginRequiredMixin, RoleMixin, JSONDeleteView):
@@ -71,39 +79,38 @@ class AjaxHandler(TemplateView):
         if request_type == 'projectpack_create_financial_statement':
             projectpack_id = int(request.GET.get('projectpack_id'))
             projectpack = ProjectPack.objects.get(id=projectpack_id)
-
             prepayment = int(request.GET.get('prepayment'))
-            instalment_num = int(request.GET.get('instalment_num'))
+
+            installment_dues = request.GET.get('installment_dues').split(';')[:-1]
+            installment_num = int(request.GET.get('installment_num'))
+
+            if prepayment == 0:
+                data = {'error': 1}
+                return JsonResponse(data)
+
+            if installment_num == 0:
+                data = {'error': 3}
+                return JsonResponse(data)
+
+            if not self.is_sorted(installment_dues):
+                data = {'error': 4}
+                return JsonResponse(data)
 
             if projectpack.payment == 0:
                 data = {'error': 2}
                 return JsonResponse(data)
 
-            if (projectpack.payment-prepayment) < 0:
-                data = {'error': 1}
-                return JsonResponse(data)
+            ProjectPackTransaction.objects.create(project_pack=projectpack, center=projectpack.center, tittle=TRANSACTION_TITTLES[0][0], value=prepayment, due_progress=0, sequence_number=0, due_flag=True)
 
-            now = datetime.datetime.now()
-            try:
-                fivadayslater = datetime.datetime(year=now.year,month=now.month,day=now.day+5)
-            except:
-                try:
-                    fivadayslater = datetime.datetime(year=now.year, month=now.month+1, day=4)
-                except:
-                    fivadayslater = datetime.datetime(year=now.year+1, month=1, day=4)
+            final_instalment = projectpack.payment*0.1
+            instalment_value = (projectpack.payment*0.9 - prepayment)/installment_num
 
-            ProjectPackTransaction.objects.create(project_pack=projectpack, center=projectpack.center, tittle=TRANSACTION_TITTLES[0][0], value=prepayment,sequence_number=0,due_date=fivadayslater,due_flag=True)
+            for i in range(installment_num):
+                ProjectPackTransaction.objects.create(project_pack=projectpack, center=projectpack.center, tittle=TRANSACTION_TITTLES[1][0], value=instalment_value,sequence_number=i+1,due_progress=installment_dues[i])
 
-            if (projectpack.payment-prepayment) == 0:
-                pass
-            else:
-                instalment_value = (projectpack.payment-prepayment)/instalment_num
-                for i in range(instalment_num):
-                    try:
-                        onemonthafterthat = datetime.datetime(year=fivadayslater.year, month=fivadayslater.month+i+1, day=fivadayslater.day)
-                    except:
-                        onemonthafterthat = datetime.datetime(year=now.year + 1, month=i+1, day=fivadayslater.day)
-                    ProjectPackTransaction.objects.create(project_pack=projectpack, center=projectpack.center, tittle=TRANSACTION_TITTLES[1][0], value=instalment_value,sequence_number=i+1,due_date=onemonthafterthat)
+            ProjectPackTransaction.objects.create(project_pack=projectpack, center=projectpack.center,
+                                                  tittle=TRANSACTION_TITTLES[3][0], value=final_instalment, due_progress=100,
+                                                  sequence_number=installment_num+1)
 
             projectpack.created_financial_statement = True
             projectpack.save()
@@ -129,7 +136,7 @@ class AjaxHandler(TemplateView):
 
             flag = True
             if prepayment > 0:
-                ProjectTransaction.objects.create(project=project, center=project.center, tittle=TRANSACTION_TITTLES[0][0], value=prepayment, sequence_number=0, due_flag=True)
+                ProjectTransaction.objects.create(project=project, center=project.center, tittle=TRANSACTION_TITTLES[0][0], value=prepayment, due_progress=0,sequence_number=0, due_flag=True)
                 flag = False
 
             paragraph_value = (project.payment - prepayment)/paragraph_num
@@ -170,11 +177,14 @@ class AjaxHandler(TemplateView):
         if request_type == 'pay_financial_statement':
             transaction_id = int(request.GET.get('transaction_id'))
             transaction = Transaction.objects.get(id=transaction_id)
+            now = datetime.datetime.now()
 
             try:
                 projectpack = transaction.project_pack
                 projectpack.usable_fund = transaction.value
                 projectpack.paid += transaction.value
+                if transaction.sequence_number == 0:
+                    projectpack.started_at = now
                 projectpack.save()
 
                 # transaction.due_flag = False
@@ -224,7 +234,7 @@ class AjaxHandler(TemplateView):
                         data = {'error': 2}
                         return JsonResponse(data)
 
-            now = datetime.datetime.now()
+
             transaction.paid_at = now
             transaction.due_flag = False
             transaction.save()

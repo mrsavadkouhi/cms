@@ -20,6 +20,7 @@ TRANSACTION_TITTLES = [
     ('prepayment', 'پیش پرداخت'),
     ('instalment', 'قسط'),
     ('paragraph', 'بند'),
+    ('final_instalment', 'حسن انجام کار'),
 ]
 
 
@@ -43,7 +44,9 @@ class Transaction(PolymorphicModel):
 
     due_flag = models.BooleanField(default=False, verbose_name='قابل پرداخت بودن تراکنش')
 
-    due_date = models.DateTimeField(null=True, blank=True,verbose_name='موعد پرداخت')
+    # due_date = models.DateTimeField(null=True, blank=True,verbose_name='موعد پرداخت')
+    due_progress = models.IntegerField(default=0, verbose_name='موعد وزنی پرداخت')
+
     paid_at = models.DateTimeField(null=True, blank=True, verbose_name='تاریخ پرداخت شده')
 
     description = models.TextField(null=True, blank=True, verbose_name='توضیحات')
@@ -57,7 +60,6 @@ class ProjectPackTransaction(Transaction):
 
 class ProjectTransaction(Transaction):
     project = models.ForeignKey(to=Project, on_delete=models.PROTECT, verbose_name='پروژه')
-    due_progress = models.IntegerField(default=0, verbose_name='موعد وزنی پرداخت')
 
 
 class TaskTransaction(Transaction):

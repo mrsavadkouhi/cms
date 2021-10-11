@@ -221,9 +221,9 @@ class ProjectPackForm(forms.ModelForm):
 
     class Meta:
         model = ProjectPack
-        fields = ['name', 'description', 'payment', 'center', 'to_be_finished', 'manager','monitoring_manager']
+        fields = ['name', 'code', 'description', 'payment', 'center', 'to_be_finished', 'manager','monitoring_manager']
         # fields = '__all__'
-        field_order = ['name', 'description', 'payment', 'center', 'to_be_finished', 'manager','monitoring_manager']
+        field_order = ['name', 'code', 'description', 'payment', 'center', 'to_be_finished', 'manager','monitoring_manager']
 
     # def clean(self):
     #     cleaned_data = super().clean()
@@ -248,9 +248,9 @@ class ProjectPackUpdateForm(forms.ModelForm):
 
     class Meta:
         model = ProjectPack
-        fields = ['name', 'description', 'payment', 'center', 'manager','monitoring_manager']
+        fields = ['name','code', 'description', 'payment', 'center', 'manager','monitoring_manager']
         # fields = '__all__'
-        field_order = ['name', 'description', 'payment', 'center', 'manager','monitoring_manager']
+        field_order = ['name','code', 'description', 'payment', 'center', 'manager','monitoring_manager']
 
     def clean(self):
         cleaned_data = super().clean()

@@ -83,20 +83,25 @@
 
                 <!-- Modal body -->
                 <div class="modal-body">
+{#                    <p style="color: red;">توجه: بعد از ایجاد صورت مالی حداکثر تا ۵ روز جهت پرداخت مبلغ تراکنش پیش پرداخت فرصت دارید.</p>#}
                     <div class="input-group mb-2">
                       <div class="input-group-append">
-                        <span class="input-group-text" id="phone_number_label">مبلغ پیش پرداخت: </span>
+                          <span class="input-group-text" id="phone_number_label">مبلغ پیش پرداخت: </span>
                       </div>
-                        <input type="text" class="form-control number-separator" id="prepayment_text" value="{{ object.payment  }}" aria-describedby="payment_label">
-                      <input type="number" class="form-control d-none"  value="{{ object.payment }}" id="prepayment_number" aria-describedby="phone_number_label">
+                        <input type="text" class="form-control number-separator" id="prepayment_text" value="0" aria-describedby="payment_label">
+                      <input type="number" class="form-control d-none"  value="0" id="prepayment_number" aria-describedby="phone_number_label">
                     </div>
                     <div class="input-group mb-2">
                       <div class="input-group-append">
-                        <span class="input-group-text" id="phone_number_label">تعداد اقساط بعدی: </span>
+                        <span class="input-group-text" id="phone_number_label">تعداد اقساط: </span>
                       </div>
-                      <input type="number" class="form-control"  min="0" max="12" value="0" id="instalment_num" aria-describedby="phone_number_label">
+                      <input type="number" class="form-control"  min="0" max="12" value="0" id="paragraph_num" aria-describedby="phone_number_label">
+
+                    <button onclick="add_paragraphs();" class="btn btn-outline-primary" ><i class="fa small fa-plus"></i> افزودن اقساط</button>
                     </div>
-                    <p id="caution" style="color: red;">توجه: بعد از ایجاد صورت مالی حداکثر تا ۵ روز جهت پرداخت مبلغ تراکنش پیش پرداخت فرصت دارید.</p>
+                    <div id="paragraph_details">
+                    </div>
+                    <p id="caution" style="color: red;"></p>
                 </div>
 
                 <!-- Modal footer -->
@@ -177,12 +182,14 @@
             <div class="row">
                                 <div class="col-lg-6">
                                         <h3><strong>نام: </strong>{{ object.name }}</h3>
+                                        <h3><strong>کد: </strong>{{ object.code }}</h3>
                     <h3><strong>توضیحات: </strong>{{ object.description }}</h3>
 {#                    <h3><strong>مدیر ایجاد: </strong>{{ object.created_by }}</h3>#}
                     <h3><strong>تاریخ ایجاد: </strong>{{ object.created_at | j_format_date:"%Y/%m/%d" }}</h3>
                     <h3><strong>وضعیت: </strong>{{ object.get_status_display }}</h3>
                     <h3><strong>مرکز: </strong>{{ object.center }}</h3>
                     <h3><strong>مدیر: </strong>{{ object.manager }}</h3>
+                    <h3><strong>کارشناس کنترل پروژه: </strong>{{ object.monitoring_manager }}</h3>
                 </div>
                 <div class="col-lg-6">
                                         <h3><strong>تاریخ شروع قرارداد: </strong>{{ object.started_at | j_format_date:"%Y/%m/%d" }}</h3>
@@ -305,13 +312,20 @@
     });
 
     function create_financial_statement(){
+                    var paragraph_number = parseInt($('#paragraph_num').val());
+            var paragraph_dues = '';
+            for (let i = 0; i < paragraph_number; i++) {
+                paragraph_dues = paragraph_dues + $(`#paragraph_due_${i}`).val() + ';';
+            }
+            console.log(paragraph_dues);
         $.ajax({
             url: "{% url 'transactions:ajax' %}",
             data: {
                 'request_type': 'projectpack_create_financial_statement',
                 'projectpack_id': '{{ object.id }}',
                 'prepayment': $('#prepayment_number').val(),
-                'instalment_num': $('#instalment_num').val(),
+                'installment_num': $('#paragraph_num').val(),
+                'installment_dues': paragraph_dues,
             },
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
@@ -320,10 +334,16 @@
                     location.reload();
                 }
                 else if(data['error'] === 1){
-                    $('#caution').text('مبلغ پیش پرداخت از مبلغ کل پک پروژه بیشتر است.')
+                    $('#caution').text('مبلغ پیش پرداخت نمیتواند صفر باشد. لطفا آن را اصلاح نمایید.')
                 }
                 else if(data['error'] === 2){
                     $('#caution').text('مبلغ قرارداد پک پروژه صفر است. لطفا آن را اصلاح نمایید.')
+                }
+                else if(data['error'] === 3){
+                    $('#caution').text('تعداد اقساط قرارداد باید یک یا بیشتر باشد.')
+                }
+                else if(data['error'] === 4){
+                    $('#caution').text('موعد پرداخت اقساط بر حسب پیشرفت وزنی باید به ترتیب از کم به زیاد باشد. لطفا مقادیر را اصلاح نمایید.')
                 }
             }
         });
@@ -353,6 +373,36 @@
            var input_new = input.split(',').join('');
            $("#prepayment_number").val(input_new);
         });
+
+    function add_paragraphs() {
+            var payment = parseInt('{{ object.payment }}');
+            var prepayment = parseInt($('#prepayment_number').val());
+            var paragraph_number = parseInt($('#paragraph_num').val());
+            if(prepayment>payment){
+                $('#caution').text('مبلغ پیش پرداخت نباید از مبلغ پک پروژه بیشتر باشد.');
+                return;
+            }
+            if(paragraph_number < 0){
+                $('#caution').text('تعداد اقساط نمیتواند منفی باشد.');
+                return;
+            }
+            if(paragraph_number === 0){
+                $('#caution').text('در صورتی که در نظر دارید قرارداد اقساط نداشته باشد مبلغ پیش پرداخت را مبلغ کل پک پروژه وارد نمایید.');
+                return;
+            }
+            $('#caution').text('');
+            {#var paragraph_payment = (payment - prepayment)/paragraph_number;#}
+            for (let i = 0; i < paragraph_number; i++) {
+                $('#paragraph_details').append(
+                    '<div class="input-group mb-2"> ' +
+                    '<div class="input-group-append"> ' +
+                    `<span class="input-group-text" >موعد قسط ${i+1} بر حسب پیشرفت وزنی</span> ` +
+                    '</div> ' +
+                    `<input type="number" class="form-control"  min="0" max="100" value="0" id="paragraph_due_${i}" aria-describedby="phone_number_label"> ` +
+                    '</div>'
+                );
+            }
+        }
 
 	</script>
 {% endblock %}
