@@ -39,3 +39,5 @@ redis==3.3.11
 
 # date time localization
 babel==2.8.0
+
+django-polymorphic
