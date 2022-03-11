@@ -151,8 +151,17 @@
                           <input type="text" class="form-control number-separator" id="payment_text" value="{{ object.payment  }}" aria-describedby="payment_label" {% if object.created_financial_statement %}readonly{% endif %}>
                           <input type="number" class="form-control d-none" value="{{ object.payment  }}" id="payment_number" name="payment" aria-describedby="payment_label">
                         </div>
-                        <div class="input-group mb-2">
                         {% if not object %}
+                            <div class="input-group mb-2">
+                          <div class="input-group-append">
+                            <span class="input-group-text required" id="started_at_label">تاریخ شروع قرارداد: </span>
+                          </div>
+                          <input type="datetime" id="datepicker_started_at" class="form-control" name="to_be_started" aria-describedby="started_at_label">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-calendar fa-2x"></i></span>
+                            </div>
+                            </div>
+                            <div class="input-group mb-2">
                           <div class="input-group-append">
                             <span class="input-group-text required" id="to_be_finished_label">تاریخ سررسید قرارداد: </span>
                           </div>
@@ -160,10 +169,11 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-calendar fa-2x"></i></span>
                             </div>
+                            </div>
                         {% endif %}
 
 
-                        </div>
+
 {#                                 <div class="col-lg-12">#}
                                      <div><br></div>
                             <div class="btn-group float-left">
@@ -312,12 +322,21 @@
         var datepicker = $("#datepicker").persianDatepicker(datepickeroption);
         $('#datepicker').val('{{ object.to_be_finished | j_format_date:"%Y-%m-%d %H:%M" }}');
 
+        var initialDate_started_at = new Date('{{ object.to_be_started | date:"%Y-%m-%d %H:%M" }}');
+        var datepicker_started_at = $("#datepicker_started_at").persianDatepicker(datepickeroption);
+        $('#datepicker_started_at').val('{{ object.to_be_started | j_format_date:"%Y-%m-%d %H:%M" }}');
+
          $('#pr-form').submit(function () {
 
              if ($('#datepicker').val() === '') {
                  $('#datepicker').val('');
              } else {
                  $('#datepicker').val(datepicker.getState().selected.dateObject.toCalendar('gregorian').toLocale('en').format('YYYY-MM-DD HH:mm'));
+             }
+             if ($('#datepicker_started_at').val() === '') {
+                 $('#datepicker_started_at').val('');
+             } else {
+                 $('#datepicker_started_at').val(datepicker.getState().selected.dateObject.toCalendar('gregorian').toLocale('en').format('YYYY-MM-DD HH:mm'));
              }
          });
 

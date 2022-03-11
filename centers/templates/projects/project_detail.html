@@ -12,6 +12,9 @@
     <script src="{% static  'vendors/touchpunch/jquery.ui.touch-punch.min.js' %}"></script>
 	<script src="{% static  'vendors/jquery-ui/jquery-ui.min.js' %}"></script>
 
+    <script src="{% static  'vendors/select2/js/select2.full.min.js' %}"></script>
+    <link href="{% static  'vendors/select2/css/select2.min.css' %}" rel="stylesheet">
+
 	<link href="{% static  'vendors/select2/css/select2-bootstrap4.min.css' %}" rel="stylesheet">
     <script src="{% static 'vendors/easynumber/easy-number-separator.js' %}"></script>
 
@@ -20,6 +23,8 @@
 	<link href="{% static  'vendors/c3/c3.min.css' %}" rel="stylesheet">
 
     <script src="{% static  'vendors/chartJs/Chart.min.js' %}"></script>
+    <script src="{% static 'vendors/chartJs/plugins/colorschemes/chartjs-plugin-colorschemes.min.js' %}"></script>
+
 
 {% endblock %}
 
@@ -171,6 +176,48 @@
 
 {% block content %}
 	<div class="row">
+	<div class="col-lg-12">
+	<div class="ibox ">
+        <div class="ibox-title">
+            <div class="row">
+                <div class="col-lg-8">
+                    <strong>{{ now |j_format_date:"%Y/%m/%d" }}</strong>
+                    <br>
+                    <small>{{ now |j_format_date:"%I:%M %p" }}</small>
+                </div>
+                <div class="col-lg-3">
+                    <div class="row">
+                        <select id="days" class="select2 form-control" style="width: 20%">
+                            <option></option>
+                            {% for day in days %}
+                                <option>{{ day }}</option>
+                            {% endfor %}
+                        </select>
+                        <select id="months" class="select2 form-control" style="width: 40%">
+                            <option></option>
+                            {% for key,value in months.items %}
+                                <option value="{{ key }}">{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                        <select id="years" class="select2 form-control" style="width: 40%">
+                            <option></option>
+                            {% for year in years %}
+                                <option>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-1">
+                </div>
+            </div>
+        </div>
+        <div class="ibox-content">
+            <div id="lineChart-container">
+                <canvas id="lineChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+    </div>
     <div class="col-lg-12">
         <div class="col-lg-4 text-center">
             <div><br></div>
@@ -443,6 +490,286 @@
     <script src="{% static 'vendors/modalform/jquery.bootstrap.modal.forms.js' %}"></script>
 
 	<script>
+        var ymd = 'y';
+
+        var months_label = ['فروردین',
+            'اردیبهشت',
+            'خرداد',
+            'تیر',
+            'مرداد',
+            'شهریور',
+            'مهر',
+            'آبان',
+            'آذر',
+            'دی',
+            'بهمن',
+            'اسفند'];
+        var days_label = ['01',
+            '02',
+            '03',
+            '04',
+            '05',
+            '06',
+            '07',
+            '08',
+            '09',
+            '10',
+            '11',
+            '12',
+            '13',
+            '14',
+            '15',
+            '16',
+            '17',
+            '18',
+            '19',
+            '20',
+            '21',
+            '22',
+            '23',
+            '24',
+            '25',
+            '26',
+            '27',
+            '28',
+            '29',
+            '30',
+            '31'];
+        var hours_lable = ['00',
+            '01',
+            '02',
+            '03',
+            '04',
+            '05',
+            '06',
+            '07',
+            '08',
+            '09',
+            '10',
+            '11',
+            '12',
+            '13',
+            '14',
+            '15',
+            '16',
+            '17',
+            '18',
+            '19',
+            '20',
+            '21',
+            '22',
+            '23'];
+
+        var years_select = $("#years").select2({
+            theme: 'bootstrap4',
+        });
+
+        var months_select = $("#months").select2({
+            theme: 'bootstrap4',
+        });
+
+        var days_select = $("#days").select2({
+            theme: 'bootstrap4',
+        });
+
+
+        $("#years").on("change", function () {
+            ymd = 'y';
+            $.ajax({
+                url: "{% url 'centers:ajax' %}",
+                data: {
+                    'request_type': 'project_lineChart',
+                    'project_id': {{ object.id }},
+                    'ymd': ymd,
+                    'year': $("#years").val(),
+                    'month': $("#months").val(),
+                    'day': $("#days").val()
+                },
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (data) {
+                    load_lineChart({{ to_be_progressed_yearly }},data.progressed);
+                }
+            });
+        });
+
+        $("#years").on("select2:close", function () {
+            if (ymd === 'y') {
+                return;
+            }
+
+            ymd = 'y';
+            $.ajax({
+                url: "{% url 'centers:ajax' %}",
+                data: {
+                    'request_type': 'project_lineChart',
+                    'project_id': {{ object.id }},
+                    'ymd': ymd,
+                    'year': $("#years").val(),
+                    'month': $("#months").val(),
+                    'day': $("#days").val()
+                },
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (data) {
+                    load_lineChart({{ to_be_progressed_yearly }},data.progressed);
+                }
+            });
+        });
+
+        $("#months").on("change", function () {
+            ymd = 'm';
+            $.ajax({
+                url: "{% url 'centers:ajax' %}",
+                data: {
+                    'request_type': 'project_lineChart',
+                    'project_id': {{ object.id }},
+                    'ymd': ymd,
+                    'year': $("#years").val(),
+                    'month': $("#months").val(),
+                    'day': $("#days").val()
+                },
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (data) {
+                    load_lineChart({{ to_be_progressed_monthly }},data.progressed);
+                }
+            });
+        });
+
+        $("#months").on("select2:close", function () {
+            if (ymd === 'm') {
+                return;
+            }
+
+            ymd = 'm';
+            $.ajax({
+                url: "{% url 'centers:ajax' %}",
+                data: {
+                    'request_type': 'project_lineChart',
+                    'project_id': {{ object.id }},
+                    'ymd': ymd,
+                    'year': $("#years").val(),
+                    'month': $("#months").val(),
+                    'day': $("#days").val()
+                },
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (data) {
+                    load_lineChart({{ to_be_progressed_monthly }},data.progressed);
+                }
+            });
+        });
+
+        $("#days").on("change", function () {
+            ymd = 'd'
+            $.ajax({
+                url: "{% url 'centers:ajax' %}",
+                data: {
+                    'request_type': 'project_lineChart',
+                    'project_id': {{ object.id }},
+                    'ymd': ymd,
+                    'year': $("#years").val(),
+                    'month': $("#months").val(),
+                    'day': $("#days").val()
+                },
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (data) {
+                    load_lineChart({{ to_be_progressed_dayly }},data.progressed);
+                }
+            });
+        });
+
+        $("#days").on("select2:close", function () {
+            if (ymd === 'd') {
+                return;
+            }
+            $.ajax({
+                url: "{% url 'centers:ajax' %}",
+                data: {
+                    'request_type': 'project_lineChart',
+                    'project_id': {{ object.id }},
+                    'ymd': ymd,
+                    'year': $("#years").val(),
+                    'month': $("#months").val(),
+                    'day': $("#days").val()
+                },
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (data) {
+                    load_lineChart({{ to_be_progressed_dayly }},data.progressed);
+                }
+            });
+        });
+
+        function load_lineChart(to_be_progressed, progressed) {
+            var dataset = [];
+            dataset.push({
+                data: to_be_progressed,
+                borderColor: '#fd7e14',
+                backgroundColor: 'rgba(253,126,20,0.31)',
+                pointBackgroundColor: '#dc3545',
+                pointBorderColor: '#dc3545',
+            });
+
+            dataset.push({
+                data: progressed,
+                borderColor: '#a760f8',
+                backgroundColor: 'rgba(167,96,248,0.31)',
+                pointBackgroundColor: '#da14fd',
+                pointBorderColor: '#da14fd',
+            });
+
+            var lineData;
+
+            if (ymd === 'd') {
+                lineData = {
+                    labels: hours_lable,
+                    datasets: dataset
+                };
+            } else if (ymd === 'm') {
+                lineData = {
+                    labels: days_label,
+                    datasets: dataset
+                };
+
+            } else {
+                lineData = {
+                    labels: months_label,
+                    datasets: dataset
+                };
+            }
+
+            var lineOptions = {
+                responsive: true,
+                legend: {
+                    display: false
+                },
+                tooltips: {
+                    callbacks: {
+                        label: function (tooltipItem) {
+                            return tooltipItem.yLabel;
+                        }
+                    }
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            min: 0,
+                            beginAtZero: true
+                        }
+                    }],
+                }
+            };
+            $('#lineChart-container').empty().append('<canvas id="lineChart" height="120"></canvas>');
+            var ctx = document.getElementById("lineChart").getContext("2d");
+            new Chart(ctx, {type: 'line', data: lineData, options: lineOptions});
+        }
+
+        years_select.val('{{ now |j_format_date:"%Y" }}').change();
+        {#load_lineChart({{ ordered_product_numbers }}, {{ sent_product_numbers }});#}
+
     $(document).ready(function() {
         $("#attach-project-{{ object.id }}").modalForm({
             formURL: "{% url 'centers:project_attach_create' pk=object.id projectpack_pk=object.project_pack.id %}"

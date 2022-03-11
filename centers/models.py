@@ -60,7 +60,8 @@ class ProjectPack(models.Model):
     center = models.ForeignKey(to=Center, on_delete=models.PROTECT, verbose_name='مرکز')
     # employees = models.ManyToManyField(to=Profile, blank=True, verbose_name='اعضای پروژه')
 
-    started_at = models.DateTimeField(null=True, blank=True, verbose_name='شروع قرارداد')
+    started_at = models.DateTimeField(null=True, blank=True, verbose_name='شروع واقعی قرارداد')
+    to_be_started = models.DateTimeField(verbose_name='شروع قرارداد')
     to_be_finished = models.DateTimeField(verbose_name='سررسید قرارداد')
     # duration = models.FloatField(default=0, verbose_name='مدت قرارداد')
 
@@ -87,42 +88,42 @@ class ProjectPack(models.Model):
     def __str__(self):
         return f"{self.name}-{self.status}"
 
-    # def check_if_completed(self):
-    #     for project in self.project_set.all():
-    #         if project.status != 'completed':
-    #             return False
-    #     self.status = 'completed'
-    #     self.save(update_fields=['status'])
-    #     return True
+    def check_if_completed(self):
+        for project in self.project_set.all():
+            if project.status != 'completed':
+                return False
+        self.status = 'completed'
+        self.save(update_fields=['status'])
+        return True
 
-    # def check_if_verified(self):
-    #     for project in self.project_set.all():
-    #         if project.status != 'verified':
-    #             return False
-    #     self.status = 'verified'
-    #     self.save(update_fields=['status'])
-    #     return True
+    def check_if_verified(self):
+        for project in self.project_set.all():
+            if project.status != 'verified':
+                return False
+        self.status = 'verified'
+        self.save(update_fields=['status'])
+        return True
 
 
-# @receiver(post_save, sender=ProjectPack, dispatch_uid="projectpack_status_update")
-# def change_status(sender, instance, created, raw, update_fields, **kwargs):
-#     try:
-#         # create new log for new items
-#         if created:
-#             pass
-#         elif 'status' in update_fields:
-#             if instance.status == 'inprogress':
-#                 instance.started_at = datetime.now()
-#                 instance.finished_at = None
-#             elif instance.status == 'completed':
-#                 instance.finished_at = None
-#             elif instance.status == 'to_do':
-#                 instance.finished_at = None
-#             elif instance.status == 'verified':
-#                 instance.finished_at = datetime.now()
-#             instance.save()
-#     except Exception:
-#         pass
+@receiver(post_save, sender=ProjectPack, dispatch_uid="projectpack_status_update")
+def projectpack_change_status(sender, instance, created, raw, update_fields, **kwargs):
+    try:
+        # create new log for new items
+        if created:
+            pass
+        elif 'status' in update_fields:
+            if instance.status == 'inprogress':
+                instance.started_at = datetime.now()
+                instance.finished_at = None
+            elif instance.status == 'completed':
+                instance.finished_at = None
+            elif instance.status == 'to_do':
+                instance.finished_at = None
+            elif instance.status == 'verified':
+                instance.finished_at = datetime.now()
+            instance.save()
+    except Exception:
+        pass
 
 
 def get_project_attachment_directory_path(instance, filename):
@@ -236,7 +237,7 @@ class Project(models.Model):
 
 
 @receiver(post_save, sender=Project, dispatch_uid="project_status_update")
-def change_status(sender, instance, created, raw, update_fields, **kwargs):
+def project_change_status(sender, instance, created, raw, update_fields, **kwargs):
     try:
         # create new log for new items
         if created:
@@ -245,16 +246,16 @@ def change_status(sender, instance, created, raw, update_fields, **kwargs):
             if instance.status == 'inprogress':
                 instance.started_at = datetime.now()
                 instance.finished_at = None
-                # instance.project_pack.status = 'inprogress'
-                # instance.project_pack.save(update_fields=['status'])
+                instance.project_pack.status = 'inprogress'
+                instance.project_pack.save(update_fields=['status'])
             elif instance.status == 'completed':
                 instance.finished_at = None
-                # instance.project_pack.check_if_completed()
+                instance.project_pack.check_if_completed()
             elif instance.status == 'to_do':
                 instance.finished_at = None
             elif instance.status == 'verified':
                 instance.finished_at = datetime.now()
-                # instance.project_pack.check_if_verified()
+                instance.project_pack.check_if_verified()
             instance.save()
     except Exception:
         pass

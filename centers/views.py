@@ -1,6 +1,7 @@
 import datetime
 import json
 
+import jdatetime
 import openpyxl as openpyxl
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
@@ -356,6 +357,34 @@ class ProjectPackProjectDetailsView(LoginRequiredMixin, RoleMixin, DetailView):
             context['done_days'] = 0
             context['programmed_remained_days'] = context['remained_days']
 
+        years = []
+        months = {'1': 'فروردین', '2': 'اردیبهشت', '3': 'خرداد', '4': 'تیر', '5': 'مرداد', '6': 'شهریور', '7': 'مهر',
+                  '8': 'آبان', '9': 'آذر', '10': 'دی', '11': 'بهمن', '12': 'اسفند'}
+        days = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17',
+                '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31']
+
+        first_year = jdatetime.date.fromgregorian(date=project.started_at.date()).year
+        last_year = jdatetime.datetime.now().year
+        for i in range(first_year, last_year + 1):
+            years.append(i)
+
+        context['now'] = datetime.datetime.now
+        context['years'] = years
+        context['months'] = months
+        context['days'] = days
+
+        total_weight = 0
+        for task in project.task_set.all():
+            total_weight += task.weight
+
+        duration = project.to_be_finished - project.started_at
+        hours = duration.total_seconds() / 3600
+        days = duration.total_seconds() / (3600*24)
+        months = duration.total_seconds() / (3600*24*30)
+
+        context['to_be_progressed_dayly'] = [total_weight / hours] * 24
+        context['to_be_progressed_monthly'] = [total_weight / days] * 31
+        context['to_be_progressed_yearly'] = [total_weight / months] * 12
 
         return context
 
@@ -482,9 +511,93 @@ class SubTaskDeleteView(LoginRequiredMixin, RoleMixin, JSONDeleteView):
 
 
 class AjaxHandler(TemplateView):
+    def lineChart_dayly(self, project, year, month, day, data):
+        data['progressed'] = [0] * 24
+        for hour in range(0, 24):
+            try:
+                first = jdatetime.datetime(year, month, day, hour).togregorian()
+            except:
+                try:
+                    day = 30
+                    first = jdatetime.datetime(year, month, day, hour).togregorian()
+                except:
+                    day = 29
+                    first = jdatetime.datetime(year, month, day, hour).togregorian()
+            try:
+                last = jdatetime.datetime(year, month, day, hour + 1).togregorian()
+            except:
+                try:
+                    last = jdatetime.datetime(year, month, day + 1).togregorian()
+                except:
+                    try:
+                        last = jdatetime.datetime(year, month + 1, 1).togregorian()
+                    except:
+                        last = jdatetime.datetime(year + 1, 1, 1).togregorian()
+
+            for task in project.task_set.filter(finished_at__range=[first, last]):
+                try:
+                    data['progressed'][hour - 1] += task.weight
+                except:
+                    pass
+
+
+
+
+    def lineChart_monthly(self, project, year, month, data):
+        data['progressed'] = [0] * 31
+        for day in range(1, 32):
+            try:
+                first = jdatetime.date(year, month, day).togregorian()
+            except:
+                break
+            try:
+                last = jdatetime.date(year, month, day + 1).togregorian()
+            except:
+                try:
+                    last = jdatetime.date(year, month + 1, 1).togregorian()
+                except:
+                    last = jdatetime.date(year + 1, 1, 1).togregorian()
+
+            for task in project.task_set.filter(finished_at__range=[first, last]):
+                try:
+                    data['progressed'][day - 1] += task.weight
+                except:
+                    pass
+
+    def lineChart_yearly(self, project, year, data):
+        data['progressed'] = [0] * 12
+        for month in range(1, 13):
+            first = jdatetime.date(year, month, 1).togregorian()
+            try:
+                last = jdatetime.date(year, month + 1, 1).togregorian()
+            except:
+                last = jdatetime.date(year + 1, 1, 1).togregorian()
+
+            for task in project.task_set.filter(finished_at__range=[first, last]):
+                try:
+                    data['progressed'][month - 1] += task.weight
+                except:
+                    pass
+
     def get(self, request, *args, **kwargs):
         request_type = request.GET.get('request_type')
         data = {'error': 0}
+
+        if request_type == 'project_lineChart':
+            project_id = request.GET.get('project_id')
+            ymd = request.GET.get('ymd')
+            year = int(request.GET.get('year'))
+            project = Project.objects.get(id=project_id)
+
+            if ymd == 'y':
+                self.lineChart_yearly(project, year, data)
+            elif ymd == 'm':
+                month = int(request.GET.get('month'))
+                self.lineChart_monthly(project, year, month, data)
+            elif ymd == 'd':
+                month = int(request.GET.get('month'))
+                day = int(request.GET.get('day'))
+                self.lineChart_dayly(project, year, month, day, data)
 
         if request_type == 'projectpack_suppliment_time':
             projectpack_id = request.GET.get('projectpack_id')

@@ -192,7 +192,8 @@
                     <h3><strong>کارشناس کنترل پروژه: </strong>{{ object.monitoring_manager }}</h3>
                 </div>
                 <div class="col-lg-6">
-                                        <h3><strong>تاریخ شروع قرارداد: </strong>{{ object.started_at | j_format_date:"%Y/%m/%d" }}</h3>
+                                        <h3><strong>تاریخ شروع واقعی قرارداد: </strong>{{ object.started_at | j_format_date:"%Y/%m/%d" }}</h3>
+                                        <h3><strong>تاریخ شروع قرارداد: </strong>{{ object.to_be_started | j_format_date:"%Y/%m/%d" }}</h3>
                     <h3><strong>تاریخ پایان قرارداد: </strong>{{ object.finished_at | j_format_date:"%Y/%m/%d" }}</h3>
                     <h3><strong>تاریخ سررسید قرارداد: </strong>{{ object.to_be_finished | j_format_date:"%Y/%m/%d" }}</h3>
                     <h3><strong>مدت قرارداد: </strong>{{ object.duration }} روز</h3>
