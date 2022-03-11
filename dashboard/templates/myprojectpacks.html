@@ -15,7 +15,7 @@
 				<a>پیشخوان</a>
 			</li>
 			<li class="breadcrumb-item active">
-				<a href="{% url 'dashboard:myprojectpacks' %}"><strong>پک پروژه های من</strong></a>
+				<a href="{% url 'dashboard:myprojectpacks' %}"><strong>دسته پروژه های من</strong></a>
 			</li>
 		</ol>
 	</div>
@@ -26,10 +26,10 @@
 
 {% block content %}
         <div class="col-lg-12">
-            <h3>پک پروژه های تحت مدیریت من</h3>
+            <h3>دسته پروژه های تحت مدیریت من</h3>
             <br>
             {% if not object.projectpack_manager.exists %}
-                <p>پک پروژه ای تحت مدیریت شما وجود ندارد.</p>
+                <p>دسته پروژه ای تحت مدیریت شما وجود ندارد.</p>
             {% endif %}
             {% for pack in object.projectpack_manager.all %}
                 <div class="card col-lg-3 offset-1 text-center">
@@ -42,10 +42,10 @@
         <br>
         </div>
         <div class="col-lg-12">
-            <h3>پک پروژه های تحت نظارت من</h3>
+            <h3>دسته پروژه های تحت نظارت من</h3>
             <br>
             {% if not object.projectpack_monitoring_manager.exists %}
-                <p>پک پروژه ای تحت نظارت شما وجود ندارد.</p>
+                <p>دسته پروژه ای تحت نظارت شما وجود ندارد.</p>
             {% endif %}
             {% for pack in object.projectpack_monitoring_manager.all %}
                 <div class="card col-lg-3 offset-1 text-center">

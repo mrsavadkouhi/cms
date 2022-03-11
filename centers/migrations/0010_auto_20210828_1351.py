@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='project',
             name='usable_fund',
-            field=models.IntegerField(default=0, verbose_name='مبلغ قابل استفاده جهت تسویه تسک'),
+            field=models.IntegerField(default=0, verbose_name='مبلغ قابل استفاده جهت تسویه فعالیت'),
         ),
         migrations.AddField(
             model_name='projectpack',

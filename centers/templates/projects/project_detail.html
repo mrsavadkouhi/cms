@@ -46,7 +46,7 @@
 	<div class="col-md-3">
 		<div class="title-action float-right">
             <div class="btn-group">
-                <a href="{% url 'centers:task_list' pk_project=object.id %}" class="btn btn-lg btn-outline-primary"><i class="fa fa-tasks"></i> تسک ها</a>
+                <a href="{% url 'centers:task_list' pk_project=object.id %}" class="btn btn-lg btn-outline-primary"><i class="fa fa-tasks"></i> فعالیت ها</a>
                 {% has_perms user 'center;' as has_center_perm %}
                 {% has_perms user 'project;' as has_project_perm %}
                 {% if user.is_superuser or has_center_perm or has_project_perm %}
@@ -57,16 +57,16 @@
                     </button>
                 {% endif %}
                 {% endif %}
-                {% if not object.time_supplemented %}
+{#                {% if not object.time_supplemented %}#}
                     <button  class="btn btn-sm btn-outline-danger m-l-sm" onclick="$('#suppliment-time').modal();">
                         <i class="fa fa-clock"></i> ایجاد متمم زمانی
                     </button>
-                {% endif %}
-                {% if not object.time_supplement_form_uploaded %}
+{#                {% endif %}#}
+{#                {% if not object.time_supplement_form_uploaded %}#}
                     <button  class="btn btn-sm btn-outline-dark m-l-sm" onclick="$('#suppliment-time-form-upload').modal();">
                         <i class="fa fa-file"></i> بارگذاری فرم متمم زمانی
                     </button>
-                {% endif %}
+{#                {% endif %}#}
                 <a href="{% url 'centers:projectpack_project_update' pk=object.id projectpack_pk=object.project_pack.id %}" class="btn btn-lg btn-outline-warning"><i class="fa fa-sm fa-pen"></i><i class="fa fa-th-list"></i> ویرایش</a>
                 {% endif %}
             </div>
@@ -227,7 +227,7 @@
                 <div class="col-lg-6">
                                         <h3><strong>تاریخ شروع قرارداد: </strong>{{ object.started_at | j_format_date:"%Y/%m/%d" }}</h3>
                     <h3><strong>تاریخ پایان قرارداد: </strong>{{ object.finished_at | j_format_date:"%Y/%m/%d" }}</h3>
-                    <h3><strong>تاریخ ددلاین قرارداد: </strong>{{ object.to_be_finished | j_format_date:"%Y/%m/%d" }}</h3>
+                    <h3><strong>تاریخ سررسید قرارداد: </strong>{{ object.to_be_finished | j_format_date:"%Y/%m/%d" }}</h3>
                     <h3><strong>مدت قرارداد: </strong>{{ object.duration }} روز</h3>
                     <h3><strong>مبلغ قرارداد(تومان): </strong>{{ object.payment|intcomma }} تومان</h3>
                     <h3><strong>مبلغ پرداخت شده(تومان): </strong>{{ object.paid|intcomma }} تومان</h3>

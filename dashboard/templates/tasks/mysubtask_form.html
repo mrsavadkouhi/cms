@@ -29,7 +29,7 @@
     {% if obj.task %}
     <div class="input-group mb-2">
       <div class="input-group-append">
-        <span class="input-group-text" id="name_label">تسک</span>
+        <span class="input-group-text" id="name_label">فعالیت</span>
       </div>
       <input readonly type="text" name="task" class="form-control" value="{{ obj.task.name }}" id="sub-name-{{ obj.id }}" aria-describedby="name_label">
     </div>
@@ -63,7 +63,7 @@
     </div>
     <div class="input-group mb-2">
       <div class="input-group-append">
-        <span class="input-group-text" id="to_label"><i class="fa fa-clock"></i>ددلاین</span>
+        <span class="input-group-text" id="to_label"><i class="fa fa-clock"></i>سررسید</span>
       </div>
       <input disabled name="to_be_finished" type="datetime" id="datepicker-subtask-{{ obj.id }}" class="form-control" aria-describedby="to_label">
     </div>

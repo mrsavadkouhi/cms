@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='permission',
             name='code',
-            field=models.CharField(choices=[('users', 'مدیریت کاربران'), ('centers', 'مدیریت مراکز'), ('projectpacks', 'مدیریت پک پروژه ها'), ('projects', 'مدیریت پروژه ها'), ('equipments', 'مدیریت تجهیزات'), ('transactions', 'مدیریت تراکنش ها'), ('center', 'مدیریت مرکز'), ('user', 'مدیریت کاربران مرکز'), ('equipment', 'مدیریت تجهیزات مرکز'), ('transaction', 'مدیریت تراکنش های مرکز'), ('projectpack', 'مدیریت پک پروژه های مرکز'), ('projectpack_monitoring', 'کارشناس کنترل پروژه های مرکز'), ('project', 'پیمانکار پروژه های مرکز'), ('project_monitoring', 'نظارت پروژه های مرکز')], max_length=30, verbose_name='کد'),
+            field=models.CharField(choices=[('users', 'مدیریت کاربران'), ('centers', 'مدیریت مراکز'), ('projectpacks', 'مدیریت دسته پروژه ها'), ('projects', 'مدیریت پروژه ها'), ('equipments', 'مدیریت تجهیزات'), ('transactions', 'مدیریت تراکنش ها'), ('center', 'مدیریت مرکز'), ('user', 'مدیریت کاربران مرکز'), ('equipment', 'مدیریت تجهیزات مرکز'), ('transaction', 'مدیریت تراکنش های مرکز'), ('projectpack', 'مدیریت دسته پروژه های مرکز'), ('projectpack_monitoring', 'کارشناس کنترل پروژه های مرکز'), ('project', 'پیمانکار پروژه های مرکز'), ('project_monitoring', 'نظارت پروژه های مرکز')], max_length=30, verbose_name='کد'),
         ),
     ]

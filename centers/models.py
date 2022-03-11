@@ -54,14 +54,14 @@ class ProjectPack(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
 
     manager = models.ForeignKey(to=Profile, on_delete=models.PROTECT, related_name='projectpack_manager',
-                                verbose_name='مدیر پک پروژه')
+                                verbose_name='مدیر دسته پروژه')
     monitoring_manager = models.ForeignKey(to=Profile, on_delete=models.PROTECT, related_name='projectpack_monitoring_manager',
                                 verbose_name='کارشناس کنترل پروژه')
     center = models.ForeignKey(to=Center, on_delete=models.PROTECT, verbose_name='مرکز')
     # employees = models.ManyToManyField(to=Profile, blank=True, verbose_name='اعضای پروژه')
 
     started_at = models.DateTimeField(null=True, blank=True, verbose_name='شروع قرارداد')
-    to_be_finished = models.DateTimeField(verbose_name='ددلاین قرارداد')
+    to_be_finished = models.DateTimeField(verbose_name='سررسید قرارداد')
     # duration = models.FloatField(default=0, verbose_name='مدت قرارداد')
 
     payment = models.IntegerField(verbose_name='مبلغ قرارداد')
@@ -70,10 +70,10 @@ class ProjectPack(models.Model):
 
     created_financial_statement = models.BooleanField(default=False, verbose_name='صورت مالی ایجاد شده؟')
 
-    time_supplemented = models.BooleanField(default=False, verbose_name='مشمول متمم زمانی شده؟')
+    # time_supplemented = models.BooleanField(default=False, verbose_name='مشمول متمم زمانی شده؟')
     time_supplement_days = models.IntegerField(default=0, verbose_name='روزهای متمم شده')
     time_supplement_description = models.TextField(null=True, blank=True, verbose_name='توضیحات متمم زمانی')
-    time_supplement_form_uploaded = models.BooleanField(default=False, verbose_name='فرم متمم زمانی بارگذاری شده؟')
+    # time_supplement_form_uploaded = models.BooleanField(default=False, verbose_name='فرم متمم زمانی بارگذاری شده؟')
 
     # progress = models.IntegerField(default=0, verbose_name='درصد پیشرفت وزنی')
     # weightless_progress = models.IntegerField(default=0, verbose_name='درصد پیشرفت')
@@ -87,42 +87,42 @@ class ProjectPack(models.Model):
     def __str__(self):
         return f"{self.name}-{self.status}"
 
-    def check_if_completed(self):
-        for project in self.project_set.all():
-            if project.status != 'completed':
-                return False
-        self.status = 'completed'
-        self.save(update_fields=['status'])
-        return True
+    # def check_if_completed(self):
+    #     for project in self.project_set.all():
+    #         if project.status != 'completed':
+    #             return False
+    #     self.status = 'completed'
+    #     self.save(update_fields=['status'])
+    #     return True
 
-    def check_if_verified(self):
-        for project in self.project_set.all():
-            if project.status != 'verified':
-                return False
-        self.status = 'verified'
-        self.save(update_fields=['status'])
-        return True
+    # def check_if_verified(self):
+    #     for project in self.project_set.all():
+    #         if project.status != 'verified':
+    #             return False
+    #     self.status = 'verified'
+    #     self.save(update_fields=['status'])
+    #     return True
 
 
-@receiver(post_save, sender=ProjectPack, dispatch_uid="projectpack_status_update")
-def change_status(sender, instance, created, raw, update_fields, **kwargs):
-    try:
-        # create new log for new items
-        if created:
-            pass
-        elif 'status' in update_fields:
-            if instance.status == 'inprogress':
-                instance.started_at = datetime.now()
-                instance.finished_at = None
-            elif instance.status == 'completed':
-                instance.finished_at = None
-            elif instance.status == 'to_do':
-                instance.finished_at = None
-            elif instance.status == 'verified':
-                instance.finished_at = datetime.now()
-            instance.save()
-    except Exception:
-        pass
+# @receiver(post_save, sender=ProjectPack, dispatch_uid="projectpack_status_update")
+# def change_status(sender, instance, created, raw, update_fields, **kwargs):
+#     try:
+#         # create new log for new items
+#         if created:
+#             pass
+#         elif 'status' in update_fields:
+#             if instance.status == 'inprogress':
+#                 instance.started_at = datetime.now()
+#                 instance.finished_at = None
+#             elif instance.status == 'completed':
+#                 instance.finished_at = None
+#             elif instance.status == 'to_do':
+#                 instance.finished_at = None
+#             elif instance.status == 'verified':
+#                 instance.finished_at = datetime.now()
+#             instance.save()
+#     except Exception:
+#         pass
 
 
 def get_project_attachment_directory_path(instance, filename):
@@ -145,22 +145,22 @@ class Project(models.Model):
     monitoring_manager = models.ForeignKey(to=Profile, on_delete=models.PROTECT, related_name='project_monitoring_manager',
                                 verbose_name='ناظر پروژه')
     center = models.ForeignKey(to=Center, on_delete=models.PROTECT, verbose_name='مرکز')
-    project_pack = models.ForeignKey(to=ProjectPack, on_delete=models.PROTECT, verbose_name='پک پروژه')
+    project_pack = models.ForeignKey(to=ProjectPack, on_delete=models.PROTECT, verbose_name='دسته پروژه')
     employees = models.ManyToManyField(to=Profile, blank=True, related_name='project_employees', verbose_name='اعضای پروژه')
 
     started_at = models.DateTimeField(null=True, blank=True, verbose_name='شروع قرارداد')
-    to_be_finished = models.DateTimeField(verbose_name='ددلاین قرارداد')
+    to_be_finished = models.DateTimeField(verbose_name='سررسید قرارداد')
 
     payment = models.IntegerField(verbose_name='مبلغ قرارداد')
     paid = models.IntegerField(default=0, verbose_name='مبلغ پرداخت شده')
-    usable_fund = models.IntegerField(default=0, verbose_name='مبلغ قابل استفاده جهت تسویه تسک')
+    usable_fund = models.IntegerField(default=0, verbose_name='مبلغ قابل استفاده جهت تسویه فعالیت')
 
     created_financial_statement = models.BooleanField(default=False, verbose_name='صورت مالی ایجاد شده؟')
 
-    time_supplemented = models.BooleanField(default=False, verbose_name='مشمول متمم زمانی شده؟')
+    # time_supplemented = models.BooleanField(default=False, verbose_name='مشمول متمم زمانی شده؟')
     time_supplement_days = models.IntegerField(default=0, verbose_name='روزهای متمم شده')
     time_supplement_description = models.TextField(null=True, blank=True, verbose_name='توضیحات متمم زمانی')
-    time_supplement_form_uploaded = models.BooleanField(default=False, verbose_name='فرم متمم زمانی بارگذاری شده؟')
+    # time_supplement_form_uploaded = models.BooleanField(default=False, verbose_name='فرم متمم زمانی بارگذاری شده؟')
 
     progress = models.IntegerField(default=0, verbose_name='درصد پیشرفت وزنی')
     weightless_progress = models.IntegerField(default=0, verbose_name='درصد پیشرفت')
@@ -245,12 +245,16 @@ def change_status(sender, instance, created, raw, update_fields, **kwargs):
             if instance.status == 'inprogress':
                 instance.started_at = datetime.now()
                 instance.finished_at = None
+                # instance.project_pack.status = 'inprogress'
+                # instance.project_pack.save(update_fields=['status'])
             elif instance.status == 'completed':
                 instance.finished_at = None
+                # instance.project_pack.check_if_completed()
             elif instance.status == 'to_do':
                 instance.finished_at = None
             elif instance.status == 'verified':
                 instance.finished_at = datetime.now()
+                # instance.project_pack.check_if_verified()
             instance.save()
     except Exception:
         pass
@@ -276,7 +280,7 @@ class Task(models.Model):
     project = models.ForeignKey(null=True, blank=True, to=Project, on_delete=models.PROTECT, verbose_name='پروژه')
 
     started_at = models.DateTimeField(null=True, blank=True, verbose_name='شروع قرارداد')
-    to_be_finished = models.DateTimeField(null=True, blank=True, verbose_name='ددلاین قرارداد')
+    to_be_finished = models.DateTimeField(null=True, blank=True, verbose_name='سررسید قرارداد')
     # duration = models.FloatField(default=0, verbose_name='مدت قرارداد')
 
     payment = models.IntegerField(default=0, verbose_name='مبلغ قرارداد')
@@ -380,11 +384,11 @@ class SubTask(models.Model):
     # created_by = models.ForeignKey(to=Profile, on_delete=models.PROTECT, null=True,related_name='subtask_creator', verbose_name='مدیر ایجاد')
 
     employee = models.ForeignKey(null=True, blank=True, to=Profile, on_delete=models.PROTECT,
-                                 related_name='subtask_employee', verbose_name='مسئول تسک')
-    task = models.ForeignKey(to=Task, on_delete=models.PROTECT, verbose_name='تسک')
+                                 related_name='subtask_employee', verbose_name='مسئول فعالیت')
+    task = models.ForeignKey(to=Task, on_delete=models.PROTECT, verbose_name='فعالیت')
 
     started_at = models.DateTimeField(null=True, blank=True, verbose_name='شروع قرارداد')
-    to_be_finished = models.DateTimeField(null=True, blank=True, verbose_name='ددلاین قرارداد')
+    to_be_finished = models.DateTimeField(null=True, blank=True, verbose_name='سررسید قرارداد')
     # duration = models.FloatField(default=0, verbose_name='مدت قرارداد')
 
     weight = models.IntegerField(default=1, verbose_name='وزن')

@@ -183,7 +183,7 @@ class TaskImportForm(forms.Form):
 
 
 class ProjectPackAttachmentForm(BSModalModelForm):
-    projectpack_id = forms.IntegerField(label='پک پروژه', required=True)
+    projectpack_id = forms.IntegerField(label='دسته پروژه', required=True)
     file = forms.FileField(label='پیوست', required=True)
     description = forms.CharField(label='توضیحات', required=False)
 
@@ -331,19 +331,19 @@ class ProjectForm(forms.ModelForm):
         to_be_finished = cleaned_data.get('to_be_finished')
 
         if to_be_finished > project_pack.to_be_finished:
-            raise forms.ValidationError("تاریخ پایان پروژه نباید دیرتر از پایان پک پروژه باشد.")
+            raise forms.ValidationError("تاریخ پایان پروژه نباید دیرتر از پایان دسته پروژه باشد.")
 
         payment = int(cleaned_data.get('payment'))
 
         if payment > project_pack.payment:
-            raise forms.ValidationError("مبلغ وارد شده از مبلغ پک پروژه بیشتر است.")
+            raise forms.ValidationError("مبلغ وارد شده از مبلغ دسته پروژه بیشتر است.")
 
         other_project_payment_sum = 0
         for project in project_pack.project_set.all():
                 other_project_payment_sum += project.payment
         if project_pack.payment < other_project_payment_sum + payment:
             raise forms.ValidationError(
-                "مبلغ وارد شده با مجموع بالغ پروژه های دیگر پک پروژه همخوانی ندارد. لطفا مبلغ کمتری را وارد نمایید.")
+                "مبلغ وارد شده با مجموع بالغ پروژه های دیگر دسته پروژه همخوانی ندارد. لطفا مبلغ کمتری را وارد نمایید.")
 
         return cleaned_data
 
@@ -354,14 +354,14 @@ class ProjectForm(forms.ModelForm):
         #     payment = instance.payment
         #
         #     if payment > instance.project_pack.payment:
-        #             raise forms.ValidationError("مبلغ وارد شده از مبلغ پک پروژه بیشتر است.")
+        #             raise forms.ValidationError("مبلغ وارد شده از مبلغ دسته پروژه بیشتر است.")
         #
         #     other_project_payment_sum = 0
         #     for project in instance.project_pack.project_set.all():
         #         if project != instance:
         #             other_project_payment_sum += project.payment
         #     if instance.project_pack.payment < other_project_payment_sum + payment:
-        #         raise forms.ValidationError("مبلغ وارد شده با مجموع بالغ پروژه های دیگر پک پروژه همخوانی ندارد. لطفا مبلغ کمتری را وارد نمایید.")
+        #         raise forms.ValidationError("مبلغ وارد شده با مجموع بالغ پروژه های دیگر دسته پروژه همخوانی ندارد. لطفا مبلغ کمتری را وارد نمایید.")
         #
 
         if commit:
@@ -405,20 +405,20 @@ class ProjectUpdateForm(forms.ModelForm):
             payment = int(cleaned_data.get('payment'))
 
             if payment > instance.project_pack.payment:
-                    raise forms.ValidationError("مبلغ وارد شده از مبلغ پک پروژه بیشتر است.")
+                    raise forms.ValidationError("مبلغ وارد شده از مبلغ دسته پروژه بیشتر است.")
 
             other_project_payment_sum = 0
             for project in instance.project_pack.project_set.all():
                 if project != instance:
                     other_project_payment_sum += project.payment
             if instance.project_pack.payment < other_project_payment_sum + payment:
-                raise forms.ValidationError("مبلغ وارد شده با مجموع بالغ پروژه های دیگر پک پروژه همخوانی ندارد. لطفا مبلغ کمتری را وارد نمایید.")
+                raise forms.ValidationError("مبلغ وارد شده با مجموع بالغ پروژه های دیگر دسته پروژه همخوانی ندارد. لطفا مبلغ کمتری را وارد نمایید.")
 
             task_payment_sum = 0
             for task in instance.task_set.all():
                 task_payment_sum += task.payment
             if payment < task_payment_sum:
-                    raise forms.ValidationError("مبلغ وارد شده از مجموع مبالغ تسک ها کمتر است.")
+                    raise forms.ValidationError("مبلغ وارد شده از مجموع مبالغ فعالیت ها کمتر است.")
 
         return cleaned_data
     #
@@ -432,7 +432,7 @@ class ProjectUpdateForm(forms.ModelForm):
 
 
 class TaskAttachmentForm(BSModalModelForm):
-    task_id = forms.IntegerField(label='تسک', required=True)
+    task_id = forms.IntegerField(label='فعالیت', required=True)
     file = forms.FileField(label='پیوست', required=True)
     description = forms.CharField(label='توضیحات', required=False)
 
@@ -488,18 +488,18 @@ class TaskForm(BSModalModelForm):
         #         if task != instance:
         #             other_task_payment_sum += task.payment
         #     if instance.project.payment < other_task_payment_sum + payment:
-        #         raise forms.ValidationError("مبلغ وارد شده با مجموع بالغ تسک های دیگر پروژه همخوانی ندارد. لطفا مبلغ کمتری را وارد نمایید.")
+        #         raise forms.ValidationError("مبلغ وارد شده با مجموع بالغ فعالیت های دیگر پروژه همخوانی ندارد. لطفا مبلغ کمتری را وارد نمایید.")
 
         to_be_finished = cleaned_data.get('to_be_finished')
         if to_be_finished:
             if to_be_finished > instance.project.to_be_finished:
-                raise forms.ValidationError("تاریخ پایان تسک نباید دیرتر از پایان پروژه باشد.")
+                raise forms.ValidationError("تاریخ پایان فعالیت نباید دیرتر از پایان پروژه باشد.")
 
         return cleaned_data
 
 
 class SubTaskAttachmentForm(BSModalModelForm):
-    subtask_id = forms.IntegerField(label='زیرتسک', required=True)
+    subtask_id = forms.IntegerField(label='زیرفعالیت', required=True)
     file = forms.FileField(label='پیوست', required=True)
     description = forms.CharField(label='توضیحات', required=False)
 

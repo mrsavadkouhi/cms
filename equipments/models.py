@@ -61,7 +61,7 @@ class Rent(models.Model):
     project = models.ForeignKey(to=Project, on_delete=models.PROTECT, verbose_name='پروژه')
 
     at = models.DateTimeField(verbose_name='شروع قرارداد اجاره')
-    to = models.DateTimeField(verbose_name='ددلاین قرارداد اجاره')
+    to = models.DateTimeField(verbose_name='سررسید قرارداد اجاره')
 
     payment = models.FloatField(default=0, verbose_name='مبلغ قرارداد اجاره')
     paid = models.FloatField(default=0, verbose_name='مبلغ پرداخت شده')

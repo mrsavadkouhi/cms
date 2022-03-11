@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='project',
             name='project_pack',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.PROTECT, to='centers.ProjectPack', verbose_name='پک پروژه'),
+            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.PROTECT, to='centers.ProjectPack', verbose_name='دسته پروژه'),
             preserve_default=False,
         ),
         migrations.AddField(

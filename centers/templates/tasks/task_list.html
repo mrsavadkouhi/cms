@@ -36,7 +36,7 @@
 				<a href="{% url 'centers:projectpack_project_details' project_id project.project_pack.id %}">جزئیات {{ project.name }}</a>
 			</li>
 			<li class="breadcrumb-item active">
-				<a href="{% url 'centers:task_list' project_id %}"><strong>تسک ها</strong></a>
+				<a href="{% url 'centers:task_list' project_id %}"><strong>فعالیت ها</strong></a>
 			</li>
 		</ol>
 	</div>
@@ -76,7 +76,7 @@
                                     <div class="input-group-append">
                                     <button type="button" class="btn btn-sm btn-white" onclick="task_create();"> <i class="fa fa-plus"></i> افزودن</button>
                                   </div>
-                                  <input type="text" class="form-control" placeholder="نام تسک" id="name" aria-describedby="name_label">
+                                  <input type="text" class="form-control" placeholder="نام فعالیت" id="name" aria-describedby="name_label">
 
                                 </div>
                             </div>

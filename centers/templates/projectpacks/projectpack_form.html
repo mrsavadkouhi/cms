@@ -27,7 +27,7 @@
 
 {% endblock %}
 
-{% block head_title %}جزئیات پک پروژه{% endblock %}
+{% block head_title %}جزئیات دسته پروژه{% endblock %}
 
 
 {% block title-breadcrumb %}
@@ -36,16 +36,16 @@
     <br>
 		<ol class="breadcrumb">
 			<li class="breadcrumb-item">
-				<a>مدیریت پک پروژه ها</a>
+				<a>مدیریت دسته پروژه ها</a>
 			</li>
 			<li class="breadcrumb-item">
-                <a href="{% if in_center %}{% url 'centers:center_projectpack_list' center_pk=the_center.id %}{% else %}{% url 'centers:projectpack_list' %}{% endif %}" >لیست پک پروژه ها</a>
+                <a href="{% if in_center %}{% url 'centers:center_projectpack_list' center_pk=the_center.id %}{% else %}{% url 'centers:projectpack_list' %}{% endif %}" >لیست دسته پروژه ها</a>
 			</li>
 			<li class="breadcrumb-item active">
                 {% if tittle == 'ویرایش' %}
                     <a href="{% url 'centers:projectpack_update' object.id %}"><strong>ویرایش {{ object.name }}</strong></a>
                 {% else %}
-                    <a href="{% if in_center %}{% url 'centers:center_projectpack_create' center_pk=the_center.id %}{% else %}{% url 'centers:projectpack_create' %}{% endif %}"><strong>افزودن پک پروژه جدید</strong></a>
+                    <a href="{% if in_center %}{% url 'centers:center_projectpack_create' center_pk=the_center.id %}{% else %}{% url 'centers:projectpack_create' %}{% endif %}"><strong>افزودن دسته پروژه جدید</strong></a>
                 {% endif %}
 		</ol>
 	</div>
@@ -54,7 +54,7 @@
     {% if tittle == 'ویرایش' %}
 		<div class="title-action float-right">
             <div class="btn-group">
-{#			<a href="{% url 'centers:pro' pk_project=object.id %}" class="btn btn-lg btn-outline-primary"><i class="fa fa-tasks"></i> تسک ها</a>#}
+{#			<a href="{% url 'centers:pro' pk_project=object.id %}" class="btn btn-lg btn-outline-primary"><i class="fa fa-tasks"></i> فعالیت ها</a>#}
 {#			{% if user.is_superuser or user.profile.is_supermanager or user.profile.is_centermanager %}#}
 {#                <a href="{% url 'centers:project_task_financial_list' object.id %}" class="btn btn-lg btn-outline-success"><i class="fa fa-money-bill"></i> پرداخت </a>#}
 {#            {% endif %}#}
@@ -154,7 +154,7 @@
                         <div class="input-group mb-2">
                         {% if not object %}
                           <div class="input-group-append">
-                            <span class="input-group-text required" id="to_be_finished_label">تاریخ ددلاین قرارداد: </span>
+                            <span class="input-group-text required" id="to_be_finished_label">تاریخ سررسید قرارداد: </span>
                           </div>
                           <input type="datetime" id="datepicker" class="form-control" name="to_be_finished" aria-describedby="to_be_finished_label">
                             <div class="input-group-prepend">
@@ -193,7 +193,7 @@
 						<span aria-hidden="true">&times;</span>
 						<span class="sr-only">Close</span>
 					</button>
-					<h5 class="modal-title" id="exampleModalLabel">حذف پک پروژه</h5>
+					<h5 class="modal-title" id="exampleModalLabel">حذف دسته پروژه</h5>
 				</div>
 				<form method="post" id="delete-form" {% if tittle == 'ویرایش' %}action="{% url 'centers:projectpack_delete' pk=object.id %}"{% endif %}>
 					{% csrf_token %}

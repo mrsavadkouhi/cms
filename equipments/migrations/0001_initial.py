@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')),
                 ('at', models.DateTimeField(verbose_name='شروع قرارداد اجاره')),
-                ('to', models.DateTimeField(verbose_name='ددلاین قرارداد اجاره')),
+                ('to', models.DateTimeField(verbose_name='سررسید قرارداد اجاره')),
                 ('payment', models.FloatField(default=0, verbose_name='مبلغ قرارداد اجاره')),
                 ('paid', models.FloatField(default=0, verbose_name='مبلغ پرداخت شده')),
                 ('returned_at', models.DateTimeField(blank=True, null=True, verbose_name='تاریخ خاتمه قرارداد')),

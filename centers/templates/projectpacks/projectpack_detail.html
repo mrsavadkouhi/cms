@@ -57,16 +57,16 @@
                         <i class="fa fa-money-bill"></i> ایجاد صورت مالی
                     </button>
                 {% endif %}
-                {% if not object.time_supplemented %}
+{#                {% if not object.time_supplemented %}#}
                     <button  class="btn btn-sm btn-outline-danger m-l-sm" onclick="$('#suppliment-time').modal();">
                         <i class="fa fa-clock"></i> ایجاد متمم زمانی
                     </button>
-                {% endif %}
-                {% if not object.time_supplement_form_uploaded %}
+{#                {% endif %}#}
+{#                {% if not object.time_supplement_form_uploaded %}#}
                         <button  class="btn btn-sm btn-outline-dark m-l-sm" onclick="$('#suppliment-time-form-upload').modal();">
                             <i class="fa fa-file"></i> بارگذاری فرم متمم زمانی
                         </button>
-                {% endif %}
+{#                {% endif %}#}
                     <a href="{% if in_center %}{% url 'centers:center_projectpack_update' center_pk=the_center.id pk=object.id %}{% else %}{% url 'centers:projectpack_update' pk=object.id %}{% endif %}" class="btn btn-lg btn-outline-warning"><i class="fa fa-sm fa-pen"></i><i class="fa fa-suitcase"></i> ویرایش</a>
                 </div>
             {% endif %}
@@ -194,7 +194,7 @@
                 <div class="col-lg-6">
                                         <h3><strong>تاریخ شروع قرارداد: </strong>{{ object.started_at | j_format_date:"%Y/%m/%d" }}</h3>
                     <h3><strong>تاریخ پایان قرارداد: </strong>{{ object.finished_at | j_format_date:"%Y/%m/%d" }}</h3>
-                    <h3><strong>تاریخ ددلاین قرارداد: </strong>{{ object.to_be_finished | j_format_date:"%Y/%m/%d" }}</h3>
+                    <h3><strong>تاریخ سررسید قرارداد: </strong>{{ object.to_be_finished | j_format_date:"%Y/%m/%d" }}</h3>
                     <h3><strong>مدت قرارداد: </strong>{{ object.duration }} روز</h3>
                     <h3><strong>مبلغ قرارداد(تومان): </strong>{{ object.payment|intcomma }} تومان</h3>
                     <h3><strong>مبلغ پرداخت شده(تومان): </strong>{{ object.paid|intcomma }} تومان</h3>
@@ -337,7 +337,7 @@
                     $('#caution').text('مبلغ پیش پرداخت نمیتواند صفر باشد. لطفا آن را اصلاح نمایید.')
                 }
                 else if(data['error'] === 2){
-                    $('#caution').text('مبلغ قرارداد پک پروژه صفر است. لطفا آن را اصلاح نمایید.')
+                    $('#caution').text('مبلغ قرارداد دسته پروژه صفر است. لطفا آن را اصلاح نمایید.')
                 }
                 else if(data['error'] === 3){
                     $('#caution').text('تعداد اقساط قرارداد باید یک یا بیشتر باشد.')
@@ -379,7 +379,7 @@
             var prepayment = parseInt($('#prepayment_number').val());
             var paragraph_number = parseInt($('#paragraph_num').val());
             if(prepayment>payment){
-                $('#caution').text('مبلغ پیش پرداخت نباید از مبلغ پک پروژه بیشتر باشد.');
+                $('#caution').text('مبلغ پیش پرداخت نباید از مبلغ دسته پروژه بیشتر باشد.');
                 return;
             }
             if(paragraph_number < 0){
@@ -387,7 +387,7 @@
                 return;
             }
             if(paragraph_number === 0){
-                $('#caution').text('در صورتی که در نظر دارید قرارداد اقساط نداشته باشد مبلغ پیش پرداخت را مبلغ کل پک پروژه وارد نمایید.');
+                $('#caution').text('در صورتی که در نظر دارید قرارداد اقساط نداشته باشد مبلغ پیش پرداخت را مبلغ کل دسته پروژه وارد نمایید.');
                 return;
             }
             $('#caution').text('');

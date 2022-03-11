@@ -60,7 +60,7 @@ MEASURES = [
 PERMISSIONS = [
     ('users', 'مدیریت کاربران'),
     ('centers', 'مدیریت مراکز'),
-    ('projectpacks', 'مدیریت پک پروژه ها'),
+    ('projectpacks', 'مدیریت دسته پروژه ها'),
     ('projects', 'مدیریت پروژه ها'),
     ('equipments', 'مدیریت تجهیزات'),
     ('transactions', 'مدیریت تراکنش ها'),
@@ -69,7 +69,7 @@ PERMISSIONS = [
     ('user', 'مدیریت کاربران مرکز'),
     ('equipment', 'مدیریت تجهیزات مرکز'),
     ('transaction', 'مدیریت تراکنش های مرکز'),
-    ('projectpack', 'مدیریت پک پروژه های مرکز'),
+    ('projectpack', 'مدیریت دسته پروژه های مرکز'),
     ('projectpack_monitoring', 'کارشناس کنترل پروژه های مرکز'),
     ('project', 'پیمانکار پروژه های مرکز'),
     ('project_monitoring', 'نظارت پروژه های مرکز'),

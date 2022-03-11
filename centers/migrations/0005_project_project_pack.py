@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='project',
             name='project_pack',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='centers.ProjectPack', verbose_name='پک پروژه'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='centers.ProjectPack', verbose_name='دسته پروژه'),
         ),
     ]

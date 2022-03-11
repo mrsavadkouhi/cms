@@ -492,9 +492,9 @@ class AjaxHandler(TemplateView):
             time_supplement_description = request.GET.get('time_supplement_description')
 
             projectpack = ProjectPack.objects.get(id=projectpack_id)
-            projectpack.time_supplemented = True
-            projectpack.time_supplement_days = time_supplement_days
-            projectpack.time_supplement_description = time_supplement_description
+            # projectpack.time_supplemented = True
+            projectpack.time_supplement_days += time_supplement_days
+            projectpack.time_supplement_description += 'for '+ str(time_supplement_days) + ' days: ' + time_supplement_description + ', '
 
             new_date = projectpack.to_be_finished
             new_date += datetime.timedelta(days=time_supplement_days)
@@ -508,9 +508,9 @@ class AjaxHandler(TemplateView):
             time_supplement_description = request.GET.get('time_supplement_description')
 
             project = Project.objects.get(id=project_id)
-            project.time_supplemented = True
-            project.time_supplement_days = time_supplement_days
-            project.time_supplement_description = time_supplement_description
+            # project.time_supplemented = True
+            project.time_supplement_days += time_supplement_days
+            project.time_supplement_description += 'for '+ str(time_supplement_days) + ' days: ' + time_supplement_description + ', '
 
             new_date = project.to_be_finished
             new_date += datetime.timedelta(days=time_supplement_days)

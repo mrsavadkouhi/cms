@@ -51,7 +51,7 @@
                                     <td class="align-middle text-center"> --- </td>
                                 <td class="align-middle text-center">
                                     <div class="btn-group">
-                                        <a href="{% url 'centers:center_projectpack_list' center_pk=obj.id %}" class="btn btn-sm btn-outline-success"><i class="fa fa-suitcase"></i> پک پروژه ها</a>
+                                        <a href="{% url 'centers:center_projectpack_list' center_pk=obj.id %}" class="btn btn-sm btn-outline-success"><i class="fa fa-suitcase"></i> دسته پروژه ها</a>
                                     <a href="{% url 'accounts:center_profile_list' center_pk=obj.id %}" class="btn btn-sm btn-outline-primary"><i class="fa fa-users"></i> اعضای مرکز</a>
                                     <a href="{% url 'centers:center_update' pk=obj.id %}" class="btn btn-sm btn-outline-warning"><i class="fa small fa-pen"></i><i class="fa fa-cube"></i> ویرایش</a>
                                     <button data-cid="{{ obj.id }}" class="btn btn-sm btn-outline-danger m-l-sm" data-toggle="modal" data-target="#delete-modal"><i

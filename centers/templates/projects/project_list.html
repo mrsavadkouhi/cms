@@ -85,7 +85,7 @@
                             <input type="text" id="center" name="search">
                         </div>
                         <div class="col-lg-1">
-                            <label for="deadline">ددلاین</label>
+                            <label for="deadline">سررسید</label>
                         </div>
                         <div class="col-lg-3">
                             <input type="text" id="deadline" name="search">
@@ -125,7 +125,7 @@
                                 <th class="text-center" style="background-color: white">درصد پیشرفت</th>
                                 <th class="text-center" style="background-color: white">وضعیت</th>
                                 <th class="text-center" style="background-color: white">شروع</th>
-                                <th class="text-center" style="background-color: white">ددلاین</th>
+                                <th class="text-center" style="background-color: white">سررسید</th>
                                 <th class="text-center" style="background-color: white">پایان</th>
                                 <th class="text-center" style="background-color: white;width: 10%">عملیات</th>
                             </tr>
@@ -146,7 +146,7 @@
                                     <td class="align-middle text-center">{{ obj.finished_at | j_format_date:"%Y/%m/%d" }}</td>
                                     <td class="align-middle text-center">
                                         <div class="btn-group">
-                                            <a href="{% url 'centers:task_list' pk_project=obj.id %}" class="btn btn-sm btn-outline-success"><i class="fa fa-tasks"></i> تسک ها</a>
+                                            <a href="{% url 'centers:task_list' pk_project=obj.id %}" class="btn btn-sm btn-outline-success"><i class="fa fa-tasks"></i> فعالیت ها</a>
                                             {% has_perms user 'center;' as has_center_perm %}
                                             {% has_perms user 'project;' as has_project_perm %}
                                             {% if user.is_superuser or has_center_perm or has_project_perm %}

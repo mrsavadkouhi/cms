@@ -188,14 +188,14 @@
                                         <!-- Modal body -->
                                         <div class="modal-body">
                                             <div class="col-lg-12 text-right">
-                                                <h3>پک پروژه های مدیریتی</h3>
+                                                <h3>دسته پروژه های مدیریتی</h3>
                                                 {% for pack in obj.projectpack_manager.all %}
                                                     <div class="card col-lg-5 offset-1 text-center">
                                                         <h5><a href="{% url 'centers:projectpack_details' pack.id %}">{{ pack.name }}</a></h5>
                                                     </div>
                                                 {% endfor %}
                                                 <div class="col-lg-12"><br></div>
-                                                <h3>پک پروژه های نظارتی</h3>
+                                                <h3>دسته پروژه های نظارتی</h3>
                                                 {% for pack in obj.projectpack_monitoring_manager.all %}
                                                     <div class="card col-lg-5 offset-1 text-center">
                                                         <h5><a href="{% url 'centers:projectpack_details' pack.id %}">{{ pack.name }}</a></h5>
@@ -220,7 +220,7 @@
                                                 {% for project in obj.project_employees.all %}
                                                     <div class="card col-lg-11 offset-1">
                                                         <h5><a href="{% url 'centers:projectpack_project_details' project.id project.project_pack.id %}">{{ project.name }}</a></h5>
-                                                        <h5>تسک های واگذار شده</h5>
+                                                        <h5>فعالیت های واگذار شده</h5>
                                                         {% for task in project.task_set.all %}
                                                             {% if task.employee == obj %}
                                                             <p>{{ task.name }}</p>

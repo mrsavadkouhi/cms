@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             name='Permission',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('code', models.CharField(choices=[('super', 'مدیریت کل'), ('center', 'مدیریت مرکز'), ('center_financial', 'مدیریت مالی مرکز'), ('project_pack', 'مدیریت پک پروژه'), ('project_pack_monitoring', 'نظارت پک پروژه'), ('project', 'مدیریت پروژه'), ('project_monitoring', 'نظارت پروژه')], default='employee', max_length=20, verbose_name='کد')),
+                ('code', models.CharField(choices=[('super', 'مدیریت کل'), ('center', 'مدیریت مرکز'), ('center_financial', 'مدیریت مالی مرکز'), ('project_pack', 'مدیریت دسته پروژه'), ('project_pack_monitoring', 'نظارت دسته پروژه'), ('project', 'مدیریت پروژه'), ('project_monitoring', 'نظارت پروژه')], default='employee', max_length=20, verbose_name='کد')),
             ],
         ),
         migrations.RenameField(

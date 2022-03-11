@@ -22,7 +22,7 @@
 {% if obj.task %}
 <div class="input-group mb-2">
   <div class="input-group-append">
-    <span class="input-group-text" id="name_label">تسک</span>
+    <span class="input-group-text" id="name_label">فعالیت</span>
   </div>
   <input readonly type="text" name="task" class="form-control" value="{{ obj.task.name }}" id="name-{{ obj.id }}" aria-describedby="name_label">
 </div>
@@ -62,7 +62,7 @@
 </div>
 <div class="input-group mb-2">
   <div class="input-group-append">
-    <span class="input-group-text" id="to_label"><i class="fa fa-clock"></i>ددلاین</span>
+    <span class="input-group-text" id="to_label"><i class="fa fa-clock"></i>سررسید</span>
   </div>
   <input {% if editable == 'false' %}disabled{% endif %} name="to_be_finished" type="datetime" id="datepicker-task-{{ obj.id }}" class="form-control" aria-describedby="to_label">
 </div>
@@ -92,19 +92,19 @@
         <div class="col-lg-12">
             <div class="input-group mb-2">
                 <div class="input-group-append">
-                    <span class="input-group-text" id="pay_label"><i class="fa fa-tasks"></i>زیرتسک ها</span>
+                    <span class="input-group-text" id="pay_label"><i class="fa fa-tasks"></i>زیرفعالیت ها</span>
                 </div>
                 <div class="input-group-append">
                     <button {% if editable == 'false' %}disabled{% endif %} type="button" class="btn btn-sm btn-outline-primary" onclick="subtask_create({{ obj.id }},'{{ obj.name }}','{% if subtask.employee.avatar %}{{ obj.employee.avatar.url }}{% else %}{% static 'img/user.png' %}{% endif %}');"> <i class="fa fa-plus"></i> افزودن</button>
                   </div>
-                  <input {% if editable == 'false' %}readonly{% endif %} type="text" class="form-control" placeholder="نام زیرتسک" id="subtask-inputname-{{ obj.id }}" aria-describedby="name_label">
+                  <input {% if editable == 'false' %}readonly{% endif %} type="text" class="form-control" placeholder="نام زیرفعالیت" id="subtask-inputname-{{ obj.id }}" aria-describedby="name_label">
             </div>
         </div>
     </div>
     {% if not obj.subtask_set.all %}
     <br>
     <br>
-    <p class="text-center">تاکنون زیرتسکی اضافه نشده است.</p><br>
+    <p class="text-center">تاکنون زیرفعالیتی اضافه نشده است.</p><br>
     <br>
     {% endif %}
     <div class="row" id="subtasks-{{ obj.id }}">

@@ -44,14 +44,14 @@
 
                             <a href="{% url 'dashboard:main' %}">
                                 <i class="fa fa-tasks"></i>
-                                تسک های من
+                                فعالیت های من
                             </a>
                         </li>
                         <li {% if request.resolver_match.view_name == 'dashboard:myprojectpacks' %}class="active"{% endif %}>
 
                             <a href="{% url 'dashboard:myprojectpacks' %}">
                                 <i class="fa fa-suitcase"></i>
-                                پک پروژه های من
+                                دسته پروژه های من
                             </a>
                         </li>
                         <li {% if request.resolver_match.view_name == 'dashboard:mycenter' %}class="active"{% endif %}>
@@ -71,14 +71,14 @@
                 <li {% if request.resolver_match.view_name == 'centers:projectpack_list' %}class="active"{% endif %}>
 					<a href="{% url 'centers:projectpack_list' %}">
 						<i class="fa fa-suitcase"></i>
-						<span class="nav-label">مدیریت پک پروژه ها</span>
+						<span class="nav-label">مدیریت دسته پروژه ها</span>
 					</a>
 				</li>
             {% elif has_projectpack_perm or has_center_perm %}
                 <li {% if request.resolver_match.view_name == 'centers:center_projectpack_list' %}class="active"{% endif %}>
 					<a href="{% url 'centers:center_projectpack_list' user.profile.get_user_center %}">
 						<i class="fa fa-suitcase"></i>
-						<span class="nav-label">پک پروژه های مرکز</span>
+						<span class="nav-label">دسته پروژه های مرکز</span>
 					</a>
 				</li>
 			{% endif %}

@@ -32,7 +32,7 @@
 {% block content %}
     <div class="tabs-container">
         <ul class="nav nav-tabs" role="tablist">
-            <li><a class="nav-link active" style="color: black" data-toggle="tab" href="#projectpack">پک پروژه</a></li>
+            <li><a class="nav-link active" style="color: black" data-toggle="tab" href="#projectpack">دسته پروژه</a></li>
             <li><a class="nav-link" style="color: black" data-toggle="tab" href="#project">پروژه</a></li>
         </ul>
         <div class="tab-content">
@@ -396,7 +396,7 @@
                     location.reload();
                 }
                 else if(data['error'] === 1){
-                    $('#caution').text('مبلغ کافی در حساب پک پروژه جهت پرداخت این تراکنش موجود نیست. باید اقساط پک پروژه را جهت شارژ مجدد حساب پرداخت نمایید.')
+                    $('#caution').text('مبلغ کافی در حساب دسته پروژه جهت پرداخت این تراکنش موجود نیست. باید اقساط دسته پروژه را جهت شارژ مجدد حساب پرداخت نمایید.')
                 }
                 else if(data['error'] === 2){
                     $('#caution').text('مبلغ کافی در حساب پروژه جهت پرداخت این تراکنش موجود نیست. باید اقساط پروژه را جهت شارژ مجدد حساب پرداخت نمایید.')

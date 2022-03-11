@@ -45,7 +45,7 @@ class Migration(migrations.Migration):
             name='TaskTransaction',
             fields=[
                 ('transaction_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='transactions.Transaction')),
-                ('task', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='centers.Task', verbose_name='تسک')),
+                ('task', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='centers.Task', verbose_name='فعالیت')),
             ],
             options={
                 'abstract': False,
@@ -69,7 +69,7 @@ class Migration(migrations.Migration):
             name='ProjectPackTransaction',
             fields=[
                 ('transaction_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='transactions.Transaction')),
-                ('project_pack', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='centers.ProjectPack', verbose_name='پک پروژه')),
+                ('project_pack', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='centers.ProjectPack', verbose_name='دسته پروژه')),
             ],
             options={
                 'abstract': False,

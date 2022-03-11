@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='permission',
             name='code',
-            field=models.CharField(choices=[('super', 'مدیریت کل'), ('center', 'مدیریت مرکز'), ('center_financial', 'مدیریت مالی مرکز'), ('project_pack', 'مدیریت پک پروژه'), ('project_pack_monitoring', 'نظارت پک پروژه'), ('project', 'مدیریت پروژه'), ('project_monitoring', 'نظارت پروژه')], default='employee', max_length=30, verbose_name='کد'),
+            field=models.CharField(choices=[('super', 'مدیریت کل'), ('center', 'مدیریت مرکز'), ('center_financial', 'مدیریت مالی مرکز'), ('project_pack', 'مدیریت دسته پروژه'), ('project_pack_monitoring', 'نظارت دسته پروژه'), ('project', 'مدیریت پروژه'), ('project_monitoring', 'نظارت پروژه')], default='employee', max_length=30, verbose_name='کد'),
         ),
     ]

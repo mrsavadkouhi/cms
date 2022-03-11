@@ -55,7 +55,7 @@ class Transaction(PolymorphicModel):
 
 
 class ProjectPackTransaction(Transaction):
-    project_pack = models.ForeignKey(to=ProjectPack, on_delete=models.PROTECT, verbose_name='پک پروژه')
+    project_pack = models.ForeignKey(to=ProjectPack, on_delete=models.PROTECT, verbose_name='دسته پروژه')
 
 
 class ProjectTransaction(Transaction):
@@ -63,4 +63,4 @@ class ProjectTransaction(Transaction):
 
 
 class TaskTransaction(Transaction):
-    task = models.ForeignKey(to=Task, on_delete=models.PROTECT, verbose_name='تسک')
+    task = models.ForeignKey(to=Task, on_delete=models.PROTECT, verbose_name='فعالیت')

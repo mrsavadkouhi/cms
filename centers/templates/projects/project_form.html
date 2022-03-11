@@ -55,7 +55,7 @@
     {% if tittle == 'ویرایش' %}
 		<div class="title-action float-right">
             <div class="btn-group">
-			<a href="{% url 'centers:task_list' pk_project=object.id %}" class="btn btn-lg btn-outline-primary"><i class="fa fa-tasks"></i> تسک ها</a>
+			<a href="{% url 'centers:task_list' pk_project=object.id %}" class="btn btn-lg btn-outline-primary"><i class="fa fa-tasks"></i> فعالیت ها</a>
             <a href="{% url 'centers:projectpack_project_details' pk=object.id projectpack_pk=the_projectpack.id %}" class="btn btn-lg btn-outline-warning"><i class="fa fa-th-list"></i> جزئیات</a>
 			<button data-toggle="modal" data-delete-what="{{ object.id }}" data-target="#delete-modal" class="btn btn-lg btn-outline-danger"><i class="fa fa-trash"></i> حذف </button>
 		</div>
@@ -117,7 +117,7 @@
                         </div>
                         <div class="input-group mb-2">
                           <div class="input-group-append">
-                            <span class="input-group-text required" id="center_label">پک پروژه: </span>
+                            <span class="input-group-text required" id="center_label">دسته پروژه: </span>
                           </div>
                             <select name="project_pack" id="project_pack_name" class="select2 form-control">
                                 {% for obj in projectpacks %}
@@ -155,7 +155,7 @@
                         <div class="input-group mb-2">
                         {% if not object %}
                           <div class="input-group-append">
-                            <span class="input-group-text required" id="to_be_finished_label">تاریخ ددلاین قرارداد: </span>
+                            <span class="input-group-text required" id="to_be_finished_label">تاریخ سررسید قرارداد: </span>
                           </div>
                           <input type="datetime" id="datepicker" class="form-control" name="to_be_finished" aria-describedby="to_be_finished_label">
                             <div class="input-group-prepend">

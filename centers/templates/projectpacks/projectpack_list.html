@@ -13,10 +13,10 @@
 		<ol class="breadcrumb">
 
                 <li class="breadcrumb-item">
-				<a>مدیریت پک پروژه ها</a>
+				<a>مدیریت دسته پروژه ها</a>
 			</li>
 			<li class="breadcrumb-item active">
-                <a href="{% url 'centers:projectpack_list' %}"><strong>لیست پک پروژه ها</strong></a>
+                <a href="{% url 'centers:projectpack_list' %}"><strong>لیست دسته پروژه ها</strong></a>
 			</li>
 		</ol>
 	</div>
@@ -27,7 +27,7 @@
             {%  has_perms user 'center;' as has_center_perm %}
             {%  has_perms user 'projectpack;' as has_projectpack_perm %}
 			{% if user.is_superuser or has_center_perm or has_projectpack_perm %}
-                <a href="{% if in_center %}{% url 'centers:center_projectpack_create' the_center.id %}{% else %}{% url 'centers:projectpack_create' %}{% endif %}" class="btn btn-outline-primary"><i class="fa small fa-plus"></i> <i class="fa fa-th-list"></i> افزودن پک پروژه جدید</a>
+                <a href="{% if in_center %}{% url 'centers:center_projectpack_create' the_center.id %}{% else %}{% url 'centers:projectpack_create' %}{% endif %}" class="btn btn-outline-primary"><i class="fa small fa-plus"></i> <i class="fa fa-th-list"></i> افزودن دسته پروژه جدید</a>
             {% endif %}
         </div></div>
 	</div>
@@ -39,7 +39,7 @@
         <div class="col-lg-12">
             <div class="ibox ">
                 <div class="ibox-title">
-                    <h5>جستجوی پیشرفته پک پروژه</h5>
+                    <h5>جستجوی پیشرفته دسته پروژه</h5>
                     <div class="ibox-tools">
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
@@ -86,7 +86,7 @@
                             <input type="text" id="center" name="search">
                         </div>
                         <div class="col-lg-1">
-                            <label for="deadline">ددلاین</label>
+                            <label for="deadline">سررسید</label>
                         </div>
                         <div class="col-lg-3">
                             <input type="text" id="deadline" name="search">
@@ -127,7 +127,7 @@
                                 {% endif %}
                                 <th class="text-center" style="background-color: white">وضعیت</th>
                                 <th class="text-center" style="background-color: white">شروع</th>
-                                <th class="text-center" style="background-color: white">ددلاین</th>
+                                <th class="text-center" style="background-color: white">سررسید</th>
                                 <th class="text-center" style="background-color: white">پایان</th>
                                 <th class="text-center" style="background-color: white;width: 10%">عملیات</th>
                             </tr>
@@ -178,7 +178,7 @@
 						<span aria-hidden="true">&times;</span>
 						<span class="sr-only">Close</span>
 					</button>
-					<h5 class="modal-title" id="exampleModalLabel">حذف پک پروژه</h5>
+					<h5 class="modal-title" id="exampleModalLabel">حذف دسته پروژه</h5>
 				</div>
 				<form method="post" id="delete-form">
 					{% csrf_token %}
