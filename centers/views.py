@@ -383,8 +383,14 @@ class ProjectPackProjectDetailsView(LoginRequiredMixin, RoleMixin, DetailView):
         months = duration.total_seconds() / (3600*24*30)
 
         context['to_be_progressed_dayly'] = [total_weight / hours] * 24
+        for i in range(1,24):
+            context['to_be_progressed_dayly'][i] += context['to_be_progressed_dayly'][i-1]
         context['to_be_progressed_monthly'] = [total_weight / days] * 31
+        for i in range(1,31):
+            context['to_be_progressed_monthly'][i] += context['to_be_progressed_monthly'][i-1]
         context['to_be_progressed_yearly'] = [total_weight / months] * 12
+        for i in range(1,12):
+            context['to_be_progressed_yearly'][i] += context['to_be_progressed_yearly'][i-1]
 
         return context
 
@@ -540,8 +546,8 @@ class AjaxHandler(TemplateView):
                 except:
                     pass
 
-
-
+        for i in range(1,24):
+            data['progressed'][i] += data['progressed'][i-1]
 
     def lineChart_monthly(self, project, year, month, data):
         data['progressed'] = [0] * 31
@@ -564,6 +570,9 @@ class AjaxHandler(TemplateView):
                 except:
                     pass
 
+        for i in range(1,31):
+            data['progressed'][i] += data['progressed'][i-1]
+
     def lineChart_yearly(self, project, year, data):
         data['progressed'] = [0] * 12
         for month in range(1, 13):
@@ -578,6 +587,9 @@ class AjaxHandler(TemplateView):
                     data['progressed'][month - 1] += task.weight
                 except:
                     pass
+
+        for i in range(1,12):
+            data['progressed'][i] += data['progressed'][i-1]
 
     def get(self, request, *args, **kwargs):
         request_type = request.GET.get('request_type')
