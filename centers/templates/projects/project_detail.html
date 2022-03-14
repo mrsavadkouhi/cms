@@ -142,7 +142,7 @@
                           </div>
                             <textarea type="text" class="form-control" id="time_supplement_description" aria-describedby="description_label"></textarea>
                         </div>
-                    <p id="caution" style="color: red;">توجه: بعد از ایجاد متمم زمانی امکان ایجاد متمم زمانی دیگری وجود ندارد. لطفا در تعداد روزهای وارده دقت لازم را نمایید.</p>
+                    <p id="caution_reason" style="color: red;"></p>
                 </div>
 
                 <!-- Modal footer -->
@@ -885,6 +885,11 @@
     }
 
         function suppliment_time(){
+            var reason = $('#time_supplement_description').val();
+            if(!reason){
+                $('#caution_reason').text('مقدار علت تمدید نمیتواند خالی باشد.');
+                return;
+            }
             $.ajax({
                 url: "{% url 'centers:ajax' %}",
                 data: {
