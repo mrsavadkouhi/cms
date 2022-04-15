@@ -878,7 +878,7 @@
                     $('#caution').text('تعداد بندهای قرارداد باید یک یا بیشتر باشد.')
                 }
                 else if(data['error'] === 4){
-                    $('#caution').text('موعد پرداخت بندها بر حسب پیشرفت وزنی باید به ترتیب از کم به زیاد باشد. لطفا مقادیر را اصلاح نمایید.')
+                    $('#caution').text('مجموع مقادیر درصد پیشرفت وزنی باید ۱۰۰ باشد. لطفا مقادیر را اصلاح نمایید.')
                 }
             }
         });
@@ -931,7 +931,7 @@
                 return;
             }
             $('#caution').text('');
-            {#var paragraph_payment = (payment - prepayment)/paragraph_number;#}
+
             for (let i = 0; i < paragraph_number; i++) {
                 $('#paragraph_details').append(
                     '<div class="input-group mb-2"> ' +

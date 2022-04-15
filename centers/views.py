@@ -353,6 +353,31 @@ class ProjectPackProjectDetailsView(LoginRequiredMixin, RoleMixin, DetailView):
             total_duration = (project.to_be_finished.timestamp() - project.started_at.timestamp()) / 86400
             context['done_days'] = project.progress*total_duration/100
             context['programmed_remained_days'] = total_duration*(100-project.progress)/100
+
+            first_year = jdatetime.date.fromgregorian(date=project.started_at.date()).year
+            last_year = jdatetime.datetime.now().year
+            for i in range(first_year, last_year + 1):
+                years.append(i)
+
+            total_weight = 0
+            for task in project.task_set.all():
+                total_weight += task.weight
+
+            duration = project.to_be_finished - project.started_at
+            hours = duration.total_seconds() / 3600
+            days = duration.total_seconds() / (3600 * 24)
+            months = duration.total_seconds() / (3600 * 24 * 30)
+
+            context['to_be_progressed_dayly'] = [total_weight / hours] * 24
+            for i in range(1, 24):
+                context['to_be_progressed_dayly'][i] += context['to_be_progressed_dayly'][i - 1]
+            context['to_be_progressed_monthly'] = [total_weight / days] * 31
+            for i in range(1, 31):
+                context['to_be_progressed_monthly'][i] += context['to_be_progressed_monthly'][i - 1]
+            context['to_be_progressed_yearly'] = [total_weight / months] * 12
+            for i in range(1, 12):
+                context['to_be_progressed_yearly'][i] += context['to_be_progressed_yearly'][i - 1]
+
         else:
             context['done_days'] = 0
             context['programmed_remained_days'] = context['remained_days']
@@ -363,34 +388,10 @@ class ProjectPackProjectDetailsView(LoginRequiredMixin, RoleMixin, DetailView):
         days = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17',
                 '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31']
 
-        first_year = jdatetime.date.fromgregorian(date=project.started_at.date()).year
-        last_year = jdatetime.datetime.now().year
-        for i in range(first_year, last_year + 1):
-            years.append(i)
-
         context['now'] = datetime.datetime.now
         context['years'] = years
         context['months'] = months
         context['days'] = days
-
-        total_weight = 0
-        for task in project.task_set.all():
-            total_weight += task.weight
-
-        duration = project.to_be_finished - project.started_at
-        hours = duration.total_seconds() / 3600
-        days = duration.total_seconds() / (3600*24)
-        months = duration.total_seconds() / (3600*24*30)
-
-        context['to_be_progressed_dayly'] = [total_weight / hours] * 24
-        for i in range(1,24):
-            context['to_be_progressed_dayly'][i] += context['to_be_progressed_dayly'][i-1]
-        context['to_be_progressed_monthly'] = [total_weight / days] * 31
-        for i in range(1,31):
-            context['to_be_progressed_monthly'][i] += context['to_be_progressed_monthly'][i-1]
-        context['to_be_progressed_yearly'] = [total_weight / months] * 12
-        for i in range(1,12):
-            context['to_be_progressed_yearly'][i] += context['to_be_progressed_yearly'][i-1]
 
         return context
 

@@ -72,6 +72,15 @@ class AjaxHandler(TemplateView):
             i += 1
         return flag
 
+    def is_hundred(self, tmp):
+        flag = True
+        sum = 0
+        for num in tmp:
+            sum += num
+        if sum != 100:
+            flag = False
+        return flag
+
     def get(self, request, *args, **kwargs):
         request_type = request.GET.get('request_type')
         data = {'error': 0}
@@ -92,7 +101,7 @@ class AjaxHandler(TemplateView):
                 data = {'error': 3}
                 return JsonResponse(data)
 
-            if not self.is_sorted(installment_dues):
+            if not self.is_hundred(installment_dues):
                 data = {'error': 4}
                 return JsonResponse(data)
 
@@ -126,7 +135,7 @@ class AjaxHandler(TemplateView):
                 data = {'error': 3}
                 return JsonResponse(data)
 
-            if not self.is_sorted(paragraph_dues):
+            if not self.is_hundred(paragraph_dues):
                 data = {'error': 4}
                 return JsonResponse(data)
 
@@ -140,11 +149,13 @@ class AjaxHandler(TemplateView):
                 flag = False
 
             paragraph_value = (project.payment - prepayment)/paragraph_num
-            for i in range(paragraph_num):
+            for i in range(2*paragraph_num):
                 if i == 0 and flag:
-                    ProjectTransaction.objects.create(project=project, center=project.center, tittle=TRANSACTION_TITTLES[2][0], value=paragraph_value,sequence_number=i+1,due_progress=paragraph_dues[i],due_flag=True)
+                    ProjectTransaction.objects.create(project=project, center=project.center, tittle=TRANSACTION_TITTLES[2][0], value=(paragraph_value*.9),sequence_number=i+1,due_progress=paragraph_dues[i//2], due_flag=True)
+                elif i % 2 == 0:
+                    ProjectTransaction.objects.create(project=project, center=project.center, tittle=TRANSACTION_TITTLES[2][0], value=(paragraph_value*.9),sequence_number=i+1,due_progress=paragraph_dues[i//2])
                 else:
-                    ProjectTransaction.objects.create(project=project, center=project.center, tittle=TRANSACTION_TITTLES[2][0], value=paragraph_value,sequence_number=i+1,due_progress=paragraph_dues[i])
+                    ProjectTransaction.objects.create(project=project, center=project.center, tittle=TRANSACTION_TITTLES[3][0], value=(paragraph_value*.1),sequence_number=i+1,due_progress=paragraph_dues[i//2])
 
             project.created_financial_statement = True
             project.save()
