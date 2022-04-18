@@ -244,10 +244,11 @@ def project_change_status(sender, instance, created, raw, update_fields, **kwarg
             pass
         elif 'status' in update_fields:
             if instance.status == 'inprogress':
-                instance.started_at = datetime.now()
-                instance.finished_at = None
-                instance.project_pack.status = 'inprogress'
-                instance.project_pack.save(update_fields=['status'])
+                if not instance.started_at:
+                    instance.started_at = datetime.now()
+                    instance.finished_at = None
+                    instance.project_pack.status = 'inprogress'
+                    instance.project_pack.save(update_fields=['status'])
             elif instance.status == 'completed':
                 instance.finished_at = None
                 instance.project_pack.check_if_completed()

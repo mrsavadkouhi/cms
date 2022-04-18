@@ -556,11 +556,11 @@ class AjaxHandler(TemplateView):
                     data['progressed'][hour - 1] += task.weight
                 except:
                     pass
-            # if data['progressed'][hour - 1]:
-            data['progressed'][hour - 1] = 1/(1+math.e**(-data['progressed'][hour - 1]*(hour-12)))
+            if data['progressed'][hour - 1]:
+                data['progressed'][hour - 1] = 1/(1+math.e**(-data['progressed'][hour - 1]*(hour-12)))
 
-        # for i in range(1,24):
-        #     data['progressed'][i] += data['progressed'][i-1]
+        for i in range(1,24):
+            data['progressed'][i] += data['progressed'][i-1]
 
     def lineChart_monthly(self, project, year, month, data):
         data['progressed'] = [0] * 31
@@ -583,11 +583,11 @@ class AjaxHandler(TemplateView):
                 except:
                     pass
 
-            # if data['progressed'][day - 1]:
-            data['progressed'][day - 1] = 1 / (1 + math.e ** (-data['progressed'][day - 1] * (day - 15)))
+            if data['progressed'][day - 1]:
+                data['progressed'][day - 1] = 1 / (1 + math.e ** (-data['progressed'][day - 1] * (day - 15)))
 
-        # for i in range(1,31):
-        #     data['progressed'][i] += data['progressed'][i-1]
+        for i in range(1,31):
+            data['progressed'][i] += data['progressed'][i-1]
 
     def lineChart_yearly(self, project, year, data):
         data['progressed'] = [0] * 12
@@ -604,11 +604,11 @@ class AjaxHandler(TemplateView):
                 except:
                     pass
 
-            # if data['progressed'][month - 1]:
-            data['progressed'][month - 1] = 1 / (1 + math.e ** (-data['progressed'][month - 1] * (month - 6)))
+            if data['progressed'][month - 1]:
+                data['progressed'][month - 1] = 1 / (1 + math.e ** (-data['progressed'][month - 1] * (month - 6)))
 
-        # for i in range(1,12):
-        #     data['progressed'][i] += data['progressed'][i-1]
+        for i in range(1,12):
+            data['progressed'][i] += data['progressed'][i-1]
 
     def get(self, request, *args, **kwargs):
         request_type = request.GET.get('request_type')
