@@ -101,7 +101,7 @@ class AjaxHandler(TemplateView):
                 data = {'error': 3}
                 return JsonResponse(data)
 
-            if not self.is_hundred(installment_dues[:-1]):
+            if not self.is_sorted(installment_dues[:-1]):
                 data = {'error': 4}
                 return JsonResponse(data)
 
