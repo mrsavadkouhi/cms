@@ -556,8 +556,8 @@ class AjaxHandler(TemplateView):
                     data['progressed'][hour - 1] += task.weight
                 except:
                     pass
-            if data['progressed'][hour - 1]:
-                data['progressed'][hour - 1] = 1/(1+math.e**(-data['progressed'][hour - 1]*(hour-12)))
+            # if data['progressed'][hour - 1]:
+            data['progressed'][hour - 1] = 1/(1+math.e**(-data['progressed'][hour - 1]*(hour-12)))
 
         # for i in range(1,24):
         #     data['progressed'][i] += data['progressed'][i-1]
@@ -583,8 +583,8 @@ class AjaxHandler(TemplateView):
                 except:
                     pass
 
-            if data['progressed'][day - 1]:
-                data['progressed'][day - 1] = 1 / (1 + math.e ** (-data['progressed'][day - 1] * (day - 15)))
+            # if data['progressed'][day - 1]:
+            data['progressed'][day - 1] = 1 / (1 + math.e ** (-data['progressed'][day - 1] * (day - 15)))
 
         # for i in range(1,31):
         #     data['progressed'][i] += data['progressed'][i-1]
@@ -604,8 +604,8 @@ class AjaxHandler(TemplateView):
                 except:
                     pass
 
-            if data['progressed'][month - 1]:
-                data['progressed'][month - 1] = 1 / (1 + math.e ** (-data['progressed'][month - 1] * (month - 6)))
+            # if data['progressed'][month - 1]:
+            data['progressed'][month - 1] = 1 / (1 + math.e ** (-data['progressed'][month - 1] * (month - 6)))
 
         # for i in range(1,12):
         #     data['progressed'][i] += data['progressed'][i-1]

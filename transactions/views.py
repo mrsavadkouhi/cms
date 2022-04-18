@@ -76,7 +76,7 @@ class AjaxHandler(TemplateView):
         flag = True
         sum = 0
         for num in tmp:
-            sum += num
+            sum += int(num)
         if sum != 100:
             flag = False
         return flag

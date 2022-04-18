@@ -313,12 +313,12 @@
     });
 
     function create_financial_statement(){
-                    var paragraph_number = parseInt($('#paragraph_num').val());
-            var paragraph_dues = '';
-            for (let i = 0; i < paragraph_number; i++) {
-                paragraph_dues = paragraph_dues + $(`#paragraph_due_${i}`).val() + ';';
-            }
-            console.log(paragraph_dues);
+        var paragraph_number = parseInt($('#paragraph_num').val());
+        var paragraph_dues = '';
+        for (let i = 0; i < paragraph_number; i++) {
+            paragraph_dues = paragraph_dues + $(`#paragraph_due_${i}`).val() + ';';
+        }
+        console.log(paragraph_dues);
         $.ajax({
             url: "{% url 'transactions:ajax' %}",
             data: {
