@@ -1,5 +1,7 @@
 import datetime
 import json
+import math
+
 from numpy import log as ln
 
 import jdatetime
@@ -382,17 +384,20 @@ class ProjectPackProjectDetailsView(LoginRequiredMixin, RoleMixin, DetailView):
             days = duration.total_seconds() / (3600 * 24)
             months = duration.total_seconds() / (3600 * 24 * 30)
 
-            context['to_be_progressed_dayly'] = [total_weight / hours] * 24
-            for i in range(1, 24):
-                context['to_be_progressed_dayly'][i] += context['to_be_progressed_dayly'][i - 1]
+            context['to_be_progressed_dayly'] = [0]*24
+            dayly = total_weight / hours
+            for i in range(0, 24):
+                context['to_be_progressed_dayly'][i] = 1/(1+math.e**(-dayly*(i-12)))
 
-            context['to_be_progressed_monthly'] = [total_weight / days] * 31
-            for i in range(1, 31):
-                context['to_be_progressed_monthly'][i] += context['to_be_progressed_monthly'][i - 1]
+            context['to_be_progressed_monthly'] = [0] * 31
+            monthly = total_weight / days
+            for i in range(0, 31):
+                context['to_be_progressed_monthly'][i] = 1/(1+math.e**(-monthly*(i-15)))
 
-            context['to_be_progressed_yearly'] = [total_weight / months] * 12
-            for i in range(1, 12):
-                context['to_be_progressed_yearly'][i] += context['to_be_progressed_yearly'][i - 1]
+            context['to_be_progressed_yearly'] = [0] * 12
+            yearly = total_weight / months
+            for i in range(0, 12):
+                context['to_be_progressed_yearly'][i] = 1/(1+math.e**(-yearly*(i-6)))
 
         else:
             context['done_days'] = 0
@@ -551,11 +556,11 @@ class AjaxHandler(TemplateView):
                     data['progressed'][hour - 1] += task.weight
                 except:
                     pass
+            if data['progressed'][hour - 1]:
+                data['progressed'][hour - 1] = 1/(1+math.e**(-data['progressed'][hour - 1]*(hour-12)))
 
-            # data['progressed'][hour - 1] = ln(data['progressed'][hour - 1])
-
-        for i in range(1,24):
-            data['progressed'][i] += data['progressed'][i-1]
+        # for i in range(1,24):
+        #     data['progressed'][i] += data['progressed'][i-1]
 
     def lineChart_monthly(self, project, year, month, data):
         data['progressed'] = [0] * 31
@@ -578,10 +583,11 @@ class AjaxHandler(TemplateView):
                 except:
                     pass
 
-            # data['progressed'][day - 1] += ln(data['progressed'][day - 1])
+            if data['progressed'][day - 1]:
+                data['progressed'][day - 1] = 1 / (1 + math.e ** (-data['progressed'][day - 1] * (day - 15)))
 
-        for i in range(1,31):
-            data['progressed'][i] += data['progressed'][i-1]
+        # for i in range(1,31):
+        #     data['progressed'][i] += data['progressed'][i-1]
 
     def lineChart_yearly(self, project, year, data):
         data['progressed'] = [0] * 12
@@ -598,10 +604,11 @@ class AjaxHandler(TemplateView):
                 except:
                     pass
 
-            # data['progressed'][month - 1] = ln(data['progressed'][month - 1])
+            if data['progressed'][month - 1]:
+                data['progressed'][month - 1] = 1 / (1 + math.e ** (-data['progressed'][month - 1] * (month - 6)))
 
-        for i in range(1,12):
-            data['progressed'][i] += data['progressed'][i-1]
+        # for i in range(1,12):
+        #     data['progressed'][i] += data['progressed'][i-1]
 
     def get(self, request, *args, **kwargs):
         request_type = request.GET.get('request_type')
