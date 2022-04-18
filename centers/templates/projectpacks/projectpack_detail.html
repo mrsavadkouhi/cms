@@ -398,7 +398,7 @@
             }
             $('#caution').text('');
 
-            for (let i = 0; i < paragraph_number; i++) {
+            for (let i = 0; i < paragraph_number-1; i++) {
                 $('#paragraph_details').append(
                     '<div class="input-group mb-2"> ' +
                     '<div class="input-group-append"> ' +
@@ -408,6 +408,13 @@
                     '</div>'
                 );
             }
+            $('#paragraph_details').append(
+                    '<div class="input-group mb-2"> ' +
+                    '<div class="input-group-append"> ' +
+                    `<span class="input-group-text" >موعد قسط آخر(حسن انجام کار) برابر با پیشرفت وزنی ۱۰۰ درصد است</span> ` +
+                    '</div> ' +
+                    '</div>'
+            );
         }
 
 	</script>

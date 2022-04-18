@@ -91,7 +91,7 @@ class AjaxHandler(TemplateView):
             prepayment = int(request.GET.get('prepayment'))
 
             installment_dues = request.GET.get('installment_dues').split(';')[:-1]
-            installment_num = int(request.GET.get('installment_num'))
+            installment_num = int(request.GET.get('installment_num'))-1
 
             if prepayment == 0:
                 data = {'error': 1}
@@ -101,7 +101,7 @@ class AjaxHandler(TemplateView):
                 data = {'error': 3}
                 return JsonResponse(data)
 
-            if not self.is_hundred(installment_dues):
+            if not self.is_hundred(installment_dues[:-1]):
                 data = {'error': 4}
                 return JsonResponse(data)
 
