@@ -1,6 +1,7 @@
 import datetime
 import json
 import math
+import numpy as np
 
 from numpy import log as ln
 
@@ -386,18 +387,21 @@ class ProjectPackProjectDetailsView(LoginRequiredMixin, RoleMixin, DetailView):
 
             context['to_be_progressed_dayly'] = [0]*24
             dayly = total_weight / hours
-            for i in range(0, 24):
-                context['to_be_progressed_dayly'][i] = 1/(1+math.e**(-dayly*(i-12)))
+            for i in range(24):
+                x = round(0.1*np.log(dayly)*(i-12), 5)
+                context['to_be_progressed_dayly'][i] = round(1/(1+np.power(math.e, x)), 5)
 
             context['to_be_progressed_monthly'] = [0] * 31
             monthly = total_weight / days
-            for i in range(0, 31):
-                context['to_be_progressed_monthly'][i] = 1/(1+math.e**(-monthly*(i-15)))
+            for i in range(31):
+                x = round(np.log(monthly)*(i-15), 5)
+                context['to_be_progressed_monthly'][i] = round(1/(1+np.power(math.e, -x)), 5)
 
             context['to_be_progressed_yearly'] = [0] * 12
             yearly = total_weight / months
-            for i in range(0, 12):
-                context['to_be_progressed_yearly'][i] = 1/(1+math.e**(-yearly*(i-6)))
+            for i in range(12):
+                x = round(np.log(np.log(yearly))*(i-5), 5)
+                context['to_be_progressed_yearly'][i] = round(1/(1+np.power(math.e, -x)), 5)
 
         else:
             context['done_days'] = 0
@@ -556,8 +560,10 @@ class AjaxHandler(TemplateView):
                     data['progressed'][hour - 1] += task.weight
                 except:
                     pass
+
             if data['progressed'][hour - 1]:
-                data['progressed'][hour - 1] = 1/(1+math.e**(-data['progressed'][hour - 1]*(hour-12)))
+                x = round(data['progressed'][hour - 1]*(hour-12), 5)
+                data['progressed'][hour - 1] = round(1/(1+np.power(math.e, -x)), 5)
 
         for i in range(1,24):
             data['progressed'][i] += data['progressed'][i-1]
@@ -584,7 +590,8 @@ class AjaxHandler(TemplateView):
                     pass
 
             if data['progressed'][day - 1]:
-                data['progressed'][day - 1] = 1 / (1 + math.e ** (-data['progressed'][day - 1] * (day - 15)))
+                x = round(data['progressed'][day - 1] * (day - 15), 5)
+                data['progressed'][day - 1] = round(1 / (1 + np.power(math.e, -x)), 5)
 
         for i in range(1,31):
             data['progressed'][i] += data['progressed'][i-1]
@@ -605,7 +612,8 @@ class AjaxHandler(TemplateView):
                     pass
 
             if data['progressed'][month - 1]:
-                data['progressed'][month - 1] = 1 / (1 + math.e ** (-data['progressed'][month - 1] * (month - 6)))
+                x = round(data['progressed'][month - 1] * (month - 5), 5)
+                data['progressed'][month - 1] = round(1 / (1 + np.power(math.e, -x)), 5)
 
         for i in range(1,12):
             data['progressed'][i] += data['progressed'][i-1]
