@@ -388,13 +388,13 @@ class ProjectPackProjectDetailsView(LoginRequiredMixin, RoleMixin, DetailView):
             context['to_be_progressed_dayly'] = [0]*24
             dayly = total_weight / hours
             for i in range(24):
-                x = round(0.1*np.log(dayly)*(i-12), 5)
-                context['to_be_progressed_dayly'][i] = round(1/(1+np.power(math.e, x)), 5)
+                x = round(np.log(dayly)*(i-12), 5)
+                context['to_be_progressed_dayly'][i] = round(1/(1+np.power(math.e, -x)), 5)
 
             context['to_be_progressed_monthly'] = [0] * 31
             monthly = total_weight / days
             for i in range(31):
-                x = round(np.log(monthly)*(i-15), 5)
+                x = round(0.1*np.log(monthly)*(i-15), 5)
                 context['to_be_progressed_monthly'][i] = round(1/(1+np.power(math.e, -x)), 5)
 
             context['to_be_progressed_yearly'] = [0] * 12
@@ -533,6 +533,13 @@ class SubTaskDeleteView(LoginRequiredMixin, RoleMixin, JSONDeleteView):
 
 class AjaxHandler(TemplateView):
     def lineChart_dayly(self, project, year, month, day, data):
+        total_weight = 0
+        for task in project.task_set.all():
+            total_weight += task.weight
+        duration = project.to_be_finished - project.started_at
+        hours = duration.total_seconds() / 3600
+        dayly = total_weight / hours
+
         data['progressed'] = [0] * 24
         for hour in range(0, 24):
             try:
@@ -562,13 +569,23 @@ class AjaxHandler(TemplateView):
                     pass
 
             if data['progressed'][hour - 1]:
-                x = round(data['progressed'][hour - 1]*(hour-12), 5)
-                data['progressed'][hour - 1] = round(1/(1+np.power(math.e, -x)), 5)
+                x = np.log(data['progressed'][hour - 1]) * (hour - 12)
+                data['progressed'][hour - 1] = round(1 / (1 + np.power(math.e, -x)), 5)
+            else:
+                x = np.log(dayly) * (hour - 12)
+                data['progressed'][hour - 1] = round(1 / (1 + np.power(math.e, -x)), 5)
 
-        for i in range(1,24):
-            data['progressed'][i] += data['progressed'][i-1]
+        # for i in range(1,24):
+        #     data['progressed'][i] += data['progressed'][i-1]
 
     def lineChart_monthly(self, project, year, month, data):
+        total_weight = 0
+        for task in project.task_set.all():
+            total_weight += task.weight
+        duration = project.to_be_finished - project.started_at
+        days = duration.total_seconds() / (3600 * 24)
+        monthly = total_weight / days
+
         data['progressed'] = [0] * 31
         for day in range(1, 32):
             try:
@@ -590,13 +607,23 @@ class AjaxHandler(TemplateView):
                     pass
 
             if data['progressed'][day - 1]:
-                x = round(data['progressed'][day - 1] * (day - 15), 5)
+                x = 0.1*np.log(data['progressed'][day - 1]) * (day - 15)
+                data['progressed'][day - 1] = round(1 / (1 + np.power(math.e, -x)), 5)
+            else:
+                x = 0.1*np.log(monthly) * (day - 15)
                 data['progressed'][day - 1] = round(1 / (1 + np.power(math.e, -x)), 5)
 
-        for i in range(1,31):
-            data['progressed'][i] += data['progressed'][i-1]
+        # for i in range(1,31):
+        #     data['progressed'][i] += data['progressed'][i-1]
 
     def lineChart_yearly(self, project, year, data):
+        total_weight = 0
+        for task in project.task_set.all():
+            total_weight += task.weight
+        duration = project.to_be_finished - project.started_at
+        months = duration.total_seconds() / (3600 * 24 * 30)
+        yearly = total_weight / months
+
         data['progressed'] = [0] * 12
         for month in range(1, 13):
             first = jdatetime.date(year, month, 1).togregorian()
@@ -612,11 +639,14 @@ class AjaxHandler(TemplateView):
                     pass
 
             if data['progressed'][month - 1]:
-                x = round(data['progressed'][month - 1] * (month - 5), 5)
+                x = np.log(np.log(data['progressed'][month - 1])) * (month - 5)
+                data['progressed'][month - 1] = round(1 / (1 + np.power(math.e, -x)), 5)
+            else:
+                x = np.log(yearly) * (month - 5)
                 data['progressed'][month - 1] = round(1 / (1 + np.power(math.e, -x)), 5)
 
-        for i in range(1,12):
-            data['progressed'][i] += data['progressed'][i-1]
+        # for i in range(1,12):
+        #     data['progressed'][i] += data['progressed'][i-1]
 
     def get(self, request, *args, **kwargs):
         request_type = request.GET.get('request_type')
