@@ -10,6 +10,7 @@ urlpatterns = [
 
 	path('equipment/add', EquipmentCreateView.as_view(), name='equipment_create'),
 	path('<center_pk>/equipment/add', CenterEquipmentCreateView.as_view(), name='center_equipment_create'),
+	path('equipment/<pk>/rent/list', RentListView.as_view(), name='rent_list'),
 	path('equipment/<pk>/', EquipmentDetailsView.as_view(), name='equipment_details'),
 	path('equipment/<pk>/edit', EquipmentUpdateForm.as_view(), name='equipment_update'),
 	path('equipment/delete/<pk>', EquipmentDeleteView.as_view(), name='equipment_delete'),

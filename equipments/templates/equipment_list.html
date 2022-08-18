@@ -50,10 +50,10 @@
                             <tbody>
 
                             {% for obj in object_list %}
-                                <tr id="c-tr-{{ obj.id }}"style="background-color: whitesmoke">
+                                <tr id="c-tr-{{ obj.id }}" style="background-color: whitesmoke">
                                     <td class="align-middle text-center"><a href="{% url 'equipments:equipment_details' pk=obj.id %}">{{ obj.name }}</a></td>
                                     <td class="align-middle text-center">{{ obj.owner }}</td>
-                                    <td class="align-middle text-center">{{ obj.get_type_display }}</td>
+                                    <td class="align-middle text-center">{{ obj.type.name }}</td>
                                     <td class="align-middle text-center">{% if obj.is_rented %}اجاره(قابل رزرو){% else %}قابل اجاره{% endif %}</td>
                                 <td class="align-middle text-center">
                                     <div class="btn-group">

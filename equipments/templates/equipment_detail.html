@@ -58,6 +58,7 @@
 		<div class="title-action float-right">
             <div class="btn-group">
             <button onclick="$('#rent').modal();" class="btn btn-lg btn-outline-primary"><i class="fa fa-calendar"></i> اجاره/ رزرو</button>
+            <a href="{% url 'equipments:rent_list' pk=object.id %}" class="btn btn-lg btn-outline-success"><i class="fa fa-print"></i>گزارش هزینه ها</a>
                 {% has_perms user 'center;' as has_center_perm %}
                 {% has_perms user 'equipment;' as has_equipment_perm %}
                 {% if user.is_superuser or has_center_perm or has_equipment_perm %}
@@ -82,6 +83,7 @@
             <div class="card col-lg-9">
 <div><br></div>
                     <h3><strong>نام: </strong>{{ object.name }}</h3>
+                    <h3><strong>هزینه(نفر ساعت): </strong>{{ object.base_price }}</h3>
                     <h3><strong>توضیحات: </strong>{{ object.description }}</h3>
                     <h3><strong>تاریخ ایجاد: </strong>{{ object.created_at | j_format_date:"%Y/%m/%d"  }}</h3>
                     <h3><strong>مالک: </strong>{{ object.owner }}</h3>
@@ -149,6 +151,12 @@
                             <select name="borrower" id="borrower_name" class="select2 form-control">
                             </select>
                         </div>
+                    <div class="input-group mb-2">
+                      <div class="input-group-append">
+                        <span class="input-group-text required" id="name_label">اجاره برای( تعداد نفر): </span>
+                      </div>
+                      <input type="number" class="form-control" id="rent_for" aria-describedby="name_label">
+                    </div>
                     <div class="input-group mb-2">
 
                           <div class="input-group-append">
@@ -406,6 +414,7 @@
             var at,to,project_id,borrower_id,center_id;
             project_id = $('#project_name').val();
             borrower_id = $('#borrower_name').val();
+            rent_for = $('#rent_for').val();
             center_id = $('#center_name').val();
 
             if ($('#start_date').val() === '') {
@@ -427,6 +436,7 @@
                     'project_id': project_id,
                     'center_id': center_id,
                     'borrower_id': borrower_id,
+                    'rent_for': rent_for,
                     'at': at,
                     'to': to,
                 },

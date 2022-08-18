@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load jalali_date %}
+
+
+{% block head_title %}فهرست کاربران{% endblock %}
+
+{% block title-breadcrumb %}
+	<div class="col-md-10">
+    <br>
+    <br>
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a>مدیریت تجهیزات</a>
+			</li>
+			<li class="breadcrumb-item">
+                <a href="{% url 'equipments:equipment_list' %}">لیست تجهیزات</a>
+			</li>
+			<li class="breadcrumb-item">
+                <a href="{% url 'equipments:equipment_details' pk=equipment_id %}">{{ equipment_name }}</a>
+			</li>
+			<li class="breadcrumb-item active">
+                <a href="{% url 'equipments:rent_list' pk=equipment_id %}"><strong>گزارش هزینه ها</strong></a>
+			</li>
+		</ol>
+	</div>
+
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+    <div class="col-lg-12">
+            <div class="table-responsive">
+            <br>
+                        <table class="table table-striped table-bordered table-hover dataTables-example">
+                            <thead>
+                            <tr>
+                                <th class="text-center" style="background-color: white;width: 7%">ردیف</th>
+                                <th class="text-center" style="background-color: white">تاریخ درخواست</th>
+                                <th class="text-center" style="background-color: white">اجاره کننده</th>
+                                <th class="text-center" style="background-color: white">مرکز</th>
+                                <th class="text-center" style="background-color: white">پروژه</th>
+                                <th class="text-center" style="background-color: white">تعداد نفر</th>
+                                <th class="text-center" style="background-color: white">تاریخ شروع</th>
+                                <th class="text-center" style="background-color: white">تاریخ پایان</th>
+{#                                <th class="text-center" style="background-color: white">تاریخ تحویل</th>#}
+                                <th class="text-center" style="background-color: white">وضعیت</th>
+                                <th class="text-center" style="background-color: white">مجموع هزینه</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for obj in object_list %}
+                                <tr id="c-tr-{{ obj.id }}" style="background-color: whitesmoke">
+                                    <td class="align-middle text-center">{{ forloop.counter }}</td>
+                                    <td class="align-middle text-center">{{ obj.created_at | j_format_date:"%Y/%m/%d" }}</td>
+                                    <td class="align-middle text-center">{{ obj.borrower }}</td>
+                                    <td class="align-middle text-center">{{ obj.center }}</td>
+                                    <td class="align-middle text-center">{{ obj.project }}</td>
+                                    <td class="align-middle text-center">{{ obj.reserve_for }}</td>
+                                    <td class="align-middle text-center">{{ obj.at | j_format_date:"%Y/%m/%d" }}</td>
+                                    <td class="align-middle text-center">{{ obj.to | j_format_date:"%Y/%m/%d" }}</td>
+{#                                    <td class="align-middle text-center">{{ obj.returned_at | j_format_date:"%Y/%m/%d" }}</td>#}
+                                    <td class="align-middle text-center">{% if obj.is_reservation %}رزرو شده{% else %}اجاره شده{% endif %}</td>
+                                    <td class="align-middle text-center">{{ obj.total_price }}</td>
+                                </tr>
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+        </div>
+	</div>
+
+{% endblock %}
+
+{% block scripts %}
+	<link href="{% static 'vendors/datatables/css/datatables.min.css' %}" rel="stylesheet">
+    <script src="{% static 'vendors/datatables/js/datatables-equipment.min.js' %}"></script>
+	<script src="{% static 'vendors/datatables/js/datatables.bootstrap4.min.js' %}"></script>
+
+	<script>
+		var table;
+		$(document).ready(function () {
+			table = $('.dataTables-example').DataTable({
+				pageLength: 25,
+				responsive: true,
+				{#dom: '<"html5buttons"B>lTfgitp',#}
+				dom: 'lTfgitp',
+			});
+
+		});
+
+	</script>
+{% endblock %}
+

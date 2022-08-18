@@ -1,6 +1,8 @@
 import datetime
 
 from django.db import models
+from django.db.models import Q
+
 from accounts.models import Profile
 from centers.models import Center, Project
 
@@ -30,6 +32,7 @@ class Equipment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
 
     owner = models.ForeignKey(to=Center, on_delete=models.PROTECT, verbose_name='مرکز')
+    base_price = models.FloatField(default=0, verbose_name='هزینه( نفر ساعت)')
 
     type = models.ForeignKey(to=EquipmentType, on_delete=models.PROTECT, verbose_name='نوع')
 
@@ -40,7 +43,7 @@ class Equipment(models.Model):
 
     def check_if_out_of_rent(self):
         now = datetime.datetime.now()
-        rents = Rent.objects.filter(equipment=self, at__gte=now, to__lte=now)
+        rents = Rent.objects.filter(equipment=self).filter(Q(at__gte=now) | Q(to__lte=now))
         if rents.count():
             self.is_rented = True
             for rent in rents:
@@ -63,6 +66,8 @@ class Rent(models.Model):
     at = models.DateTimeField(verbose_name='شروع قرارداد اجاره')
     to = models.DateTimeField(verbose_name='سررسید قرارداد اجاره')
 
+    reserve_for = models.IntegerField(default=1, verbose_name='اچاره به ازای نفر')
+
     payment = models.FloatField(default=0, verbose_name='مبلغ قرارداد اجاره')
     paid = models.FloatField(default=0, verbose_name='مبلغ پرداخت شده')
 
@@ -72,3 +77,9 @@ class Rent(models.Model):
 
     def __str__(self):
         return f"{self.borrower}-{self.center.name}-{self.project.name}"
+
+    @property
+    def total_price(self):
+        diff = self.to - self.at
+        hours = diff.total_seconds() / 3600
+        return hours*self.reserve_for*self.equipment.base_price

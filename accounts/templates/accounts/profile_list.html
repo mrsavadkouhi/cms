@@ -161,7 +161,7 @@
                                         <!-- Modal body -->
                                         <div class="modal-body">
                                             <div class="col-lg-12 text-center">
-                                                <input type="password" id="password" placeholder="پسورد جدید را وارد نمایید.">
+                                                <input type="password" id="password-{{ obj.id }}" placeholder="پسورد جدید را وارد نمایید.">
                                             </div>
                                         </div>
 
@@ -321,7 +321,7 @@
                 url: "{% url 'centers:ajax' %}",
                 data: {
                     'request_type': 'profile_password_change',
-                    'new_password': $('#password').val(),
+                    'new_password': $(`#password-${id}`).val(),
                     'profile_id': id,
                 },
                 contentType: 'application/json; charset=utf-8',

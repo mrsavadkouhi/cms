@@ -28,6 +28,18 @@ class CenterEquipmentListView(LoginRequiredMixin, ListView):
         return Equipment.objects.filter(owner_id=self.request.resolver_match.kwargs['center_pk'])
 
 
+class RentListView(LoginRequiredMixin, ListView):
+    model = Rent
+    template_name = 'rent_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        equipment = Equipment.objects.get(id=self.request.resolver_match.kwargs['pk'])
+        context['equipment_id'] = equipment.id
+        context['equipment_name'] = equipment.name
+        return context
+
+
 class EquipmentListView(LoginRequiredMixin, ListView):
     model = Equipment
     template_name = 'equipment_list.html'
@@ -132,6 +144,7 @@ class AjaxHandler(TemplateView):
             project_id = request.GET.get('project_id')
             center_id = request.GET.get('center_id')
             borrower_id = request.GET.get('borrower_id')
+            rent_for = request.GET.get('rent_for')
             at = request.GET.get('at')
             to = request.GET.get('to')
 
@@ -159,8 +172,8 @@ class AjaxHandler(TemplateView):
             project = Project.objects.get(id=project_id)
 
             if equipment.is_rented:
-                Rent.objects.create(equipment=equipment, project=project, borrower=borrower, center=center, at=at, to=to)
+                Rent.objects.create(equipment=equipment, project=project, borrower=borrower, center=center, reserve_for=rent_for, at=at, to=to)
             else:
-                Rent.objects.create(equipment=equipment, project=project, borrower=borrower, center=center, at=at, to=to)
+                Rent.objects.create(equipment=equipment, project=project, borrower=borrower, center=center, reserve_for=rent_for, at=at, to=to, is_reservation=False)
 
         return JsonResponse(data)

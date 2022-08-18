@@ -87,6 +87,12 @@
                 </div>
                 <div class="input-group mb-2">
                   <div class="input-group-append">
+                    <span class="input-group-text required" id="name_label">هزینه(نفر ساعت): </span>
+                  </div>
+                  <input type="number" class="form-control" value="{{ object.base_price }}" name="base_price" aria-describedby="name_label">
+                </div>
+                <div class="input-group mb-2">
+                  <div class="input-group-append">
                     <span class="input-group-text" id="description_label">توضیحات: </span>
                   </div>
                     <textarea type="text" class="form-control" name="description" aria-describedby="description_label">{{ object.description }}</textarea>
