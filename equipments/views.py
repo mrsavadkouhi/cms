@@ -35,6 +35,7 @@ class RentListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         equipment = Equipment.objects.get(id=self.request.resolver_match.kwargs['pk'])
+        context['object_list'] = Rent.objects.filter(equipment=equipment)
         context['equipment_id'] = equipment.id
         context['equipment_name'] = equipment.name
         return context

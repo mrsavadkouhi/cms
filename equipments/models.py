@@ -43,7 +43,7 @@ class Equipment(models.Model):
 
     def check_if_out_of_rent(self):
         now = datetime.datetime.now()
-        rents = Rent.objects.filter(equipment=self).filter(Q(at__gte=now) | Q(to__lte=now))
+        rents = Rent.objects.filter(equipment=self, to__gte=now)
         if rents.count():
             self.is_rented = True
             for rent in rents:
