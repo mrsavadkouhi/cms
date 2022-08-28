@@ -41,6 +41,31 @@ class RentListView(LoginRequiredMixin, ListView):
         return context
 
 
+class TypeListView(LoginRequiredMixin, ListView):
+    model = EquipmentType
+    template_name = 'type_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        types = EquipmentType.objects.all()
+        data = []
+        for type in types:
+            costs = 0
+            hours = 0
+            equipments = type.equipment_set.all()
+            for equipment in equipments:
+                rents = equipment.rent_set.all()
+                for rent in rents:
+                    if not rent.is_reservation:
+                        costs += rent.total_price
+                        hours += rent.total_hours
+
+            data.append((type.name, costs, hours))
+
+        context['object_list'] = data
+        return context
+
+
 class EquipmentListView(LoginRequiredMixin, ListView):
     model = Equipment
     template_name = 'equipment_list.html'

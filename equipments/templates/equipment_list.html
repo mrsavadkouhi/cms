@@ -20,6 +20,8 @@
 	</div>
 
 	<div class="col-md-2">
+    <div class="title-action float-right">
+            <div class="btn-group">
     {% if in_center %}
 		<div class="title-action float-right">
             <a href="{% url 'equipments:center_equipment_create' user.profile.get_user_center %}" class="btn btn-outline-primary"><i class="fa small fa-plus"></i> <i class="fa fa-wrench"></i> افزودن تجهیزات جدید</a>
@@ -29,6 +31,11 @@
             <a href="{% url 'equipments:equipment_create' %}" class="btn btn-outline-primary"><i class="fa small fa-plus"></i> <i class="fa fa-wrench"></i> افزودن تجهیزات جدید</a>
 		</div>
     {% endif %}
+        <div class="title-action float-right">
+            <a href="{% url 'equipments:type_list' %}" class="btn btn-outline-danger"><i class="fa fa-print"></i> گزارش انواع تجهیزات</a>
+		</div>
+	</div>
+	</div>
 	</div>
 {% endblock %}
 

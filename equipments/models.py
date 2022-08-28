@@ -83,3 +83,9 @@ class Rent(models.Model):
         diff = self.to - self.at
         hours = diff.total_seconds() / 3600
         return hours*self.reserve_for*self.equipment.base_price
+
+    @property
+    def total_hours(self):
+        diff = self.to - self.at
+        hours = diff.total_seconds() / 3600
+        return hours
