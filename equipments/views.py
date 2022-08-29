@@ -50,17 +50,33 @@ class TypeListView(LoginRequiredMixin, ListView):
         types = EquipmentType.objects.all()
         data = []
         for type in types:
-            costs = 0
+            total_costs = 0
             hours = 0
             equipments = type.equipment_set.all()
             for equipment in equipments:
                 rents = equipment.rent_set.all()
                 for rent in rents:
                     if not rent.is_reservation:
-                        costs += rent.total_price
+                        total_costs += rent.total_price
                         hours += rent.total_hours
 
-            data.append((type.name, costs, hours))
+            days = hours//24
+            months = days//30
+            years = months//12
+            try:
+                daily_cost = total_costs/days
+            except:
+                daily_cost = 'تعداد داده های ناکافی'
+            try:
+                monthly_cost = total_costs/months
+            except:
+                monthly_cost = 'تعداد داده های ناکافی'
+            try:
+                yearly_cost = total_costs/years
+            except:
+                yearly_cost = 'تعداد داده های ناکافی'
+
+            data.append((type.name, daily_cost, monthly_cost, yearly_cost, total_costs, hours))
 
         context['object_list'] = data
         return context

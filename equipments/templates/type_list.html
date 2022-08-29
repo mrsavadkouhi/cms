@@ -34,17 +34,23 @@
                             <tr>
                                 <th class="text-center" style="background-color: white;width: 7%">ردیف</th>
                                 <th class="text-center" style="background-color: white">نوع دستگاه</th>
+                                <th class="text-center" style="background-color: white">هزینه روزانه(تومان)</th>
+                                <th class="text-center" style="background-color: white">هزینه ماهانه(تومان)</th>
+                                <th class="text-center" style="background-color: white">هزینه سالانه(تومان)</th>
                                 <th class="text-center" style="background-color: white">مجموع هزینه(تومان)</th>
                                 <th class="text-center" style="background-color: white">مجموع کارکرد(ساعت)</th>
                             </tr>
                             </thead>
                             <tbody>
 
-                            {% for type,costs,hours in object_list %}
+                            {% for type, daily_cost, monthly_cost, yearly_cost, total_costs, hours in object_list %}
                                 <tr id="c-tr-{{ obj.id }}" style="background-color: whitesmoke">
                                     <td class="align-middle text-center">{{ forloop.counter }}</td>
                                     <td class="align-middle text-center">{{ type }}</td>
-                                    <td class="align-middle text-center">{{ costs }}</td>
+                                    <td class="align-middle text-center">{{ daily_cost }}</td>
+                                    <td class="align-middle text-center">{{ monthly_cost }}</td>
+                                    <td class="align-middle text-center">{{ yearly_cost }}</td>
+                                    <td class="align-middle text-center">{{ total_costs }}</td>
                                     <td class="align-middle text-center">{{ hours }}</td>
                                 </tr>
                             {% endfor %}
